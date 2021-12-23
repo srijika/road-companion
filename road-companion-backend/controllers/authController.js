@@ -1,0 +1,1862 @@
+const db = require('../_helper/db');
+const UserLogins = db.UserLogins;
+const Profile = db.Profile;
+const otp = db.Otp;
+const accessTokenSecret = require('../config.json').jwd_secret;
+var ROLES = require('../config.json').ROLES;
+const jwt = require('jsonwebtoken');
+let mongoose = require('mongoose')
+const SendNotification = require('../_helper/send-notification.js');
+var request = require('request');
+var path = require('path')
+var nodemailer = require('nodemailer');
+let bcrypt = require('bcrypt');
+var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'mail786tester@gmail.com',
+        pass: 'oaelwbhhckizzoce'
+    }
+}); 
+
+let adminEmail = "admin@galinukkad.com";
+const Helper = require('../core/helper');
+const sharp = require('sharp');
+var path = require('path');
+var fs = require('fs');
+var request = require('request');
+const excel = require('exceljs');
+
+let saltRounds = 10;
+notEmpty = (obj) => {
+    let t = Object.keys(obj).filter(i => (obj[i] == undefined || obj[i].toString().length == 0));
+    console.log("t", t)
+    if (t.length > 0) {
+        return false;
+    } else {
+        return true;
+    }
+};
+let api_key = "3bc27ef827668484358972ef4d81183c28b5867e64b29cdf";
+let api_token = "51c9d0e8d625d2181e37f6de5a263020d17a4561829dfe81"
+let s_id = "galinukkad1";
+let subdomain = "@api.exotel.com";
+
+
+
+let block_user_messsage = `Your Account has been deactivated.`;
+
+function sendSms(mobile_number, msg_body) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const apiData = `From=08047187076&To=${mobile_number}&Body=${msg_body}`;
+            const url = `https://${api_key}:${api_token}${subdomain}/v1/Accounts/${s_id}/Sms/send`;
+
+            request({
+                url: url,
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: apiData
+            }, (err, response) => {
+                console.log('EEEEEEEE', err, response.statusCode, response.body)
+                if (!err && response.statusCode == 200) {
+                    return resolve(true);
+                } else {
+                    return resolve(false);
+                }
+            });
+        } catch (error) {
+            return resolve(false);
+        }
+    });
+}
+
+module.exports = {
+
+    sendsms: async (req, res, next) => {
+        const f = await sendSms(req.body.phone, generateOTP() + ' is your OTP for Login Transaction on Galinukkad and valid till 10 minutes. Do not share this OTP to anyone for security reasons.');
+        res.send({ status: f, message: f ? 'SMS sent successfully' : 'Something went wrong, when sent SMS' });
+    },
+
+   
+    signup: async (req, res, next) => {
+
+
+        try {
+            const {
+                name,
+                email,
+                password,
+                roleType,
+                mobile_number,
+                avatar,
+
+            } = req.body;
+
+            const d = new Date();
+
+            if (!name)
+                return res.send({ status: 400, message: "name is required" });
+
+            if (!email)
+                return res.send({ status: 400, message: "Email is required" });
+
+            if (!password)
+                return res.send({ status: 400, message: "Password is required" });
+
+            if (!mobile_number)
+                return res.send({ status: 400, message: "Mobile No. is required" });
+
+            if (!roleType || ROLES.indexOf(roleType) == -1)
+                return res.send({ status: false, message: "Role is not valid" });
+
+
+            const hash = bcrypt.hashSync(password, saltRounds);
+
+            const userOtp = generateOTP();
+            const mobileOtp = generateOTP();
+
+            const data = {
+                email: email,
+                username: name,
+                password: hash, 
+                roles: roleType,
+                mobile_number: mobile_number,
+                otp: userOtp,
+                avatar:avatar,
+            };
+
+            
+            const isUser = await UserLogins
+                .findOne({ $or: [{ email: email },  { mobile_number: mobile_number }] })
+                .lean().exec();
+            if (isUser) {
+                let msg = 'This';
+                if (isUser.email === email) {
+                    msg += ' Email';
+                }  else if (isUser.mobile_number === mobile_number) {
+                    msg += ' Mobile No';
+                }
+                msg += ' is already registered';
+
+                return res.send({ status: 400, message: msg });
+            }
+
+            const userLoginCreate = await (new UserLogins(data)).save();
+            let isUser1 = await UserLogins.findOne({ $or: [{ email: userLoginCreate.email }] }).lean().exec();
+            isUser1 = { username: isUser1.email, _id: isUser1._id, time: new Date().getTime(), role: isUser1.roles };
+
+            const accessToken = jwt.sign(isUser1, accessTokenSecret);
+ 
+            let msg_body = 'Hi, <br />';
+            msg_body += 'Your account has been added on Choovoo Barber Website <br />';
+            msg_body += 'Please find below your login credentials:<br />';
+            msg_body += 'Username: ' + name + '<br />';
+            msg_body += 'Email: ' + email + '<br />';
+            msg_body += 'Password: ' + password + '<br />';
+            msg_body += '<br />Thanks,<br />Choovoo Barber Team';
+
+            // email sending
+
+            await Helper.sendEmail(email, 'New Signup', msg_body);
+            return res.send({ status: 200, user_id: userLoginCreate._id,accessToken:accessToken, message: `${roleType} Sign Up Successfully`});
+
+
+        } catch (error) {
+          
+          
+            if (error.errmsg && error.errmsg.indexOf('E11000') > -1) {
+                return res.send({ status: 403, message: "User Already Exist, Please try with other username or email" })
+            }
+
+            return res.send({ status: 400, message: error.message })
+        }
+    },
+
+    sendOtp: async (req, res, next) => {
+        try {
+
+            const { email } = req.body;
+            if (!email)
+            return res.send({ status: false, message: "Email is required" });
+
+            const isUser = await UserLogins.findOne({ $or: [{ email: email }] }).lean().exec();
+             if (isUser) { 
+                return res.status(400).send({ status: 400, message: `User Already Exists!` });
+
+             }
+
+            const userOtp = generateOTP();
+
+            let msg_body = 'Hi, <br />';        
+            msg_body += 'And your OTP(One Time Password) is ' + userOtp;
+            msg_body += '<br />Thanks,<br />Choovoo Barber Team';
+
+            // email sending
+            await Helper.sendEmail(email, 'New Signup', msg_body);
+            return res.status(200).send({ status: 200, Otp: userOtp });
+        }
+
+        catch(error){
+           
+            return res.status(400).send({ status: 400, err: e.message })
+        }
+
+    },
+    
+    verifyOtp: async (req, res, next) => {
+        try {
+            const { mobile_number, userName, email, otp } = req.body;
+            let isUser;
+
+
+            if (!email && !userName && !mobile_number) {
+                return res.send({ status: false, message: "Required parameter missing, Please provide email  or mobile number" });
+            }
+
+            if (!otp) {
+                return res.send({ status: false, message: "OTP is required" });
+            }
+
+            if (email || userName) {
+                 isUser = await UserLogins.findOne({ $or: [{ email: email }, { username: userName }] }).lean().exec();
+                if (!isUser) {
+                    return res.send({ status: false, message: "User not found" });
+                }
+
+                if (isUser.otp == otp || isUser.mobile_otp == otp) {
+                    await UserLogins.findByIdAndUpdate(isUser._id, { isEmailVerified: true  ,  user_status: true   });
+
+                    if (isUser.roles !== ROLES[3]) {
+                        const accessToken = jwt.sign(isUser, accessTokenSecret);
+                        return res.send({ status: true, message: "OTP Verified", accessToken: accessToken  , userId : isUser._id});
+                    } else {
+                        const userData = { username: isUser.email, _id: isUser._id, time: new Date().getTime(), role: isUser.roles };
+                        const accessToken = jwt.sign(isUser, accessTokenSecret);
+
+                        await UserLogins.findByIdAndUpdate(isUser._id, { $inc: { no_of_loggedin: 1 }, last_login_time: new Date() });
+                        return res.send({ status: true, user: userData, accessToken: accessToken });
+                    }
+
+                } else {
+                    return res.send({ status: false, message: "OTP Not Verified" });
+                }
+
+            } else if (mobile_number) {
+                const isUser = await UserLogins.findOne({ mobile_number: mobile_number }).lean().exec();
+
+                if (!isUser) {
+                    return res.send({ status: false, message: "User not found" });
+                }
+
+
+                if (isUser.mobile_otp === otp) {
+                    await UserLogins.findByIdAndUpdate(isUser._id, { isMobileVerified: true });
+
+                    if (isUser.roles !== ROLES[3]) {
+                        const accessToken = jwt.sign(isUser, accessTokenSecret);
+                        return res.send({ status: true, message: "OTP Verified", accessToken: accessToken  , userId : isUser._id});
+                    } else {
+                        const userData = { username: isUser.email, _id: isUser._id, time: new Date().getTime(), role: isUser.roles };
+                        const accessToken = jwt.sign(isUser, accessTokenSecret);
+
+                        await UserLogins.findByIdAndUpdate(isUser._id, { $inc: { no_of_loggedin: 1 }, last_login_time: new Date() });
+                        return res.send({ status: true, user: userData, accessToken: accessToken });
+                    }
+
+                } else {
+                    return res.send({ status: false, message: "OTP Not Verified" });
+                }
+            } else {
+                return res.send({ status: false, message: "Something went wrong" });
+            }
+
+         
+        } catch (e) {
+            console.log(e)
+            return res.send({ status: false, err: e.message })
+        }
+    },
+
+
+
+    login: async (req, res, next) => {
+      
+        const {  username, password, isOtp } = req.body;
+
+        if (!isOtp) {
+            res.send({ status: false, message: "please provide isOtp" });
+        } else {
+            if (isOtp == 0) {    // if is otp is false
+                UserLogins.findOne({ $or: [{ email: username },] }).then((data) => {
+
+                    if (data && data._id) {
+
+                       
+                        let user_detail = data;
+                        
+                        let user = { username: data.email, _id: data._id, time: new Date().getTime(), role: data.roles };
+                        const accessToken = jwt.sign(user, accessTokenSecret);
+
+                        let compare = bcrypt.compareSync(password, data.password);
+                        if (!compare) {
+                            if (data.password === password) {
+                                UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({});
+                                res.json({
+                                    status: true,
+                                    accessToken,
+                                    user: data,
+                                    user_detail:user_detail,
+                                });
+                                return;
+                            }
+                            res.send({ status: false, message: "Invalid password!" });
+                        } else {
+                            UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({})
+                            return res.json({
+                                status: true,
+                                accessToken,
+                                user,
+                                user_detail:user_detail,
+                            });
+                        }
+
+                    } else {
+                        res.send({ status: false, message: "email not found" });
+                    }
+                })
+            } else if (isOtp == 1) { // if login by otp is true
+                // let otp = Math.floor(1000 + Math.random() * 9000);
+                console.log('otp is not false')
+                let otp = generateOTP();
+
+                if (username) {
+                    UserLogins.findOne({ $or: [{ email: username }] }).then((data) => {
+                        UserLogins.updateOne({ email: username }, { $set: { otp: otp } }).then(user => {
+                            var mailOptions = {
+                                from: 'no-reply@gmail.com',
+                                to: username,
+                                subject: 'New Signup',
+                                text: `Your one time otp is ${otp}`
+                            };
+                            transporter.sendMail(mailOptions, function (error, info) {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    console.log('Email sent: ' + info.response);
+                                }
+                            });
+                            res.send({ status: true, message: "Otp sent!" })
+                            return;
+                        }).catch(err => {
+                            res.send({ status: false, err: "An Error Occured" })
+                            return;
+                        })
+                    }).catch(err => {
+                        res.send({ status: false, err: "An Error Occured" })
+                        return;
+                    });
+
+                } else if (mobile_number) {
+                    UserLogins.findOne({ $or: [{ mobile_number: mobile_number }] }).then((data) => {
+                        UserLogins.updateOne({ mobile_number: mobile_number }, { $set: { otp: otp } }).then(async user => {
+                            await sendSms(mobile_number, generateOTP() + ' is your OTP for Login Transaction on Galinukkad and valid till 10 minutes. Do not share this OTP to anyone for security reasons.');
+
+                           
+                            res.send({ status: true, message: "Otp sent!" })
+                            return;
+                        }).catch(err => {
+                            res.send({ status: false, err: "An Error Occured" })
+                            return;
+                        })
+                    }).catch(err => {
+                        res.send({ status: false, err: "An Error Occured" })
+                        return;
+                    });
+                }
+            }
+        }
+    },
+
+    loginUser: async (req, res, next) => {
+        const {  username, password } = req.body;
+        console.log(req.body)
+        // return;
+
+                UserLogins.findOne({ $or: [{ email: username }] }).then((data) => {
+
+                    if (data && data._id) {
+
+                        let user_detail = data;
+                        let user = {mobile_number: data.mobile_number ,avatar: data.avatar, email : data.email, name: data.username, _id: data._id, time: new Date().getTime(), role: data.roles };
+                        const accessToken = jwt.sign(user, accessTokenSecret);
+
+                        let compare = bcrypt.compareSync(password, data.password);
+                        if (!compare) {
+                            if (data.password === password) {
+                                UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({});
+                                res.json({
+                                    status: true,
+                                    accessToken,
+                                    user,
+                                   
+                                });
+                                return;
+                            }
+                            res.send({ status: 400, message: "Invalid password!" });
+                        } else {
+                            UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({})
+                            return res.json({
+                                status: true,
+                                accessToken,
+                                user,
+                                
+                            });
+                        }
+
+                    } else {
+                        res.send({ status: 400, message: "email not found" });
+                    }
+                })
+
+    },
+
+    socialLogin: async (req, res, next) => {
+        // try {
+            const { type, socialid, email, username, profile_link, ip_address } = req.body;
+            // let user = await UserLogins.findOne({ $or: [{ email: email }, { username: username }] });
+            let user = await UserLogins.findOne({ email: email });
+            console.log(user)
+            if (!user) { // if user is not available
+                let role_type = "CUSTOMER";
+                let password = generateOTP();
+                const hash = bcrypt.hashSync(password, saltRounds);
+
+                let createData = { username: username, email: email, password: hash, roles: role_type, socialid: socialid, type_login: type, ip_address: ip_address, isEmailVerified: true, mobile_number: "" };
+
+                console.log(createData);
+
+                UserLogins.create(createData).then((data) => {
+
+                    Profile.create({ email: email, name: username, phone: '', gender: '', dob: new Date(), photo: profile_link, loginid: data._id }).then((profile) => {
+                        let user = { username: data.username, email: data.email, _id: data._id, time: new Date().getTime(), role: role_type }
+                        const accessToken = jwt.sign(user, accessTokenSecret);
+                        res.send({
+                            status: true,
+                            accessToken,
+                            user
+                        });
+                    })
+                });
+            } else { // if user is available
+                let token = { username: user.email, _id: user._id, time: new Date().getTime(), role: user.roles }
+                const accessToken = jwt.sign(token, accessTokenSecret);
+                res.send({
+                    status: true,
+                    accessToken,
+                    user
+                });
+            }
+        // } catch (e) {
+        //     console.log(e)
+        //     return res.send({ status: false, err: e.message });
+        // }
+    },
+
+    
+
+        
+    userActive: async (req, res, next) => {
+        let _id = req.body._id
+
+       
+        let isuser = await UserLogins.findById({ _id});
+        if(isuser)
+        {
+            if(isuser.user_status === "active"){
+                res.status(200).send({
+                    status:true , user_status: isuser.user_status
+    
+                  });
+            }else{
+                res.send({
+                    status:false ,
+                  });
+            }
+        }else{
+            res.send({
+                status:false ,
+              });
+        }
+    
+
+
+},
+
+
+    sendOtpToUser: async (req, res, next) => {
+        try {
+            const reqBody = req.body;
+            const Email = reqBody.email;
+            const Username = reqBody.username;
+            const mobileNumber = reqBody.mobile_number;
+
+            if (!Email && !Username && !mobileNumber) {
+                return res.send({ status: false, message: "Required parameter missing, Please provide email username or mobile number" });
+            }
+
+            const userOtp = generateOTP();
+
+            if (Email || Username) {
+                const isUser = await UserLogins.findOne({ $or: [{ email: Email }, { username: Username }] });
+                if (!isUser) {
+                    return res.send({ status: false, message: "User not found" });
+                }
+
+                if(isUser && isUser.deactive) {
+                    return res.send({ status: false, message: block_user_messsage });
+                }
+                
+
+                let msg_body = `Hi, ${isUser.username} <br />`;
+                msg_body += 'Your One Time Password is ' + userOtp;
+                msg_body += '<br />Thanks,<br />Gali Nukkad Team';
+
+                await UserLogins.findByIdAndUpdate(isUser._id, { otp: userOtp }).lean().exec();
+                Helper.sendEmail(isUser.email, "OTP Verification", msg_body);
+
+                return res.send({ status: true, message: "OTP send to your email" });
+            } else if (mobileNumber) {
+                const isUser = await UserLogins.findOne({ mobile_number: mobileNumber });
+
+                 if(isUser && isUser.deactive) {
+                return res.send({ status: false, message: block_user_messsage });
+            }
+
+                if (!isUser) {
+                    return res.send({ status: false, message: "User not found" });
+                }
+
+                await sendSms(mobileNumber, `${userOtp} is your OTP for Login Transaction on Galinukkad and valid till 10 minutes. Do not share this OTP to anyone for security reasons.`);
+
+                await UserLogins.findByIdAndUpdate(isUser._id, { mobile_otp: userOtp }).lean().exec();
+                return res.send({ status: true, message: "OTP send to your Phone No." });
+            } else {
+                return res.send({ status: false, message: "Something went wrong" });
+            }
+
+        } catch (error) {
+            return res.send({ status: false, err: e.message });
+        }
+    },
+
+
+    
+
+    sendOtpCustomer: async (req, res, next) => {
+
+        console.log(req.body);
+        try {
+
+            let { phone, email } = req.body;
+
+            let mobileVerified = await UserLogins.findOne({ mobile_number: phone, isMobileVerified: true });
+
+            if(mobileVerified) {
+                return res.send({ status: false, message: "Mobile number already registered." });    
+            }
+
+            let user = await UserLogins.find({ email: email });
+            if(user) {
+                const generated_otp = generateOTP();
+                await sendSms(phone, generated_otp + ' is your OTP for Login Transaction on Galinukkad and valid till 10 minutes. Do not share this OTP to anyone for security reasons.');
+
+                let set_update = {
+                    mobile_otp: generated_otp,
+                    mobile_number: phone,
+                }
+
+                let user_login_id = await UserLogins.updateOne({ email: email }, { $set: set_update }).then({});
+
+                return res.send({ status: true, message: "OTP has been send successfully." });    
+            }
+        }catch(e) {
+            console.log(e);
+            return res.send({ status: false, message: e.message });
+        }
+    },
+
+
+    verifyOTPCustomer: async (req, res, next) => {
+
+        
+        try {
+
+            let { phone, email, mobile_otp } = req.body;            
+            console.log(req.body);  
+
+            let user_find = await UserLogins.find({ email: email, mobile_otp: mobile_otp });
+
+            if(user_find != undefined && user_find != "" && user_find != null) {
+                await UserLogins.updateOne({ email: email, mobile_number: phone, mobile_otp: mobile_otp }, { $set: { isMobileVerified: true } }).then({});
+                return res.send({ status: true, message: "Mobile number verified successfully" });
+            }else {
+                return res.send({ status: false, message: "Please enter valid otp" });
+            }
+        }catch(e) {
+            console.log(e);
+            return res.send({ status: false, message: e.message });
+        }
+    },
+
+    
+    userActiveDeactiveStatus: async (req, res, next) => {
+        try {
+            let {id} = req.body;
+            
+            UserLogins.findById(id, function(err, data) {
+               data.user_status = !data.user_status;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
+                data.save((err, result) => {
+                    if (result) {
+                        return res.send({ status: true, message: "User action changed successfully" });       
+                      } else {
+                        return res.send({ status: false, message: err });
+                      }
+                })
+            });
+
+        }catch(e) {
+            console.log(e);
+            return res.send({ status: false, message: e.message });
+        }
+    },
+
+
+    maintenanceMode: async (req, res, next) => {
+        try {
+            let {id} = req.body;
+
+
+            UserLogins.findById(id, function(err, data) {   
+                data.maintenance_mode_for_user = !data.maintenance_mode_for_user;
+
+                console.log(data.maintenance_mode_for_user);
+                data.save((err, result) => {
+                    if (result) {
+                        return res.send({ status: true, message: "User action changed successfully" });
+                      } else {
+                        return res.send({ status: false, message: err });
+                      }
+                })
+            });
+
+        }catch(e) {
+            console.log(e);
+            return res.send({ status: false, message: e.message });
+        }
+    },
+
+    
+
+     
+
+    getalluser: async (req, res, next) => {
+
+        try {
+            const reqBody = req.body;
+            const Limit = reqBody.limit ? parseInt(reqBody.limit) : 10;
+            const PageNo = reqBody.page ? parseInt(reqBody.page) : 0;
+            const sortColumn = reqBody.sortColumn ? reqBody.sortColumn : 'updated';
+            const sortType = reqBody.sortType ? (reqBody.sortType == 'asc' ? 1 : -1) : -1;
+            let role = reqBody.role;
+
+            if (role && !ROLES.includes(role)) {
+                return res.send({ status: false, message: "Not valid role" });
+            }
+
+            const MATCH = {};
+            MATCH.$or = [];
+            MATCH.$and = [];
+
+            if (role) {
+                MATCH.$and.push({ roles: role });
+            }
+
+            if (!MATCH.$or.length) { delete MATCH.$or; }
+            if (!MATCH.$and.length) { delete MATCH.$and; }
+
+            const data = await UserLogins.aggregate([
+                { $lookup: { from: 'profiles', localField: '_id', foreignField: "loginid", as: "profileInfo" } },
+                { $lookup: { from: 'shops', localField: '_id', foreignField: "user_id", as: "shopInfo" } },
+
+                { $unwind: { path: '$profileInfo', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        roles: 1,
+                        id: 1,
+                        email: 1,
+                        gstin: 1,
+                        fssai: 1,
+                        mobile_number: 1,
+                        isEmailVerified: 1,
+                        username: 1,
+                        'shop_name': "$shopInfo.shop_name",
+ 
+                        'name': "$profileInfo.name",
+                        'photo': "$profileInfo.photo",
+                        'create': "$profileInfo.create",
+                        'updated': "$profileInfo.updated",
+                        user_status: 1,
+                    }
+                },
+                { $match: MATCH }, 
+                { $sort: { [sortColumn]: sortType } },
+                { $skip: (Limit * PageNo) },
+                { $limit: Limit }
+            ]);
+
+            const countUser = await UserLogins.aggregate([
+                { $lookup: { from: 'profiles', localField: '_id', foreignField: "loginid", as: "profileInfo" } },
+                { $unwind: { path: '$profileInfo', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        roles: 1,
+                        id: 1,
+                        email: 1,
+                        gstin: 1,
+                        fssai: 1,
+                        mobile_number: 1,
+                        isEmailVerified: 1,
+                        isBussinessVerified: 1,
+                        username: 1,
+                        'name': "$profileInfo.name",
+                        'photo': "$profileInfo.photo",
+                        'create': "$profileInfo.create",
+                        'user_status': {
+                            $cond: {
+                                if: { $eq: ["$user_status", "deactive"] },
+                                then: "deactive",
+                                else: "active"
+                            }
+                        },
+                    }
+                },
+                { $match: MATCH },
+            ]);
+
+
+            return res.send({ status: true, data: data, total: countUser.length, message: 'Users get successfully' });
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    deleteuser: async (req, res, next) => {
+        try {
+            const { _id } = req.body;
+            if (!_id) {
+                res.send({ status: false, message: "Not valid id" });
+                return;
+            }
+
+            const deleteUser = await UserLogins.findByIdAndDelete(_id);
+            if (!deleteUser) {
+                return res.send({ status: false, message: 'User not found' })
+            }
+            const deleteProfile = await Profile.findOneAndDelete({ loginid: _id });
+            return res.send({ status: true, message: 'User deleted successfully' });
+
+        } catch (error) {
+            return res.send({ status: false, message: error.message })
+        }
+    },
+
+    forgotpassword: async (req, res, next) => {
+        try {
+            const { username } = req.body;
+            const newOtp = generateOTP();
+
+            if (!username) {
+                return res.send({ status: false, message: "please provide email" });
+            }
+
+            const isUser = await UserLogins.findOne({ $or: [{ email: username }] });
+
+            if (!isUser) {
+                return res.send({ status: false, message: "User not found" });
+            }
+            if(isUser && isUser.deactive) {
+                return res.send({ status: false, message: block_user_messsage });
+            }
+
+            if(isUser.deactive && isUser.roles != "ADMIN") {
+                return res.send({ status: false, message: block_user_messsage });   
+            }
+
+            const isOtp = await otp.findOneAndUpdate({ loginid: isUser._id }, { $inc: { attempt: 1 }, otp: newOtp });
+
+            if (!isOtp) {
+                const json = { loginid: isUser._id, otp: newOtp };
+                await (new otp(json)).save();
+            }
+
+            Helper.sendEmail(isUser.email, `Your Verification code`, `Your verification code to reset your password is ${newOtp}.`);
+            return res.send({ status: true, message: "Otp sent to your email address" });
+
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+
+
+    },
+
+    forgotpasswordmobile: async (req, res, next) => {
+        try {
+            const { username } = req.body;
+            const newOtp = generateOTP();
+
+            if (!username) {
+                return res.send({ status: 400, message: "please provide email" });
+            }
+
+            const isUser = await UserLogins.findOne({ $or: [{ email: username }] });
+
+            if (!isUser) {
+                return res.send({ status: 400, message: "User not found" });
+            }
+            if(isUser && isUser.deactive) {
+                return res.send({ status: 400, message: block_user_messsage });
+            }
+
+            if(isUser.deactive && isUser.roles != "ADMIN") {
+                return res.send({ status: 400, message: block_user_messsage });   
+            }
+
+            const isOtp = await otp.findOneAndUpdate({ loginid: isUser._id }, { $inc: { attempt: 1 }, otp: newOtp });
+
+            if (!isOtp) {
+                const json = { loginid: isUser._id, otp: newOtp };
+                await (new otp(json)).save();
+            }
+
+            let msg_body = `Hi, ${isUser.username}<br />`;
+            msg_body += 'Please hit the Below link <br />';
+            msg_body += `<a href="http://13.234.31.171/api/resetPasswordView/mobile?q=${isUser._id}">reset password</a>:<br />`;
+
+
+
+
+            await Helper.sendEmail(isUser.email, 'Reset Password', msg_body);
+
+            return res.send({ status: 200, message: "Otp sent to your email address" });
+
+        } catch (error) {
+            return res.send({ status: 400, message: error.message });
+        }
+
+ 
+    },
+
+    
+
+    recoverpassword: async (req, res, next) => { 
+        try {
+
+
+           
+            const { username, old_password, password, otpchk } = req.body;
+       
+
+           
+            if (!username || !password || !otpchk) {
+                return res.send({ status: false, message: "please provide required params" })
+            }
+
+            const isUser = await UserLogins.findOne({ $or: [{ email: username }, { username: username }] });
+
+            if (!isUser) {
+                return res.send({ status: false, message: "User not found" });
+            }
+
+            let current_password = isUser.password;
+            console.log(otpchk);
+         
+ 
+if(old_password === undefined){
+
+    let otpverify = await otp.findOne({ loginid: isUser._id, otp: otpchk })
+    if(otpverify){
+        const hashPassword = bcrypt.hashSync(password, saltRounds);
+        await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
+        await otp.deleteOne({loginid : isUser._id}, { otp: otpchk });
+
+    
+        return res.send({ status: true, message: 'Password updated successfully' });
+    }else{
+        return res.send({ status: false, message: 'Otp Not valid' });
+
+    }
+
+
+
+   
+
+
+}else{
+
+    const checkPassword = await bcrypt.compare(old_password, current_password);
+    console.log(checkPassword);
+    if(checkPassword == false) {
+        return res.send({ status: false, message: 'Current password not matched for your old password' });    
+    }
+
+
+    const hashPassword = bcrypt.hashSync(password, saltRounds);
+    await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
+
+    return res.send({ status: true, message: 'Password updated successfully' });
+
+}
+
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+
+        // UserLogins.findOne({ $or: [{ email: username }, { username: username }] }).then(data => {
+
+        //     if (data && data._id) {
+        //         let newotp = generateOTP()
+
+        //         otp.find({ loginid: data._id, otp: otpchk }).then(otpdata => {
+        //             if (otpdata.length > 0) {
+        //                 UserLogins.update({ $or: [{ email: username }, { username: username }] }, { password: password }).then(d => {
+
+        //                     res.send({ status: true, message: "Updated" })
+        //                 })
+        //             } else {
+        //                 res.send({ status: false })
+        //             }
+        //         })
+
+        //     }
+
+        // })
+    },
+    recoverpasswordfrommobile: async (req, res, next) => { 
+        try {
+
+            const {id, password, confirm_password} = req.body;
+
+             if (!password ) {
+                return res.send({ status: false, message: "please provide required params" })
+            }
+
+            if(password === confirm_password) {
+                const isUser = await UserLogins.findOne({ $or: [{ _id: id }] });
+
+            if (!isUser) {
+                return res.send({ status: false, message: "User not found" });
+            }
+
+            let current_password = isUser.password;
+
+            const hashPassword = bcrypt.hashSync(password, saltRounds);
+            await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
+            return res.send({ status: true, message: 'Password updated successfully Please Login !' });
+            }else{
+                return res.send({ status: true, message: 'Password and Confirm password does not match!' });
+            }
+            
+
+
+        }
+        catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+
+
+
+    },
+    recoverpasswordmobileview : async ( req, res, next ) => {
+        
+        const { q } = req.query;
+
+         res.render('resetPassword',{
+            id: q,
+          });
+     
+    },
+
+    changepassword: (req, res, next) => {
+        if (!password || !confirmpassword || !oldpassword) {
+            res.send({ status: false, message: "please provide required params" })
+            return;
+        }
+        let username = req.user.username;
+        UserLogins.findOne({ $or: [{ email: username, password: oldpassword }, { username: username, password: oldpassword }] }).then(data => {
+            if (data && data._id) {
+                UserLogins.update({ $or: [{ email: username }, { username: username }] }, { password: password }).then(d => {
+
+                    res.send({ status: true, message: "Updated" })
+                })
+
+            }
+
+        })
+    },
+
+
+    uploadimg: (req, res, next) => {
+        try {
+            console.log('api hit!!')
+            console.log(req.files);
+            res.send({ files: req.files.map(i => i.filename) })
+        } catch (e) {
+            console.log(e)
+        }
+
+    },
+
+    crateprofile: (req, res, next) => {
+
+        const { email, phone, name, gender, dob, photo } = req.body;
+        if (!email || !phone || !name || !gender || !dob || !photo) {
+            res.send({ status: false, message: "Required Parameter is missing" });
+            return;
+        }
+
+        Profile.create({ email, phone, name, gender, dob, photo, loginid: req.user._id }).then((data) => {
+            res.send({ status: true, data })
+            return;
+        }).catch((err) => {
+            res.send({ status: false, message: "error Occured While create profile" })
+            return;
+        });
+
+    },
+
+    createbussiness: async (req, res, next) => {
+        try {
+            const reqBody = req.body;
+            const { storeName, bemail, address, phone } = req.body;
+
+            if (!bemail || !phone || !storeName || !address) {
+                return res.send({ status: false, message: "Required Parameter is missing" });
+            }
+
+            const reqFiles = req.files;
+            const imageFiles = [];
+            const imageFilesThumbnail = [];
+            let FSI = null;
+            let FSIThumbnail = null;
+
+            const loginId = req.user._id;
+
+            // const isUser = await UserLogins.findById(loginId).lean().exec();
+
+            // if (!isUser) {
+            //     return res.send({ status: false, message: "Seller not found" });
+            // }
+
+            // console.log(isUser.email, bemail, isUser.mobile_number, phone);
+
+            // if (isUser.email !== bemail || isUser.mobile_number !== phone) {
+            //     return res.send({ status: false, message: "Email or Phone not match to your profile" });
+            // }
+
+
+            if (reqFiles) {
+                reqFiles.forEach(E => {
+
+
+                    var filePath = path.join(__dirname, '../public/thumbnail/');
+
+                    if (!fs.existsSync(filePath)) {
+                        fs.mkdirSync(filePath);
+                    }
+
+                    const fileUrl = filePath + E.filename;
+
+                    sharp(E.path).resize(300, 200).toFile(fileUrl, function (err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        console.log('FILEEEEEEEE', fileUrl);
+                    });
+
+
+                    const str = E.originalname;
+                    const extension = str.substr(str.lastIndexOf(".") + 1);
+                    const fJson = {
+                        file: E.filename,
+                        title: E.originalname,
+                        file_type: extension,
+                        file_size: E.size
+                    }
+
+                    if (E.fieldname === 'images') {
+                        imageFiles.push(fJson);
+                        imageFilesThumbnail.push(`thumbnail/${E.filename}`);
+                    }
+                    if (E.fieldname === 'FSI') {
+                        FSI = fJson;
+                        FSIThumbnail = `thumbnail/${E.filename}`;
+                    }
+                })
+            }
+
+            const jsonData = {
+                storeName: storeName,
+                bemail: bemail,
+                address: address,
+                phone: phone,
+                gstno: reqBody.gstno,
+                gstcert: reqBody.gstcert,
+                panNumber: reqBody.panNumber,
+                idno: reqBody.idno,
+                acNumber: reqBody.acNumber,
+                ifsc: reqBody.ifsc,
+                branch: reqBody.branch,
+                idproof: reqBody.idproof,
+                images: imageFiles,
+                other: reqBody.other,
+                typeSeller: reqBody.typeSeller,
+                loginid: loginId,
+                FSI: FSI,
+                fsaai_no: reqBody.fsaai_no,
+                thumbnailImages: imageFilesThumbnail,
+                FSI_thumbnail: FSIThumbnail,
+            };
+
+            const created = await (new Bussiness(jsonData)).save();
+            await SendNotification("ADMIN", '', 'business_verify', `${bemail} is send a request for a business verification.`);
+
+            return res.send({ status: true, data: created._id, message: 'Bussiness created successfully' });
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    updatebussiness: async (req, res, next) => {
+        try {
+            const reqBody = req.body;
+            const { bussiness_id, storeName, bemail, address, phone } = req.body;
+
+            if (!bussiness_id) {
+                return res.send({ status: false, message: "Bussiness Id is Required" });
+            }
+
+            if (!bemail || !phone || !storeName || !address) {
+                return res.send({ status: false, message: "Required Parameter is missing" });
+            }
+
+            const reqFiles = req.files;
+            const imageFiles = [];
+            const imageFilesThumbnail = [];
+            let FSI = null;
+            let FSIThumbnail = null;
+
+            if (reqFiles) {
+                reqFiles.forEach(E => {
+
+                    var filePath = path.join(__dirname, '../public/thumbnail/');
+
+                    if (!fs.existsSync(filePath)) {
+                        fs.mkdirSync(filePath);
+                    }
+
+                    const fileUrl = filePath + E.filename;
+
+                    sharp(E.path).resize(300, 200).toFile(fileUrl, function (err) {
+                        if (err) {
+                            console.log(err);
+                        }
+                        console.log('FILEEEEEEEE', fileUrl);
+                    });
+
+                    const str = E.originalname;
+                    const extension = str.substr(str.lastIndexOf(".") + 1);
+                    const fJson = {
+                        file: E.filename,
+                        title: E.originalname,
+                        file_type: extension,
+                        file_size: E.size
+                    }
+                    if (E.fieldname === 'images') {
+                        imageFiles.push(fJson);
+                        imageFilesThumbnail.push(`thumbnail/${E.filename}`);
+                    }
+
+                    if (E.fieldname === 'FSI') {
+                        FSI = fJson;
+                        FSIThumbnail = `thumbnail/${E.filename}`;
+                    }
+                })
+            }
+
+            const jsonData = {
+                storeName: storeName,
+                // bemail: bemail,
+                address: address,
+                // phone: phone,
+                gstno: reqBody.gstno,
+                gstcert: reqBody.gstcert,
+                panNumber: reqBody.panNumber,
+                idno: reqBody.idno,
+                acNumber: reqBody.acNumber,
+                ifsc: reqBody.ifsc,
+                branch: reqBody.branch,
+                idproof: reqBody.idproof,
+                other: reqBody.other,
+                typeSeller: reqBody.typeSeller,
+                fsaai_no: reqBody.fsaai_no
+            };
+
+            const isBussiness = await Bussiness.findById(bussiness_id);
+
+            if (!isBussiness) {
+                return res.send({ status: false, message: 'Bussiness data not found for this id' });
+            }
+
+            const isUser = await UserLogins.findById(isBussiness.loginid);
+
+            if (!isUser) {
+                return res.send({ status: false, message: 'User not found' });
+            }
+
+            if (imageFiles.length) {
+                if (isUser.isBussinessVerified) {
+                    jsonData.$push = { images: imageFiles, thumbnailImages: imageFilesThumbnail };
+                } else {
+                    jsonData.images = imageFiles;
+                    jsonData.thumbnailImages = imageFilesThumbnail;
+                }
+            }
+
+            if (FSI) {
+                jsonData.FSI = FSI;
+                jsonData.FSI_thumbnail = FSIThumbnail;
+            }
+
+            await Bussiness.findByIdAndUpdate(bussiness_id, jsonData);
+
+            return res.send({ status: true, data: {}, message: 'Bussiness updated successfully' });
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    updateprofile: async (req, res, next) => {
+
+        const { email, phone, name } = req.body;
+      
+        if (!email || !phone || !name ) {
+            res.send({ status: false, message: "Required Parameter is missing" });
+            return;
+        }
+      
+        UserLogins.findOne({ _id: req.user._id }).then((data) => {
+
+            if (data && data._id) {
+                req.body['updated'] = new Date();
+
+            let avatar = null;
+               const data = {
+                  username :  req.body.name,
+                  email :  req.body.email,
+                  mobile_number :  req.body.phone,  
+
+               }
+               if(req.files && req.files[0] && req.files[0].location ){
+                     data['avatar'] = req.files[0].location;
+               }
+              
+                UserLogins.updateOne({ _id: req.user._id }, data ).then((data) => {
+                    return res.send({ status: 200, data }) ;
+                    
+                }).catch((err) => {
+                    return res.send({ status: 400, message: err.errmsg });
+                    
+                });
+            } 
+            // else {
+            //     Profile.create(req.body).then((data) => {
+            //         res.send({ status: true, data })
+            //         return;
+            //     }).catch((err) => {
+            //         res.send({ status: false, message: err.errmsg })
+            //         return;
+            //     });
+            // }
+        });
+    },
+
+    getBussiness: (req, res, next) => {
+        var id = req.body._id
+        var _id = id || req.user._id
+        Bussiness.find({ loginid: _id }).populate('loginid', 'isBussinessVerified email username').then((data) => {
+            let isCreated = (data.length > 0) ? 1 : 0;
+            res.send({ status: true, data, isCreated })
+            return;
+        })
+    },
+
+    getBussinessByBussnessId: async (req, res, next) => {
+        try {
+            const reqQuery = req.query;
+            const bussinessId = reqQuery.bussiness_id;
+
+            if (!bussinessId) {
+                return res.send({ status: false, message: 'Bussness Id is required' });
+            }
+
+            const isBussness = await Bussiness.findById(bussinessId)
+                .populate('loginid', 'name email isBussinessVerified username roles')
+                .lean().exec();
+
+            if (!isBussness) {
+                return res.send({ status: false, message: 'Bussness Info not found for this id' });
+            }
+            return res.send({ status: true, data: isBussness, message: 'Bussiness profile get successfully' });
+
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    getBussinessByUserId: async (req, res, next) => {
+        try {
+            const reqQuery = req.query;
+            const userId = reqQuery.user_id;
+
+            if (!userId) {
+                return res.send({ status: false, message: 'User Id is required' });
+            }
+
+            const isUser = await UserLogins.findById(userId).select('-password').lean().exec();
+
+            if (!isUser) {
+                return res.send({ status: false, message: 'User not found for this id' });
+            }
+
+            const isBussness = await Bussiness.find({ loginid: userId }).lean().exec();
+
+            isUser.bussnessInfo = isBussness;
+
+            return res.send({ status: true, data: isUser, message: 'User with Bussiness info get successfully' });
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    getallbussines: async (req, res, next) => {
+        var { limit, page, isGstNo, filter, isBussinessVerified } = req.body;
+        var l = parseInt(limit) || 10,
+            p = parseInt(page) || 0;
+
+        filter = filter ? new RegExp(filter, 'i') : '';
+
+        // console.log(req.body)
+        const MATCH = {};
+        MATCH.$and = [];
+        MATCH.$or = [];
+
+        if (isGstNo === true) {
+            MATCH.$and.push({ gstno: { $nin: [null, ""] } });
+        } else if (isGstNo === false) {
+            MATCH.$and.push({ gstno: { $in: [null, ""] } });
+        }
+
+        if (isBussinessVerified === true) {
+            MATCH.$and.push({ 'user.isBussinessVerified': true });
+        } else if (isBussinessVerified === false) {
+            MATCH.$and.push({ 'user.isBussinessVerified': false });
+        }
+
+
+        if (filter) {
+            MATCH.$or.push({ storeName: filter });
+            MATCH.$or.push({ bemail: filter });
+            MATCH.$or.push({ address: filter });
+            MATCH.$or.push({ phone: filter });
+            MATCH.$or.push({ gstno: filter });
+            MATCH.$or.push({ gstcert: filter });
+            MATCH.$or.push({ panNumber: filter });
+            MATCH.$or.push({ acNumber: filter });
+            MATCH.$or.push({ ifsc: filter });
+            MATCH.$or.push({ branch: filter });
+            MATCH.$or.push({ typeSeller: filter });
+            MATCH.$or.push({ 'user.username': filter });
+            MATCH.$or.push({ 'user.email': filter });
+        }
+
+        if (!MATCH.$and.length) delete MATCH.$and;
+        if (!MATCH.$or.length) delete MATCH.$or;
+
+        console.log(MATCH);
+
+        let data = await Bussiness.aggregate([
+            { $lookup: { from: 'userlogins', localField: 'loginid', foreignField: "_id", as: "user" } },
+            { $unwind: { path: '$user' } },
+            { $match: MATCH },
+            {
+                $project: {
+                    idproof: 0,
+                    panNumber: 0,
+                    loginid: 0,
+                    other: 0,
+                    'user.password': 0,
+                }
+            },
+            { $sort: { updated_at: -1 } },
+            { $skip: parseInt(p) * parseInt(l) },
+            { $limit: parseInt(l) },
+        ]);
+
+        data.forEach(E => {
+            if (E.images) {
+                E.thumbnailImages = [];
+                E.images.forEach(E2 => {
+                    E.thumbnailImages.push('thumbnail/' + E2.file);
+                })
+            }
+
+            E.FSI_thumbnail = (E.FSI && E.FSI.file) ? 'thumbnail/' + E.FSI.file : '';
+        })
+
+        let count = await Bussiness.aggregate([
+            { $lookup: { from: 'userlogins', localField: 'loginid', foreignField: "_id", as: "user" } },
+            { $unwind: { path: '$user' } },
+            { $match: MATCH },
+        ]);
+
+        if (data.length > 0) {
+            res.send({ status: true, data: data, count: count.length });
+        } else {
+            res.send({ status: false, message: 'No dat found!' })
+        }
+    },
+
+    getAllSellerBussInfo: async (req, res, next) => {
+        // var { limit, page, sort } = req.body;
+        // var l = limit || 10, p = page || 0; s = (sort == 'asc') ? 1 : -1;
+        // let data = await Bussiness.aggregate([
+        //     { $lookup: { from: 'UserLogins', localField: 'loginid', foreignField: "_id", as: "user" } },
+        //     { $unwind: { path: '$user', preserveNullAndEmptyArrays: true } },
+        //     { $skip: parseInt(page) * parseInt(limit) },
+        //     { $limit: parseInt(limit) },
+        // ])
+        // if (data.length > 0) {
+        //     res.send({ status: true, data })
+        // } else {
+        //     res.send({ status: false, message: 'No dat found!' })
+        // }
+
+        try {
+            const reqBody = req.body;
+            const Limit = parseInt(reqBody.limit) || 10;
+            const PageNo = parseInt(reqBody.pageno) || 0;
+
+            const sellers = await UserLogins.aggregate([
+                { $lookup: { from: 'profiles', localField: '_id', foreignField: "loginid", as: "profileInfo" } },
+                { $lookup: { from: 'bussinesses', localField: '_id', foreignField: "loginid", as: "bussinessInfo" } },
+                { $unwind: { path: '$profileInfo', preserveNullAndEmptyArrays: true } },
+                { $match: { roles: ROLES[1] } },
+                { $skip: (PageNo * Limit) },
+                { $limit: Limit },
+                {
+                    $project: {
+                        'password': 0,
+                        'bussinessInfo.loginid': 0,
+                        'profileInfo.loginid': 0
+                    }
+                },
+            ]);
+
+            const sellersCount = await UserLogins.aggregate([
+                { $lookup: { from: 'profiles', localField: '_id', foreignField: "loginid", as: "profileInfo" } },
+                { $lookup: { from: 'bussinesses', localField: '_id', foreignField: "loginid", as: "bussinessInfo" } },
+                { $unwind: { path: '$profileInfo', preserveNullAndEmptyArrays: true } },
+                { $match: { roles: ROLES[1] } },
+            ]);
+
+            return res.send({ status: true, data: sellers, count: sellersCount.length, message: 'Sellers with Bussiness Profile get successfully' });
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    approvebussiness: async (req, res, next) => {
+
+        try {
+            const { user_id, isBussinessVerified, note } = req.body;
+            if (!user_id) {
+                return res.send({ status: false, message: "User Id is required" });
+            }
+
+            const isUser = await UserLogins.findById(user_id).lean().exec();
+
+            if (!isUser) {
+                return res.send({ status: false, message: "User not found for this id" });
+            }
+
+            if (isUser.roles !== ROLES[1]) {
+                return res.send({ status: false, message: "User is not a seller" });
+            }
+
+            const verify = isBussinessVerified ? true : false;
+
+            let msg_body = note ? note : (verify ? `Congratulations galinukad team will contact you shortly` : `Please reach out to our team or share the time convenient to you. We will get in touch`);
+
+            Helper.sendEmail(isUser.email, 'Bussiness Verify Status', msg_body);
+
+            await SendNotification('', user_id, 'approve_business_verify', `Admin has been approved your business verfification.`);
+
+            const updated = {
+                isBussinessVerified: verify,
+                note: note
+            };
+
+            await UserLogins.findByIdAndUpdate(user_id, updated).lean().exec();
+
+            return res.send({ status: true, message: msg_body });
+
+        } catch (error) {
+            return res.send({ status: false, message: error.message })
+        }
+    },
+
+  getprofile: async (req, res, next) => {
+
+        try {
+            const profileId = req.body.profile_id;
+
+            if (!profileId) {
+                return res.send({ status: false, message: 'Profile Id is required' });
+            }
+
+            let profile = await UserLogins.findById(profileId).lean().exec();
+
+            if (!profile) {
+                return res.send({ status: false, message: 'User not found' });
+            }
+
+            const user = await UserLogins.findOne({ _id: profileId }).exec();
+            
+
+            profile.name = user.username;
+
+            return res.send({ status: true, userLogin: user , profile });
+
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+
+    createaddress: (req, res, next) => {
+        const { email, isdefault, companyname, phone, fname, lname, country, add1, add2, state, postal, isbilling, isshipping , city } = req.body;
+
+        const loginid = req.user._id
+
+    
+        // return false
+        let isEmpty = notEmpty({  phone, fname, lname, country, add1, state, postal })
+
+        if (!isEmpty) {
+            res.send({ status: false, message: "Required Parameter is missing", isEmpty });
+            return;
+        } 
+
+        let ad = { isdefault,  phone, fname, lname, country, add1, state, postal, loginid, city}
+
+        if (companyname)
+            ad['companyname'] = companyname;
+
+        if (add2)
+            ad['add2'] = add2;
+
+        if (email)
+            ad['email'] = email;
+
+        Address.create(ad).then((data) => {
+            if (isdefault == 1 || isdefault == true) {
+                Address.updateMany({ loginid: req.user._id}, { isshipping: 0, isbilling: 0, isdefault: 0 }).then(u => {
+                    Address.updateOne({ _id: data._id }, { isdefault: 1 } ).then((data) => {
+                        res.send({ status: true, data })
+                        return;
+                    });
+                });
+            } else {
+                res.send({ status: true, data })
+                return;
+            }
+
+        }).catch((err) => {
+            res.send({ status: false, message: err.errmsg })
+            return;
+        });
+
+    },
+
+    updateaddress: (req, res, next) => {
+
+        const { _id, isdefault, email, companyname, phone, fname, lname, country, add1, add2, state, postal, isbilling, isshipping , city} = req.body;
+       // console.log(req.body)
+      
+
+
+        if (!_id || _id == '') {
+            res.send({ status: false, message: "missing required params" });
+            return;
+        }
+
+
+        let ad = {isdefault, city , add2, email, companyname, isbilling, isshipping, phone, fname, lname, country, add1, state, postal, loginid: req.user._id, updated: new Date() }
+
+        // my code 
+            if( req.body.isdefault == 1){
+
+                Address.updateMany({ loginid: req.user._id }, { isshipping: 0, isbilling: 0, isdefault: 0 }).then((data) => {
+                    Address.updateOne({ _id: _id }, ad).then((data) => {
+                        res.send({ status: true, data })
+                        return;
+                    });
+                }).catch((err) => {
+                    res.send({ status: false, message: err.errmsg })
+                    return;
+                })
+
+            }else{
+               req.body.isdefault == 1 ? ad.isdefault = 0 :  ad.isdefault = 1;
+                Address.updateOne({ _id: _id }, ad).then((data) => {
+                    res.send({ status: true, data })
+                        return;
+                }).catch((err) => {
+                    res.send({ status: false, message: err.errmsg })
+                    return;
+                })
+            }
+
+
+        // my code end
+    },
+
+    getaddresses: (req, res, next) => {
+        Address.find({ loginid: req.user._id }).then((data) => {
+
+            data = data.sort((i, j) => {
+                if (i.isdefault > j.isdefault) {
+                    return -1
+                } else {
+                    return 1;
+                }
+            })
+            res.send({ status: true, data })
+            return;
+        }).catch((err) => {
+            res.send({ status: false, message: err.errmsg })
+            return;
+        });
+
+    },
+
+    setdefaultshipping: (req, res, next) => {
+
+        const { _id } = req.body;
+
+        if (!_id || _id == '') {
+            res.send({ status: false, message: "missing required params" });
+            return;
+        }
+        Address.update({ loginid: req.user._id }, { isshipping: 0 }).then(data => {
+            Address.update({ _id: _id }, { isshipping: 1 }).then((data) => {
+                res.send({ status: true, data })
+                return;
+            }).catch((err) => {
+                res.send({ status: false, message: err.errmsg })
+                return;
+            });
+        })
+
+
+
+    },
+
+    setMobileIsVerified: async (req, res, next) => {
+
+        try {
+            
+            let {otp, mobile} = req.body;
+            
+            
+            
+            let userOtpCheck = await UserLogins.findOne({ mobile_number: mobile , mobile_otp: otp});
+
+            // console.log(userOtpCheck);
+            // return ;
+
+            if(userOtpCheck) {
+
+                let user = await UserLogins.update({ mobile_number: mobile , mobile_otp: otp}, {isMobileVerified: true});
+                return res.send({ status: true, message: "Mobile number verified successfully." })
+
+            }else {
+                return res.send({ status: false, message: "Please enter valid OTP." })
+            }
+            
+
+        }catch(err){
+            res.send({ status: false, message: err.errmsg })
+        }
+    },
+
+    
+
+    deleteaddress: (req, res, next) => {
+
+        const { _id } = req.body;
+
+        if (!_id || _id == '') {
+            res.send({ status: false, message: "missing required params" });
+            return;
+        }
+
+        Address.deleteOne({ _id: _id }).then((data) => {
+            res.send({ status: true, data })
+            return;
+        }).catch((err) => {
+            res.send({ status: false, message: err.errmsg })
+            return;
+        });
+
+
+
+
+    },
+
+    setdefaultbilling: (req, res, next) => {
+
+        const { _id } = req.body;
+
+        if (!_id || _id == '') {
+            res.send({ status: false, message: "missing required params" });
+            return;
+        }
+        Address.update({ loginid: req.user._id }, { isbilling: 0 }).then(data => {
+            Address.update({ _id: _id }, { isbilling: 1 }).then((data) => {
+                res.send({ status: true, data })
+                return;
+            }).catch((err) => {
+                res.send({ status: false, message: err.errmsg })
+                return;
+            });
+        })
+    },
+
+ 
+
+
+    contactUs: async (req, res, next) => {
+        try {
+            if (typeof req.body.name !== 'undefined' && typeof req.body.email !== 'undefined' && typeof req.body.subject !== 'undefined' && typeof req.body.message !== 'undefined') {
+                let data = {
+                    name: req.body.name,
+                    email: req.body.email,
+                    subject: req.body.subject,
+                    message: req.body.message
+                }
+                Contact.create(data).then(user => {
+                    var mailOptions = {
+                        from: 'no-reply@gmail.com',
+                        to: adminEmail,
+                        subject: 'Contact Us',
+                        text: `${JSON.stringify(data)}`
+                    };
+                    transporter.sendMail(mailOptions, function (error, info) {
+                        if (error) {
+                            console.log(error);
+                        } else {
+                            console.log('Email sent: ' + info.response);
+                        }
+                    });
+                    res.send({ status: true, result: user })
+                    return;
+                }).catch(err => {
+                    res.send({ status: false, message: 'Something went wrong!' });
+                })
+            } else {
+                res.send({ status: false, message: 'Enter all required fields!' });
+            }
+        } catch (e) {
+            res.send({ status: false, message: e.message });
+        }
+    },
+    contactUsList: async (req, res, next) => {
+        try {
+
+         let data = await Contact.find({});
+         
+         return res.send({ status: true, data: data,  message: 'Contact List get successfully' });
+     
+        } catch (e) {
+            res.send({ status: false, message: e.message });
+        }
+    },
+ 
+
+    loginHistory: async (req, res, next) => {
+        try {
+            const reqBody = req.body;
+            const Limit = parseInt(reqBody.limit) || 10;
+            const PageNo = parseInt(reqBody.pageno) || 0;
+            const data = await UserLogins.aggregate([
+                { $lookup: { from: 'profiles', localField: '_id', foreignField: "loginid", as: "profileInfo" } },
+                { $unwind: { path: '$profileInfo', preserveNullAndEmptyArrays: true } },
+                { $skip: (PageNo * Limit) },
+                { $limit: Limit },
+                {
+                    $project: {
+                        '_id': 1,
+                        'type_login': 1,
+                        'ip_address': 1,
+                        'no_of_loggedin': 1,
+                        'last_login_time': 1,
+                        'email': 1,
+                        'roles': 1,
+                        'mobile_number': 1,
+                        'profileInfo.name': 1,
+                    }
+                },
+            ]);
+            return res.send({ status: true, result: data, total: data.length, message: ' get login history successfully' });
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    logout: (req, res, next) => {
+        try {
+            if (req.user) {
+                req.user = null;
+                return res.send({ status: true, message: 'Logout Successfully' });
+            }
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    }
+
+}
+
+
+function generateOTP() {
+
+    var digits = '0123456789';
+    let OTP = '';
+    for (let i = 0; i < 4; i++) {
+        OTP += digits[Math.floor(Math.random() * 10)];
+    }
+    return OTP;
+}

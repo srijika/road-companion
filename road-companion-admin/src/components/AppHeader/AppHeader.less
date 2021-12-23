@@ -1,0 +1,32 @@
+@import '~antd/lib/style/themes/default.less';
+.logoDiv{ max-width: 265px; min-width: 265px; //padding: 10px;
+    .innerlogo{/*max-width: 91px;*/ margin: 0 auto;  display: flex; justify-content: center; align-items: center;
+        a{color: #fff !important}
+        img{max-height: 61px; width: auto;}
+    }
+}
+.topmenu{overflow-x: hidden;     overflow-y: hidden;}
+.headtoplink{
+    line-height: 60px;background:none;  text-transform: uppercase; font-weight: 450; border: 0 !important; max-width: 300px;
+    a{color: #fff !important}
+    a:hover{color: #333 !important}
+    a:before{content: none}
+    li{border: 0 !important}
+    i{font-size: 16px !important; margin: 0 !important}
+}
+.togglemenu{
+    display: none;
+    margin: 21px 12px;
+    font-size: 19px;
+}
+.headtoplink .ant-menu-overflowed-submenu{display: none}
+
+@media screen and (max-width:576px){    
+    .logo{max-width: 70px; float: left; line-height: 60px; margin-left: 15px; position: relative; z-index: 10;}
+    .headtoplink li{padding: 0 15px !important}
+    .togglemenu{display: inline-block;  float: left; }
+    .logoDiv{
+		max-width:150px;
+		.innerlogo{margin: 0; float: left; display: inline-block;}
+	}
+}

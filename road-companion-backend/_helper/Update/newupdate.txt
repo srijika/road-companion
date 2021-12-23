@@ -1,0 +1,281 @@
+complete api
+
+1. Create Shop By Barber = http://13.234.31.171/api/create/shop
+   Request :  {
+    
+    "user_id" : "61b97e01800f81350d256c56",
+    "shop_name" : "Facelook Hair Cut",
+     "shop_location" : "indra path , mansorver",
+    "is_mobile_appointment" : "true",
+     "is_location_access" : "true",
+    "status" : "true",
+    "lattitude" : 73.856077,
+    "longitude" : 40.848447
+
+}
+
+  *. Success Response : {
+    "status": 200,
+    "data": "61b99e38ff5bcc705991e1e8",
+    "message": "Shop created successfully"
+}
+
+  **.Already Exits  Response : {
+    "status": 400,
+    "message": "Shop Already Exits"
+}   
+
+
+
+2. Update Shop By Barber = http://13.234.31.171/update/shop
+   Request :  {
+    "_id" : "61b99cebff5bcc705991e1e4",
+    "user_id" : "61b97e01800f81350d256c56",
+    "shop_name" : "Facelook Hair Cut SD",
+     "shop_location" : "indra path , mansorver"
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "Shop updated successfully"
+}
+
+  **.Already Exits  Response : {
+    "status": false,
+    "message": "Shop Already Exits"
+}   
+
+
+3. Get Single Barber Shop = http://13.234.31.171/get-barber/shop
+   Request :  {
+    "user_id" : "61b97e01800f81350d256c56",
+
+}
+
+  *. Success Response : {
+    "status": true,
+    "data": [
+        {
+            "_id": "61b99cebff5bcc705991e1e4",
+            "user_id": "61b97e01800f81350d256c56",
+            "shop_name": "Facelook Hair Cuts",
+            "shop_location": "indra path , mansorver",
+            "is_mobile_appointment": true,
+            "is_location_access": true,
+            "status": true,
+            "lattitude": 73.856077,
+            "longitude": 40.848447,
+            "created_at": "2021-12-15T07:44:43.350Z",
+            "updated_at": "2021-12-15T08:03:25.257Z",
+            "__v": 0,
+            "id": "61b99cebff5bcc705991e1e4"
+        },
+        {
+            "_id": "61b99e38ff5bcc705991e1e8",
+            "user_id": "61b97e01800f81350d256c56",
+            "shop_name": "Facelooks Hair Cut",
+            "shop_location": "indra path , mansorver",
+            "is_mobile_appointment": true,
+            "is_location_access": true,
+            "status": true,
+            "lattitude": 73.856077,
+            "longitude": 40.848447,
+            "created_at": "2021-12-15T07:50:16.693Z",
+            "updated_at": "2021-12-15T07:50:16.693Z",
+            "__v": 0,
+            "id": "61b99e38ff5bcc705991e1e8"
+        }
+    ],
+    "message": "Shop get successfully"
+}
+
+  **.Shop Not Found  Response : {
+    "status": false,
+    "message": "Shop Already Exits"
+}
+
+
+  ***.User _id required  Response : {
+    "status": false,
+    "message": "user_id is required"
+}
+
+
+4.Delete Barber Shop = http://13.234.31.171/delete/shop
+   Request :  {
+     "_id" : "61b99e38ff5bcc705991e1e8" ,
+     "user_id" : "61b97e01800f81350d256c56",
+
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "Shop deleted successfully"
+}
+
+  **.Shop Not Found  Response : {
+    "status": false,
+    "message": "Shop Already Exits"
+}
+
+
+  ***.User _id and Id required  Response : {
+    "status": false,
+    "message": "user_id is required"
+}
+
+
+
+
+5.Add Shop Review = http://13.234.31.171/create/shop/review
+   Request :  {
+   "shop_id" : "61b99cebff5bcc705991e1e4" ,
+   "user_id" : "61b97dd5800f81350d256c51" ,
+   "review" : "this is wonderful hair spa" ,
+   "rating" : 5 
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "Review Add successfully"
+}
+
+
+
+6.Remove Shop Review = http://13.234.31.171/create/shop/review
+   Request :  {
+   "_id" : "61b97dd5800f81350d256c51" ,
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "Review deleted successfully"
+}
+
+6.Get Shop With Reviews = http://13.234.31.171/get/shop/review
+
+
+  *. Success Response : {
+    "status": true,
+  "message": "Get Successfully"
+}
+
+
+7.Get All Tags = http://13.234.31.171/get/tag-list
+
+
+  *. Success Response : {
+    "status": true,
+  "message": "Get Successfully"
+}
+
+8.Create User Servicing Tag by Barber = http://13.234.31.171/api/create/service-tag
+   Request :  {
+   "tag_id" : "61b9ce47fa66cca736c26fe2" ,
+   "user_id" : "61b97e01800f81350d256c56" ,
+   "tag_price" : 50 
+}
+
+
+  *. Success Response : {
+    "status": true,
+    "message": "User ServiceTag created successfully"
+}
+
+9.Update User Servicing Tag  = http://13.234.31.171/update/service-tag
+   Request :  {
+   "_id" : "61b9d476ba82e3b19fe32a46" ,
+   "tag_price" : 55
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "User ServiceTag Updated successfully"
+}
+
+10.Delete User Servicing Tag = http://13.234.31.171/delete/service-tag
+   Request :  {
+  
+   "_id" : "61b9d1b1884b7aad5cfeee06" 
+
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "User ServiceTag deleted successfully"
+}
+
+
+
+
+
+11.Get User Servicing Tag = http://13.234.31.171/get/user/service-tag
+   Request :  {
+  
+   "user_id" : "61b9d1b1884b7aad5cfeee06" 
+
+}
+
+  *. Success Response : {
+    "status": true,
+  "message": "Get Successfully"
+}
+
+
+12.Get User Servicing Tag = http://13.234.31.171/create/post-report
+   Request :  {
+   "post_id" : "61b97e01800f81350d256c56" ,
+   "user_id" : "61b97e01800f81350d256c56" ,
+   "report_reason" : "not good post" 
+
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "Report created successfully"
+}
+
+
+
+
+12.appointment created by user= http://13.234.31.171/create/user-appointment
+   Request :  {
+   "shop_id" : "61b99cebff5bcc705991e1e4" ,
+   "user_id" : "61b97dd5800f81350d256c51" ,
+   "arrival_date_time" : "2021-12-15T07:44:43.350+00:00" ,
+   "appointment_date" : "2021-12-15T07:44:43.350+00:00" 
+}
+
+  *. Success Response : {
+    "status": true,
+    "message": "Appointment created successfully"
+}
+
+13.appointment created by user= http://13.234.31.171/update/appointment-status
+   Request :  {
+   "_id" : "61b9ea02d4dbfbd3336e89b1" ,
+   "status" : "true" 
+
+}
+
+{
+    "status": true,
+    "message": "Appointment Status Updated successfully"
+}
+
+14.appointment created by user= http://13.234.31.171/get-appointment/barber/list
+   Request :  {
+   "user_id" : "61b9ea02d4dbfbd3336e89b1" ,
+  
+
+}
+
+{
+    "status": true,
+    "message": "Appointment List By Barber successfully"
+}
+
+
+
+
+

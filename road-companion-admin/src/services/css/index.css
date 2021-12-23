@@ -1,0 +1,732 @@
+.mobile_login {
+  height: 100vh;
+}
+
+@media (max-width: 767px) {
+  .mobile_login {
+    height: 100vh;
+  }
+}
+
+.basicbox > div {
+  height: auto;
+  min-height: 500px;
+  width: 100%;
+}
+
+.login-box-msg {
+  margin: 0;
+  padding: 0 20px 20px;
+  text-align: center;
+}
+
+.mobile_login_logo {
+  width: auto;
+  height: 70px;
+  margin-bottom: 10px;
+  border-radius: 20%;
+}
+
+.mainform img, .mainform p {
+  display: block;
+}
+
+@media (max-width: 991px) {
+  .mainform img, .mainform p {
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .mainform img, .mainform p {
+    display: block;
+  }
+}
+
+.mobile-login-form-button {
+  background: #d92222;
+  font-size: 12px;
+  border-radius: 16px;
+  color: #fff !important;
+}
+
+.mobile-login-form-button:focus {
+  color: black !important;
+}
+
+.mobile-login-form-forgot {
+  color: #39a4f5;
+}
+
+.mobile-login-form-forgot:hover {
+  color: #0067f5;
+  border-bottom: 1px solid #0067f5;
+}
+
+.mobile-login-form-forgot:focus {
+  color: #0067f5;
+  border-bottom: 1px solid #0067f5;
+}
+
+@media (max-width: 767px) {
+  .mobile-login-form-forgot {
+    color: #39a4f5;
+  }
+}
+
+.mobile-login-form-register {
+  color: #3e1c08;
+}
+
+.mobile-login-form-register:hover {
+  color: black;
+}
+
+.mobile-login-form-register:focus {
+  color: black;
+}
+
+.mobile_mainform img {
+  display: block;
+}
+
+@media (max-width: 479px) {
+  .mobile_mainform img {
+    display: block;
+  }
+}
+
+.mobile_mainform p {
+  display: none;
+}
+
+@media (max-width: 479px) {
+  .mobile_mainform p {
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_mainform p {
+    font-size: 18px;
+    font-weight: bold;
+    display: contents;
+  }
+}
+
+.mobile-register-form-button {
+  background: #d92222;
+  font-size: 12px;
+  border-radius: 16px;
+  color: #fff !important;
+}
+
+.mobile-register-form-button:focus {
+  color: black !important;
+}
+
+.mobile-register-already {
+  color: #39a4f5;
+}
+
+.mobile-register-already:hover {
+  color: #0067f5;
+  border-bottom: 1px solid #0067f5;
+}
+
+.mobile-register-already:focus {
+  color: #0067f5;
+  border-bottom: 1px solid #0067f5;
+}
+
+@media (max-width: 767px) {
+  .mobile-register-already {
+    color: #39a4f5;
+  }
+}
+
+@media (max-width: 991px) {
+  .mobile_dashboard .ant-card-body {
+    box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_dashboard .ant-card-body {
+    box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1) !important;
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 991px) {
+  .mobile_dashboard .ant-statistic-content {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_dashboard .ant-statistic-content {
+    font-size: 14px;
+  }
+}
+
+.sidebarDiv {
+  width: 265px;
+}
+
+@media (max-width: 767px) {
+  .sidebarDiv {
+    width: 200px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-table {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .logoDiv .innerlogo a {
+    color: #fff !important;
+    font-size: 20px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-pagination-prev .ant-pagination-item-link, .ant-pagination-next .ant-pagination-item-link {
+    color: #585858;
+    font-size: 16px;
+    padding: 0 10px 10px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-btn-danger {
+    padding: 2px 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-table-thead > tr > th, .ant-table-tbody > tr > td, .ant-table tfoot > tr > th, .ant-table tfoot > tr > td {
+    padding: 8px 8px;
+  }
+}
+
+.mobile_verify_btn {
+  background-color: #218838 !important;
+  border: none !important;
+}
+
+@media (max-width: 991px) {
+  .ant-table-container {
+    overflow-x: scroll;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-table-container {
+    overflow-x: scroll;
+  }
+}
+
+@media (max-width: 767px) {
+  .uploaderImg {
+    width: auto !important;
+    margin: 0 0 20px 0 !important;
+  }
+}
+
+.ant-card-head-title .anticon-left {
+  margin-right: 12px;
+}
+
+@media (max-width: 767px) {
+  .headerdiv {
+    position: fixed;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-form-select {
+    font-size: 11px;
+    width: 80px;
+    min-height: 24px;
+    padding-top: 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .order-detail-heading {
+    font-size: 10px;
+  }
+}
+
+.mobile_order_details .ant-btn-primary {
+  color: black;
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .ant-btn-primary {
+    color: black !important;
+    font-size: 11px;
+    padding: 2px 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .ant-card-head {
+    font-size: 14px;
+    font-weight: bold;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .ant-row {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .ant-card-body {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .ant-btn-danger {
+    font-size: 11px;
+    padding: 2px 4px;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .ant-modal-body {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_order_details .ant-modal-title {
+    font-size: 12px !important;
+  }
+}
+
+.mobile_order_details td {
+  text-align: left;
+  padding: 10px;
+  font-weight: 300;
+}
+
+@media (max-width: 767px) {
+  .ant-modal-body {
+    font-size: 12px;
+    padding: 10px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-modal-body td {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-modal-title {
+    font-size: 14px !important;
+    font-weight: bold;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-modal-footer .ant-btn-primary {
+    color: black !important;
+    font-size: 11px;
+    padding: 2px 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_btn_between {
+    display: flex !important;
+    justify-content: space-between !important;
+  }
+}
+
+.mobile_btn_margin {
+  margin-right: 1rem !important;
+}
+
+@media (max-width: 767px) {
+  .mobile_btn_add {
+    color: black !important;
+    font-size: 11px;
+    padding: 2px 4px;
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-card-head-title {
+    font-size: 1rem;
+    font-weight: bold;
+  }
+}
+
+.ant-form-horizontal {
+  margin-top: 2rem !important;
+}
+
+.mobile_total_amt {
+  padding: 0px !important;
+}
+
+@media (max-width: 767px) {
+  .mobile_total_amt {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-card-body {
+    padding: 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_bold {
+    font-weight: bold;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-dropdown {
+    width: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-content th {
+    line-height: 0px;
+  }
+}
+
+.ant-picker-panel-container .ant-picker-panel .ant-picker-content, .ant-picker-panel-container .ant-picker-panel table {
+  overflow-x: scroll !important;
+}
+
+@media (max-width: 767px) {
+  .ant-picker-panel-container .ant-picker-panel .ant-picker-content td, .ant-picker-panel-container .ant-picker-panel table td {
+    padding: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-panel-container .ant-picker-panel .ant-picker-content, .ant-picker-panel-container .ant-picker-panel table {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-header-view {
+    flex: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-date-panel .ant-picker-body {
+    padding: 0 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-header {
+    padding: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-date-panel .ant-picker-content th {
+    padding: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-decade-panel, .ant-picker-year-panel, .ant-picker-quarter-panel, .ant-picker-month-panel, .ant-picker-week-panel, .ant-picker-date-panel, .ant-picker-time-panel {
+    width: 210px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-picker-header {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-tooltip {
+    top: 372px !important;
+    padding-left: 125px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 767px) {
+  .intooltip .ant-tooltip-content .ant-tooltip-inner h4 {
+    font-size: 12px !important;
+  }
+}
+
+.intooltip .ant-tooltip-content .ant-tooltip-inner {
+  background: #fcb800;
+  padding: 0;
+  width: 200px;
+}
+
+.ann_message {
+  font-size: 12px;
+  display: inline-block !important;
+  width: 100px !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+
+@media (max-width: 767px) {
+  .ann_message {
+    display: inline-block !important;
+    width: 100px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+  }
+}
+
+.ant-btn-primary {
+  color: black;
+}
+
+.ant-btn-primary:hover {
+  color: black;
+}
+
+@media (max-width: 767px) {
+  .ant-btn-primary {
+    padding: 2px 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile-btn {
+    padding: 2px 8px;
+  }
+}
+
+@media (max-width: 767px) {
+  .mobile_acdc {
+    padding: 2px 5px;
+    font-size: 10px;
+  }
+}
+
+.mobile_user_table {
+  padding: 0px 15px 15px;
+}
+
+@media (max-width: 767px) {
+  .mobile_user_table {
+    padding: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-btn-success {
+    color: black;
+    font-size: 11px;
+    padding: 2px 4px;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 767px) {
+  .logoDiv {
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-dropdown-menu-title-content {
+    font-size: 12px !important;
+  }
+}
+
+.ant-dropdown-menu {
+  position: relative;
+  margin: 0;
+  padding: 0px 0;
+  text-align: left;
+  list-style-type: none;
+  background-color: #d7d7d7;
+  background-clip: padding-box;
+  border-radius: 4px;
+  outline: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.mobile_header {
+  color: "#fff";
+  height: 0;
+}
+
+@media (max-width: 767px) {
+  .mobile_header {
+    height: 0px;
+  }
+}
+
+.mobile_clear {
+  color: #325593 !important;
+  background-color: #a3c1f6 !important;
+  padding: 6px !important;
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.mobile_clear:hover {
+  color: white !important;
+}
+
+.mobile_clear:focus {
+  color: white;
+}
+
+@media (max-width: 767px) {
+  .mobile_dashboard .ant-card-bordered {
+    text-align: center !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .multiSelectContainer li {
+    padding: 4px !important;
+  }
+}
+
+.highlightOption {
+  background: #172f72 !important;
+  color: #fff;
+}
+
+.chip {
+  background: #172f72 !important;
+}
+
+@media (max-width: 767px) {
+  .contentDiv {
+    margin-left: 24px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .ant-input-group > .ant-input:first-child, .ant-input-group-addon:first-child {
+    margin-left: 10px !important;
+  }
+}
+
+.mobile_invisiable {
+  font-family: 'Avenida Std';
+  font-size: 30px;
+  display: initial;
+  color: #fff;
+  text-shadow: 0 0 0px #fff, 0 0 0 #fff, 0 0 2px #fff, 0 0 20px #e0d9be, 0 0 80px #e0d9be, 0 0 10px #e0d9be, 0 0 1px #e0d9be, 0 0 1px #e0d9be;
+}
+
+@media (max-width: 767px) {
+  .mobile_invisiable {
+    display: none !important;
+  }
+}
+
+.img_icon {
+  height: 40px !important;
+  width: 40px !important;
+}
+
+.div_tickets {
+  background-color: #506273 !important;
+}
+
+.reload_icon {
+  font-size: 24px;
+}
+
+.fa-spin-click {
+  animation: fa-spin 1s infinite linear;
+  color: #192e59;
+}
+
+.banner_sugg {
+  font-size: 11px;
+  padding-left: 8px;
+}
+
+.resend_link {
+  color: #3e1c08;
+}
+
+.ant-form-horizontal {
+  margin: 0 !important;
+}
+
+.basicbox_height {
+  min-height: 540px !important;
+}
+
+.ant-layout-sider {
+  background-color: #3e1c08 !important;
+}
+
+.ant-menu-dark {
+  background: #3e1c09 !important;
+}
+
+.ant-menu-item-selected {
+  background-color: #141414 !important;
+}
+
+.ant-menu-inline.ant-menu-sub {
+  background: grey !important;
+  color: #001529 !important;
+}
+
+.ant-menu-inline.ant-menu-sub span {
+  color: navy;
+}
+
+.ant-menu-inline.ant-menu-sub span:focus {
+  color: #fff !important;
+}
+
+.ant-menu-inline.ant-menu-sub span:hover {
+  color: #fff !important;
+}
+
+.headtoplink {
+  float: right !important;
+}
+
+.report_reason {
+  font-size: 12px;
+}
+
+.tag_price {
+  font-size: 12px;
+}
+
+.order-detail-bold {
+  color: black !important;
+}

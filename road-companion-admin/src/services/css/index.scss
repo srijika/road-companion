@@ -1,0 +1,832 @@
+@import './media_query';
+
+//Login Page 
+
+.mobile_login{
+    height: 100vh;
+
+    @include media('<sm') {
+    
+        height: 100vh;
+
+    
+    }
+    
+  }
+  .basicbox > div
+  {
+      
+    height: auto; min-height: 500px; width:100%
+
+}
+.login-box-msg {
+    margin: 0;
+    padding: 0 20px 20px;
+    text-align: center;
+}
+
+.mobile_login_logo {
+    width: auto;
+    height: 70px;
+    margin-bottom: 10px;
+    border-radius: 20%;
+}
+
+.mainform{
+
+    img , p {
+    display:block;
+    @include media('<md') {
+        display:block;
+        
+        }
+
+        @include media('<sm') {
+            display:block;
+            
+            }
+    }
+
+  
+}
+
+.mobile-login-form-button{
+    
+    background: #d92222;
+    font-size: 12px;
+    border-radius: 16px;
+    color: #fff !important;
+
+    &:focus{
+        color:black !important
+    }
+  }
+
+.mobile-login-form-forgot{
+    color: #39a4f5;
+
+&:hover{    color: #0067f5;
+border-bottom: 1px solid #0067f5;}
+
+&:focus{    color: #0067f5;
+    border-bottom: 1px solid #0067f5;}
+    
+    @include media('<sm') {
+         color: #39a4f5;
+        }
+      }
+
+      .mobile-login-form-register{
+color:#3e1c08;
+       
+    
+    &:hover{    color: black;
+    }
+    
+    &:focus{    color: black;
+        }
+        
+    
+          }
+
+// Login Page End
+
+
+
+// Register Page
+
+.mobile_mainform{
+   
+
+    img {
+        display:block;
+ 
+
+        @include media('<xs') {
+            display:block;
+            
+            }
+    }
+     p {
+        display:none;
+     
+    
+            @include media('<xs') {
+                font-size: 16px;
+                font-weight: bold;
+                display:block;
+                
+                }
+                @include media('<sm') {
+                    font-size: 18px;
+                    font-weight: bold;
+                    display: contents;
+                    
+                    }
+        }
+
+  
+}
+
+.mobile-register-form-button{
+    background: #d92222;
+    font-size: 12px;
+    border-radius: 16px;
+    color: #fff !important; 
+    &:focus{
+        color:black !important
+    }
+  }
+
+  .mobile-register-already{
+color:#39a4f5;
+    &:hover{    color: #0067f5;
+        border-bottom: 1px solid #0067f5;}
+        
+        &:focus{    color: #0067f5;
+            border-bottom: 1px solid #0067f5;}
+            
+            @include media('<sm') {
+                 color: #39a4f5;
+                }
+
+  }
+
+
+  .mobile_dashboard .ant-card-body {
+  
+    @include media('<md') {
+        box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1) !important;
+        border-radius: 8px;
+       }
+
+    @include media('<sm') {
+        box-shadow: 0 0 8px 0 rgba(0, 0, 0, 0.1) !important;
+        border-radius: 8px;
+       }
+}
+
+.mobile_dashboard .ant-statistic-content {
+  
+    @include media('<md') {
+        font-size: 16px;
+       }
+
+    @include media('<sm') {
+      font-size: 14px;
+       }
+}
+
+// .sidebarDiv{
+
+//     // @include media('<sm') {
+//     //     max-width: 200px !important;
+//     //     min-width: 200px !important;
+//     //     width: 200px !important;
+//     //      }
+// }
+
+// .ant-layout-sider .ant-layout-sider-dark .ant-layout-sider-collapsed .ant-layout-sider-below .ant-layout-sider-zero-width .sidebarDiv{
+
+//     @include media('<sm') {
+//         max-width: 200px !important;
+//         min-width: 200px !important;
+//         width: 200px !important;
+//          }
+// }
+// .ant-layout-sider .ant-layout-sider-dark .ant-layout-sider-below .sidebarDiv{
+
+//     @include media('<sm') {
+//         max-width: 200px !important;
+//         min-width: 200px !important;
+//         width: 200px !important;
+//          }
+// }
+
+
+.sidebarDiv{
+    width: 265px ;
+    @include media('<sm') {
+       
+        width: 200px ;
+    }
+}
+
+.ant-table{
+    @include media('<sm') {
+       
+       font-size: 12px;
+    }
+}
+
+.logoDiv .innerlogo a {
+
+    @include media('<sm') {
+        color: #fff !important;
+        font-size: 20px;
+     }
+}
+
+
+.ant-pagination-prev .ant-pagination-item-link, .ant-pagination-next .ant-pagination-item-link {
+    @include media('<sm') {
+        color: rgb(88, 88, 88);
+        font-size: 16px;
+        padding: 0 10px 10px;
+     }
+}
+
+.ant-btn-danger{
+    @include media('<sm') {
+        padding: 2px 8px;
+     }
+}
+
+.ant-table-thead > tr > th, .ant-table-tbody > tr > td, .ant-table tfoot > tr > th, .ant-table tfoot > tr > td{
+    @include media('<sm') {
+        padding: 8px 8px;
+     }
+}
+
+.mobile_verify_btn{
+    background-color: #218838!important;
+    border: none !important;
+}
+
+.ant-table-container{
+    @include media('<md') {
+        overflow-x: scroll;
+      }
+    @include media('<sm') {
+       overflow-x: scroll;
+     }
+}
+
+.uploaderImg{
+
+    @include media('<sm') {
+       width: auto !important;
+
+       margin: 0 0 20px 0 !important;
+      }
+}
+
+.ant-card-head-title .anticon-left{
+    margin-right: 12px;
+}
+
+.headerdiv{
+
+
+   
+
+    @include media('<sm') {
+     position: fixed;
+       }
+
+}
+
+.mobile-form-select{
+    @include media('<sm') {
+        font-size: 11px;
+        width: 80px;
+        min-height: 24px;
+        padding-top: 4px;
+          }
+   
+
+}
+
+.mobile_order_details{
+
+
+    .order-detail-heading{
+        @include media('<sm') {
+          font-size: 10px;
+           }
+    }
+
+    .ant-btn-primary {
+        color:black;
+
+        @include media('<sm') {
+            color: black !important;
+            font-size: 11px;
+            padding: 2px 4px;
+             }
+  
+       }
+
+       .ant-card-head{
+        @include media('<sm') {
+            font-size: 14px;
+            font-weight: bold;
+             } 
+       }
+
+       .ant-row{
+        @include media('<sm') {
+            font-size: 12px;
+       
+             } 
+       }
+
+       .ant-card-body{
+        @include media('<sm') {
+            font-size: 12px;
+            
+       
+             } 
+       }
+       .ant-btn-danger{
+        @include media('<sm') {
+            font-size: 11px;
+            padding: 2px 4px;
+            margin-top : 4px
+             } 
+       }
+
+       .ant-modal-body{
+        @include media('<sm') {
+            font-size: 11px;
+           
+             } 
+       }
+
+       .ant-modal-title{
+
+        @include media('<sm') {
+            font-size: 12px !important;
+           
+             } 
+       }
+
+       td {
+        text-align: left;
+        padding: 10px;
+        font-weight: 300;
+    }
+       
+
+}
+
+.ant-modal-body{
+    @include media('<sm') {
+        font-size: 12px;
+        padding: 10px; 
+       
+         } 
+
+         td{
+            @include media('<sm') {
+                padding: 10px; 
+               
+                 } 
+         }
+   }
+
+   .ant-modal-title{
+
+    @include media('<sm') {
+        font-size: 14px !important;
+       font-weight: bold
+         } 
+   }
+
+   .ant-modal-footer .ant-btn-primary{
+    @include media('<sm') {
+        color: black !important;
+        font-size: 11px;
+        padding: 2px 4px;
+         }
+   }
+
+   .mobile_business_verify{
+ 
+   }
+
+   .mobile_btn_between{
+      
+
+       @include media('<sm') {
+        display: flex !important;
+        justify-content: space-between!important;
+         }
+   }
+
+   .mobile_btn_margin{
+       margin-right: 1rem !important;
+   }
+
+   .mobile_btn_add{
+
+    @include media('<sm') {
+        color: black !important;
+        font-size: 11px;
+        padding: 2px 4px;
+        margin-bottom: 2rem;
+         }
+
+   }
+
+   .ant-card-head-title{
+
+    @include media('<sm') {
+    
+        font-size: 1rem;
+        font-weight: bold ;
+     
+         }
+
+   }
+
+   .ant-form-horizontal{ 
+    margin-top: 2rem !important;
+}
+
+.mobile_total_amt{ 
+   padding: 0px !important;
+   @include media('<sm') {
+   font-size: 14px;
+       } 
+}
+.ant-card-body{
+
+    @include media('<sm') {
+      padding: 4px;
+         } 
+}
+
+.mobile_bold{
+
+    @include media('<sm') {
+     font-weight: bold;
+         } 
+}
+
+.ant-picker-dropdown{
+
+    @include media('<sm') {
+     width: auto;
+         } 
+}
+
+.ant-picker-content th {
+    @include media('<sm') {
+        line-height: 0px;
+            } 
+   
+}
+
+.ant-picker-panel-container .ant-picker-panel .ant-picker-content, .ant-picker-panel-container .ant-picker-panel table{
+    overflow-x: scroll !important;
+
+    td{
+        @include media('<sm') {
+padding:0;                 } 
+        
+
+    }
+    @include media('<sm') {
+       font-size:10px;
+            } 
+   
+}
+
+.ant-picker-header-view{
+    @include media('<sm') {
+        flex : none
+             } 
+    
+}
+
+.ant-picker-date-panel .ant-picker-body{
+    @include media('<sm') {
+        padding: 0 4px;
+             } 
+    
+}
+
+.ant-picker-header{
+    @include media('<sm') {
+        padding: 0 ;
+             } 
+}
+
+.ant-picker-date-panel .ant-picker-content th{
+    @include media('<sm') {
+        padding: 0 ;
+             } 
+}
+
+// .ant-picker-date-panel .ant-picker-content {
+  
+//     @include media('<sm') {
+//         width: 126px !important;
+//              } 
+// }
+// .ant-picker-content {
+  
+//     @include media('<sm') {
+//         width: 50% !important;
+//              } 
+// }
+
+.ant-picker-decade-panel, .ant-picker-year-panel, .ant-picker-quarter-panel, .ant-picker-month-panel, .ant-picker-week-panel, .ant-picker-date-panel, .ant-picker-time-panel{
+    @include media('<sm') {
+        width: 210px;
+                    } 
+}
+
+.ant-picker-header{
+
+    @include media('<sm') {
+       font-size: 12px;
+                    } 
+
+}
+
+
+
+.ant-tooltip{
+    @include media('<sm') {
+        top: 372px !important;
+        padding-left: 125px;
+font-size: 12px;
+
+                     } 
+}
+
+.intooltip .ant-tooltip-content .ant-tooltip-inner h4{
+    @include media('<sm') {
+   
+font-size: 12px !important;
+
+                     } 
+}
+
+.intooltip .ant-tooltip-content .ant-tooltip-inner {
+    background: #fcb800;
+    padding: 0;
+    width: 200px;
+}
+
+.ann_message{
+  
+    font-size: 12px;
+    display: inline-block !important;
+    width: 100px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis !important;
+
+    @include media('<sm') {
+        display: inline-block !important;
+        width: 100px !important;
+        overflow: hidden !important;
+        white-space: nowrap !important;
+        text-overflow: ellipsis !important;
+        
+                             } 
+}
+
+
+.ant-btn-primary{
+    color:black;
+
+    &:hover{
+        color:black
+    }
+    @include media('<sm') {
+        padding: 2px 8px;
+    }
+}
+.mobile-btn{
+    @include media('<sm') {
+        padding: 2px 8px;
+    }
+}
+.mobile_acdc{
+    @include media('<sm') {
+        padding: 2px 5px;
+        font-size: 10px;
+    }
+}
+
+.mobile_user_table{
+    padding: 0px 15px 15px;
+    @include media('<sm') {
+        padding: 0 ;
+    }
+}
+
+.ant-btn-success{
+    @include media('<sm') {
+        color:black;
+        font-size: 11px;
+            padding: 2px 4px;
+            margin-top:4px;
+    }
+}
+
+.logoDiv  {
+
+    @include media('<sm') {
+        min-width: 0 !important;
+     }
+}
+
+.ant-dropdown-menu-title-content{
+    @include media('<sm') {
+      font-size: 12px !important;
+     }
+}
+
+.ant-dropdown-menu {
+    position: relative;
+    margin: 0;
+    padding: 0px 0;
+    text-align: left;
+    list-style-type: none;
+    background-color: #d7d7d7;
+    background-clip: padding-box;
+    border-radius: 4px;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+    @include media('<sm') {
+        // font-size: 12px !important;
+       }
+}
+
+.mobile_header{
+    color: "#fff"; 
+    height: 0;
+    @include media('<sm') {
+        height: 0px;
+
+       }
+}
+
+.mobile_clear{
+    color: #325593 !important;
+    background-color: #a3c1f6 !important;
+    padding: 6px !important;
+    border-radius: 12px;
+    margin-bottom: 8px;
+
+    &:hover{
+        color:white !important;
+    }
+    &:focus{
+        color:white
+    }
+
+}
+
+.mobile_dashboard{
+    .ant-card-bordered{
+        @include media('<sm') {
+            text-align: center !important;
+    
+           }
+    }
+}
+
+
+.multiSelectContainer li {
+  
+    @include media('<sm') {
+        padding: 4px !important;
+
+       }
+}
+.highlightOption {
+    background: #172f72 !important;
+    color: #fff;
+}
+
+.chip{
+    background: #172f72 !important;
+}
+
+.ant-card-body {
+    @include media('<sm') {
+        // padding-left: 24px !important;
+
+       }
+}
+
+
+
+
+    .contentDiv {
+        @include media('<sm') {
+            margin-left: 24px !important;
+    
+           }
+    }
+
+    .ant-input-group > .ant-input:first-child, .ant-input-group-addon:first-child {
+
+        @include media('<sm') {
+            margin-left: 10px !important;
+    
+           }
+    }
+
+    .mobile_invisiable{
+        font-family: 'Avenida Std';font-size: 30px;
+        display: initial ;
+      
+        color: #fff;
+        text-shadow: 0 0 0px #fff, 0 0 0 #fff, 0 0 2px #fff, 0 0 20px #e0d9be, 0 0 80px #e0d9be, 0 0 10px #e0d9be, 0 0 1px #e0d9be, 0 0 1px #e0d9be;
+
+        @include media('<sm') {
+            display: none !important;
+    
+           }
+
+    }
+
+    .img_icon{
+        height: 40px !important;
+        width: 40px !important;
+    }
+
+    .div_tickets{
+        background-color: #506273 !important;
+    }
+
+    .reload_icon{
+        font-size: 24px
+    }
+
+    .fa-spin-click {
+        animation: fa-spin 1s infinite linear;
+        color : #192e59;
+      }
+
+
+      .banner_sugg{
+          font-size: 11px;
+          padding-left: 8px;
+      }
+
+
+      .resend_link{
+          color:#3e1c08;
+      }
+
+      .ant-form-horizontal {
+        margin: 0 !important;
+    }
+
+    .basicbox_height{
+        min-height: 540px !important;
+    }
+
+    .ant-layout-sider{
+        background-color: #3e1c08! important;
+    }
+
+    .ant-menu-dark{
+        background: #3e1c09 !important
+    }
+
+    .ant-menu-item-selected {
+        background-color: #141414 !important;
+        
+    }
+
+    .ant-menu-inline.ant-menu-sub{
+        background: grey !important;
+        color: #001529 !important;
+        span{
+            color: navy ;
+
+            &:focus{
+                color: #fff !important;
+            }
+            &:hover{
+                color: #fff !important;
+            }
+        }
+    }
+
+    .headtoplink{
+        float: right !important;
+    }
+
+
+    .report_reason{
+        font-size: 12px;
+    }
+
+    .tag_price{
+        font-size : 12px;
+    }
+
+    .order-detail-bold{
+        color:black !important;
+    }

@@ -1,0 +1,6 @@
+{
+    "db_uri":"mongodb://localhost/martfury",
+    "jwd_secret":"ilovetocutmyhairchoovoobarbershop",
+    "ROLES":["CUSTOMER","BARBER","ADMIN"]
+} 
+
