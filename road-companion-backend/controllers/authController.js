@@ -397,7 +397,7 @@ module.exports = {
                         if (!compare) {
                             if (data.password === password) {
                                 UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({});
-                                res.json({
+                                res.status(200).json({
                                     status: true,
                                     accessToken,
                                     user,
@@ -405,10 +405,10 @@ module.exports = {
                                 });
                                 return;
                             }
-                            res.send({ status: 400, message: "Invalid password!" });
+                            res.status(500).send({ message: "Invalid password!" });
                         } else {
                             UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({})
-                            return res.json({
+                            return res.status(200).json({
                                 status: true,
                                 accessToken,
                                 user,
@@ -417,7 +417,7 @@ module.exports = {
                         }
 
                     } else {
-                        res.send({ status: 400, message: "email not found" });
+                        res.status(500).send({  message: "email not found" });
                     }
                 })
 
