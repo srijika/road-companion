@@ -83,22 +83,20 @@ module.exports = {
    
     signup: async (req, res, next) => {
 
-
+        
         try {
             const {
-                name,
+            
                 email,
                 password,
                 roleType,
-                mobile_number,
-                avatar,
-
+               
             } = req.body;
 
             const d = new Date();
 
-            if (!name)
-                return res.send({ status: 400, message: "name is required" });
+            // if (!name)
+            //     return res.send({ status: 400, message: "name is required" });
 
             if (!email)
                 return res.send({ status: 400, message: "Email is required" });
@@ -106,8 +104,8 @@ module.exports = {
             if (!password)
                 return res.send({ status: 400, message: "Password is required" });
 
-            if (!mobile_number)
-                return res.send({ status: 400, message: "Mobile No. is required" });
+            // if (!mobile_number)
+            //     return res.send({ status: 400, message: "Mobile No. is required" });
 
             if (!roleType || ROLES.indexOf(roleType) == -1)
                 return res.send({ status: false, message: "Role is not valid" });
@@ -120,32 +118,33 @@ module.exports = {
 
             const data = {
                 email: email,
-                username: name,
+              
                 password: hash, 
                 roles: roleType,
-                mobile_number: mobile_number,
-                otp: userOtp,
-                avatar:avatar,
+              
+                otp: userOtp
+                
             };
 
-            
+          
             const isUser = await UserLogins
-                .findOne({ $or: [{ email: email },  { mobile_number: mobile_number }] })
+                .findOne({ $or: [{ email: email }] })
                 .lean().exec();
+             
             if (isUser) {
                 let msg = 'This';
                 if (isUser.email === email) {
                     msg += ' Email';
-                }  else if (isUser.mobile_number === mobile_number) {
-                    msg += ' Mobile No';
-                }
+                }  
                 msg += ' is already registered';
 
                 return res.send({ status: 400, message: msg });
             }
-
+           
             const userLoginCreate = await (new UserLogins(data)).save();
+           
             let isUser1 = await UserLogins.findOne({ $or: [{ email: userLoginCreate.email }] }).lean().exec();
+           
             isUser1 = { username: isUser1.email, _id: isUser1._id, time: new Date().getTime(), role: isUser1.roles };
 
             const accessToken = jwt.sign(isUser1, accessTokenSecret);
@@ -153,14 +152,14 @@ module.exports = {
             let msg_body = 'Hi, <br />';
             msg_body += 'Your account has been added on Choovoo Barber Website <br />';
             msg_body += 'Please find below your login credentials:<br />';
-            msg_body += 'Username: ' + name + '<br />';
+         
             msg_body += 'Email: ' + email + '<br />';
             msg_body += 'Password: ' + password + '<br />';
             msg_body += '<br />Thanks,<br />Choovoo Barber Team';
 
             // email sending
 
-            await Helper.sendEmail(email, 'New Signup', msg_body);
+            //await Helper.sendEmail(email, 'New Signup', msg_body);
             return res.send({ status: 200, user_id: userLoginCreate._id,accessToken:accessToken, message: `${roleType} Sign Up Successfully`});
 
 
@@ -178,25 +177,29 @@ module.exports = {
     sendOtp: async (req, res, next) => {
         try {
 
-            const { email } = req.body;
+            const { email, type } = req.body;
             if (!email)
-            return res.send({ status: false, message: "Email is required" });
-
-            const isUser = await UserLogins.findOne({ $or: [{ email: email }] }).lean().exec();
-             if (isUser) { 
-                return res.status(400).send({ status: 400, message: `User Already Exists!` });
-
-             }
+            return res.status(400).send({ status: false, message: "Email is required" });
 
             const userOtp = generateOTP();
 
             let msg_body = 'Hi, <br />';        
-            msg_body += 'And your OTP(One Time Password) is ' + userOtp;
-            msg_body += '<br />Thanks,<br />Choovoo Barber Team';
+            msg_body += ' your OTP(One Time Password) is ' + userOtp;
+            msg_body += '<br />Thanks,<br />Road Companion  Team';
+            const isUser = await UserLogins.findOne({ $or: [{ email: email }] }).lean().exec();
 
-            // email sending
-            await Helper.sendEmail(email, 'New Signup', msg_body);
-            return res.status(200).send({ status: 200, Otp: userOtp });
+             if (!isUser && type ==='register') { 
+                 console.log('a');
+               // await Helper.sendEmail(email, 'New Signup', msg_body);
+                return res.status(200).send({ status: 200, Otp: userOtp });
+             }
+             if (isUser && type ==='forgot') { 
+                //await Helper.sendEmail(email, 'Forgot Password', msg_body);
+                return res.status(200).send({ status: 200, Otp: userOtp });
+
+             }
+             
+             return res.status(500).send({ status: 500, message: "User not found!"  });
         }
 
         catch(error){
@@ -658,7 +661,35 @@ module.exports = {
         }
     },
 
+    recoverPasswordUser: async (req, res, next) => { 
+        try {
+
+
+           
+            const { email,  password,  } = req.body;
+            if (!email || !password ) {
+                return res.status(500).send({ status: false, message: "please provide required params" })
+            }
+
+            const isUser = await UserLogins.findOne({ email: email });
+          
+
+            if (!isUser) {
+                return res.status(400).send({ status: 400, message: "User not found" });
+            }
+
+        const hashPassword = bcrypt.hashSync(password, saltRounds);
+     
+        await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
+        
     
+        return res.status(200).send({ status: 200, message: 'Password updated successfully Please Login !' });
+
+        } catch (error) {
+            return res.status(400).send({ status: 400, message: error.message });
+        }
+
+    },
 
      
 
@@ -818,20 +849,20 @@ module.exports = {
             const newOtp = generateOTP();
 
             if (!username) {
-                return res.send({ status: 400, message: "please provide email" });
+                return res.status(400).send({ status: 400, message: "please provide email" });
             }
 
             const isUser = await UserLogins.findOne({ $or: [{ email: username }] });
 
             if (!isUser) {
-                return res.send({ status: 400, message: "User not found" });
+                return res.status(400).send({ status: 400, message: "User not found" });
             }
             if(isUser && isUser.deactive) {
-                return res.send({ status: 400, message: block_user_messsage });
+                return res.status(400).send({ status: 400, message: block_user_messsage });
             }
 
             if(isUser.deactive && isUser.roles != "ADMIN") {
-                return res.send({ status: 400, message: block_user_messsage });   
+                return res.status(400).send({ status: 400, message: block_user_messsage });   
             }
 
             const isOtp = await otp.findOneAndUpdate({ loginid: isUser._id }, { $inc: { attempt: 1 }, otp: newOtp });
@@ -846,14 +877,14 @@ module.exports = {
             msg_body += `<a href="http://13.234.31.171/api/resetPasswordView/mobile?q=${isUser._id}">reset password</a>:<br />`;
 
 
+            await Helper.sendEmail(isUser.email, `Your Verification code`, `Your verification code to reset your password is ${newOtp}`)
 
+            // await Helper.sendEmail(isUser.email, 'Reset Password', msg_body);
 
-            await Helper.sendEmail(isUser.email, 'Reset Password', msg_body);
-
-            return res.send({ status: 200, message: "Otp sent to your email address" });
+            return res.status(200).send({ status: 200, message: "Otp sent to your email address" , otp: newOtp });
 
         } catch (error) {
-            return res.send({ status: 400, message: error.message });
+            return res.status(500).send({ status: 500, message: error.message });
         }
 
  
