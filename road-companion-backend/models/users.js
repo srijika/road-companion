@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const schema = new Schema({
-    username: { type: String,  required: true },
+    username: { type: String},
     email: { type: String, unique: true, required: true },
-    mobile_number: { type: String ,  unique: true, required: true},
+    mobile_number: { type: String },
     password: { type: String, required: true },
-    roles: { type: String, required: true }, // 'CUSTOMER'  'BARBER'  'ADMIN'
+    roles: { type: String }, // 'CUSTOMER'  'USER'  'ADMIN'
     type_login: { type: String },
     otp: { type: String, default: null },
     isEmailVerified: { type: Boolean, default: false },
