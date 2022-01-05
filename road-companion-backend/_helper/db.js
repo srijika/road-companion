@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 
-const localDB = "mongodb://127.0.0.1:27017/choovoo";
+const localDB = "mongodb://127.0.0.1:27017/road-companion";
 
 mongoose.connect(process.env.MONGODB_URI || localDB,
     { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false }
