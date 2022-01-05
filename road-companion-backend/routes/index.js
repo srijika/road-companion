@@ -65,6 +65,7 @@ var routefunctions = (app) => {
   app.post('/api/send-otp', authCtrl.sendOtp)
   app.post('/api/signup', authCtrl.signup)
   app.post('/api/user/login', authCtrl.loginUser)
+  app.post('/api/user/resetPassword', authCtrl.recoverPasswordUser)
   app.post('/api/resetPassword/mobile', authCtrl.forgotpasswordmobile);
   app.get('/api/resetPasswordView/mobile', authCtrl.recoverpasswordmobileview);
   app.post('/api/recoverPassword/mobile', authCtrl.recoverpasswordfrommobile);
