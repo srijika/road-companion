@@ -1,0 +1,95 @@
+@import "https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css";
+@import "https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css";
+*{ margin: 0; padding: 0 ; box-sizing: border-box;}
+html, body {width: 100%;height: 100%; overflow-x: hidden}
+h1, p {
+  font-family: Lato;
+}
+img{width:100%; height:auto}
+.headding{color:red}
+input:-webkit-autofill,input:hover:-webkit-autofill, textarea:-webkit-autofill, select:-webkit-autofill{
+  box-shadow: 0 0 0 50px inset #fff;
+  background-color:rgba(0,0,0,0) !important;
+  /* background-color:rgba(0,0,0,0) !important; */
+}
+input, select, button{min-height:35px}
+.ant-input:focus { border-color: #3e1c08 !important;}
+.table-responsive .ant-table-body{width:100%; overflow: auto;}
+table tr td, table tr th{word-break: normal !important;}
+.ant-select-dropdown-hidden{z-index: 1;}
+.ant-input-number{width:100%}
+.ant-form-item.ant-form-item-with-help { margin-bottom: 0 !important;}
+.ant-form-item{ margin-bottom: 19px !important;}
+.m-b0{margin-bottom: 0 !important;}
+
+/* .mobilefield{
+  span{padding: 0 !important; background: none; border-width:0 0 1px 0; right:0 !important; left:auto !important; border-radius: 0}
+  img{position: relative; top:-2px;}
+  img + div{margin: 0 !important; }
+  img + div div{padding: 0 !important; font-size: 17px; }
+  input{padding-left: 10px !important}
+} */
+.full-width-form{min-width:100%;}
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none;
+  -moz-appearance: none; 
+  appearance: none; 
+  margin: 0; 
+}
+.mb-0{margin-bottom:0 !important}
+.innerContainer{padding:15px 0}
+.innerFields{min-width:100%}
+.ant-picker{padding:0 11px !important}
+
+.text_danger {
+  color: #f14705;
+  margin-bottom: 1rem;
+  font-size: 10px
+}
+
+.ant-input[disabled] {
+  color: black!important;
+  background-color: #ffffff;
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+
+.ant-dropdown-menu-item, .ant-dropdown-menu-submenu-title {
+  white-space: normal;
+}
+
+
+
+.chat-online {
+  color: #34ce57
+}
+
+.chat-offline {
+  color: #e4606d
+}
+
+.chat-messages {
+  display: flex;
+  flex-direction: column;
+  /* max-height: 350px;
+  overflow-y: scroll */
+}
+
+.chat-message-left,
+.chat-message-right {
+  display: flex;
+  flex-shrink: 0
+}
+
+.chat-message-left {
+  margin-right: auto
+}
+
+.chat-message-right {
+  flex-direction: row-reverse;
+  margin-left: auto
+}
+
+

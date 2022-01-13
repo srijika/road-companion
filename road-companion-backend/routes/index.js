@@ -21,7 +21,7 @@ const blogController = require('../controllers/blogController');
 
 // const { update } = require('../models/otp');
 const authController = require('../controllers/authController');
-const shopController = require('../controllers/shopController');
+const carController = require('../controllers/carController');
 const reviewController = require('../controllers/reviewController');
 const tagController = require('../controllers/tagController');
 const reportController = require('../controllers/reportController');
@@ -82,17 +82,50 @@ var routefunctions = (app) => {
 app.post('/api/send-friend-request', authenticateJWT, friendCtrl.sendfriendrequest); 
 app.post('/api/accept-friend-request', authenticateJWT, friendCtrl.acceptfriendrequest); 
 app.post('/api/delete-friend-request', authenticateJWT, friendCtrl.deletefriendrequest); 
-  //Shop API
-  app.post("/api/create/shop",  authenticateJWT, upload.any() ,shopController.createShop)
-  app.post("/api/update/shop", authenticateJWT, shopController.updateShop)
-  app.post("/api/get-barber/shop",authenticateJWT,  shopController.getBarberShop)
-  app.post("/api/delete/shop", authenticateJWT, shopController.deleteShop)
-  app.get("/api/get/shop/review", authenticateJWT, shopController.getShopReview)
 
-  app.post("/api/get-barber-by-loc/shop",authenticateJWT,  shopController.getBarberShopByLocation)
-  app.post("/api/get-barber-info/shop",authenticateJWT,  shopController.getBarberShopInfo)
-  app.post("/api/get-barber-shop/id",authenticateJWT,  shopController.getBarberShopById)
+// ----- For car modules apis -----//
+app.post("/api/create-car",carController.createCar); 
+app.post("/api/update-car", carController.updateCar);
+app.post('/api/delete-car',carController.deleteCar); 
+app.post('/api/getall-cars',carController.getAllCars); 
+app.post('/api/get-cars',carController.getCars); 
 
+// ----- For car models modules apis -----//
+app.post("/api/create-car-model",carController.createCarModel); 
+app.post("/api/update-car-model", carController.updateCarModel);
+app.post('/api/delete-car-model',carController.deleteCarModel); 
+app.post('/api/getall-car-model',carController.getAllCarModels); 
+app.post('/api/get-cars-model',carController.getCarModel); 
+
+// ----- For car type modules apis -----//
+
+app.post("/api/create-car-type",carController.createCarType); 
+app.post("/api/update-car-type", carController.updateCarType);
+app.post('/api/delete-car-type',carController.deleteCarType); 
+app.post('/api/getall-car-type',carController.getAllCarType); 
+app.post('/api/get-cars-type',carController.getCarType); 
+
+// ----- For car color modules apis -----//
+
+app.post("/api/create-car-color",carController.createColor); 
+app.post("/api/update-car-color", carController.updateColor);
+app.post('/api/delete-car-color',carController.deleteColor); 
+app.post('/api/getall-car-color',carController.getAllColor); 
+app.post('/api/get-cars-color',carController.getColor); 
+
+
+
+
+
+
+
+
+
+// for add and edit user vehicle 
+
+app.post("/api/add-vehicle", upload.any(),authCtrl.addVehicle); 
+app.post("/api/edit-vehicle", upload.any(),authCtrl.updateVehicle); 
+app.post("/api/get-vehicle",authCtrl.getVehicle); 
 
 
 
@@ -107,13 +140,12 @@ app.post('/api/delete-friend-request', authenticateJWT, friendCtrl.deletefriendr
   app.post('/api/feed/comment', feedController.feedComment)
   app.delete('/api/comment/:comment_id/delete', feedController.commentDelete)
   app.post('/api/comment/likes', feedController.commentLikes)
-
+  
   //Shop REVIEW API
-    app.post("/api/create/shop/review",  reviewController.createShopReview)
-    app.post("/api/delete/shop/review",  reviewController.deleteShopReview)
-
-
-    //Tag API
+  app.post("/api/create/shop/review",  reviewController.createShopReview)
+  app.post("/api/delete/shop/review",  reviewController.deleteShopReview)
+  
+  //Tag API
     app.post("/api/create/tag", authenticateJWT, tagController.createTag)
     app.post("/api/update/tag", authenticateJWT, tagController.updateTag)
     app.post("/api/delete/tag",authenticateJWT,  tagController.deleteTag)
@@ -200,8 +232,6 @@ app.post('/api/delete-friend-request', authenticateJWT, friendCtrl.deletefriendr
   app.post('/api/user/status',  authCtrl.userActiveDeactiveStatus)
   app.post('/api/maintenance-mode',  authCtrl.maintenanceMode)
   app.post('/api/updateprofile', authenticateJWT ,upload.any() , authCtrl.updateprofile)
-  
-
   app.post('/api/getalluserlist', authCtrl.getalluser);
 
 }
@@ -226,13 +256,12 @@ authenticateJWT = (req, res, next) => {
         if(user.deactive && user.roles != "ADMIN") {
           return res.send({ status: false, message: 'Your Account has been deactivated.' });   
         }
-
-
         req.user = user;
         next();
       });
     } else {
       return res.send({ status: false, message: 'Not Authorized' });
+    
     }
   } else {
     res.sendStatus(401);

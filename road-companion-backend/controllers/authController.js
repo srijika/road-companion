@@ -1,5 +1,7 @@
 const db = require('../_helper/db');
 const UserLogins = db.UserLogins;
+const UserVehicle = db.UserVehicle;
+
 const Profile = db.Profile;
 const otp = db.Otp;
 const accessTokenSecret = require('../config.json').jwd_secret;
@@ -82,23 +84,20 @@ module.exports = {
 
    
     signup: async (req, res, next) => {
-
-
+        
         try {
             const {
-                name,
+            
                 email,
                 password,
                 roleType,
-                mobile_number,
-                avatar,
-
+               
             } = req.body;
 
             const d = new Date();
 
-            if (!name)
-                return res.send({ status: 400, message: "name is required" });
+            // if (!name)
+            //     return res.send({ status: 400, message: "name is required" });
 
             if (!email)
                 return res.send({ status: 400, message: "Email is required" });
@@ -106,8 +105,8 @@ module.exports = {
             if (!password)
                 return res.send({ status: 400, message: "Password is required" });
 
-            if (!mobile_number)
-                return res.send({ status: 400, message: "Mobile No. is required" });
+            // if (!mobile_number)
+            //     return res.send({ status: 400, message: "Mobile No. is required" });
 
             if (!roleType || ROLES.indexOf(roleType) == -1)
                 return res.send({ status: false, message: "Role is not valid" });
@@ -120,32 +119,33 @@ module.exports = {
 
             const data = {
                 email: email,
-                username: name,
+              
                 password: hash, 
                 roles: roleType,
-                mobile_number: mobile_number,
-                otp: userOtp,
-                avatar:avatar,
+              
+                otp: userOtp
+                
             };
 
-            
+          
             const isUser = await UserLogins
-                .findOne({ $or: [{ email: email },  { mobile_number: mobile_number }] })
+                .findOne({ $or: [{ email: email }] })
                 .lean().exec();
+             
             if (isUser) {
                 let msg = 'This';
                 if (isUser.email === email) {
                     msg += ' Email';
-                }  else if (isUser.mobile_number === mobile_number) {
-                    msg += ' Mobile No';
-                }
+                }  
                 msg += ' is already registered';
 
                 return res.send({ status: 400, message: msg });
             }
-
+           
             const userLoginCreate = await (new UserLogins(data)).save();
+           
             let isUser1 = await UserLogins.findOne({ $or: [{ email: userLoginCreate.email }] }).lean().exec();
+           
             isUser1 = { username: isUser1.email, _id: isUser1._id, time: new Date().getTime(), role: isUser1.roles };
 
             const accessToken = jwt.sign(isUser1, accessTokenSecret);
@@ -153,14 +153,14 @@ module.exports = {
             let msg_body = 'Hi, <br />';
             msg_body += 'Your account has been added on Choovoo Barber Website <br />';
             msg_body += 'Please find below your login credentials:<br />';
-            msg_body += 'Username: ' + name + '<br />';
+         
             msg_body += 'Email: ' + email + '<br />';
             msg_body += 'Password: ' + password + '<br />';
             msg_body += '<br />Thanks,<br />Choovoo Barber Team';
 
             // email sending
 
-            await Helper.sendEmail(email, 'New Signup', msg_body);
+            //await Helper.sendEmail(email, 'New Signup', msg_body);
             return res.send({ status: 200, user_id: userLoginCreate._id,accessToken:accessToken, message: `${roleType} Sign Up Successfully`});
 
 
@@ -178,25 +178,29 @@ module.exports = {
     sendOtp: async (req, res, next) => {
         try {
 
-            const { email } = req.body;
+            const { email, type } = req.body;
             if (!email)
-            return res.send({ status: false, message: "Email is required" });
-
-            const isUser = await UserLogins.findOne({ $or: [{ email: email }] }).lean().exec();
-             if (isUser) { 
-                return res.status(400).send({ status: 400, message: `User Already Exists!` });
-
-             }
+            return res.status(400).send({ status: false, message: "Email is required" });
 
             const userOtp = generateOTP();
 
             let msg_body = 'Hi, <br />';        
-            msg_body += 'And your OTP(One Time Password) is ' + userOtp;
-            msg_body += '<br />Thanks,<br />Choovoo Barber Team';
+            msg_body += ' your OTP(One Time Password) is ' + userOtp;
+            msg_body += '<br />Thanks,<br />Road Companion  Team';
+            const isUser = await UserLogins.findOne({ $or: [{ email: email }] }).lean().exec();
 
-            // email sending
-            await Helper.sendEmail(email, 'New Signup', msg_body);
-            return res.status(200).send({ status: 200, Otp: userOtp });
+             if (!isUser && type ==='register') { 
+                    
+               // await Helper.sendEmail(email, 'New Signup', msg_body);
+                return res.status(200).send({ status: 200, Otp: userOtp });
+             }
+             if (isUser && type ==='forgot') { 
+                //await Helper.sendEmail(email, 'Forgot Password', msg_body);
+                return res.status(200).send({ status: 200, Otp: userOtp });
+
+             }
+             
+             return res.status(500).send({ status: 500, message: "User not found!"  });
         }
 
         catch(error){
@@ -397,7 +401,7 @@ module.exports = {
                         if (!compare) {
                             if (data.password === password) {
                                 UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({});
-                                res.status(200).json({
+                                res.json({
                                     status: true,
                                     accessToken,
                                     user,
@@ -405,10 +409,10 @@ module.exports = {
                                 });
                                 return;
                             }
-                            res.status(500).send({ message: "Invalid password!" });
+                            res.send({ status: 400, message: "Invalid password!" });
                         } else {
                             UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({})
-                            return res.status(200).json({
+                            return res.json({
                                 status: true,
                                 accessToken,
                                 user,
@@ -417,7 +421,7 @@ module.exports = {
                         }
 
                     } else {
-                        res.status(500).send({  message: "email not found" });
+                        res.send({ status: 400, message: "email not found" });
                     }
                 })
 
@@ -658,7 +662,35 @@ module.exports = {
         }
     },
 
+    recoverPasswordUser: async (req, res, next) => { 
+        try {
+
+
+           
+            const { email,  password,  } = req.body;
+            if (!email || !password ) {
+                return res.status(500).send({ status: false, message: "please provide required params" })
+            }
+
+            const isUser = await UserLogins.findOne({ email: email });
+          
+
+            if (!isUser) {
+                return res.status(400).send({ status: 400, message: "User not found" });
+            }
+
+        const hashPassword = bcrypt.hashSync(password, saltRounds);
+     
+        await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
+        
     
+        return res.status(200).send({ status: 200, message: 'Password updated successfully Please Login !' });
+
+        } catch (error) {
+            return res.status(400).send({ status: 400, message: error.message });
+        }
+
+    },
 
      
 
@@ -671,7 +703,7 @@ module.exports = {
             const sortColumn = reqBody.sortColumn ? reqBody.sortColumn : 'updated';
             const sortType = reqBody.sortType ? (reqBody.sortType == 'asc' ? 1 : -1) : -1;
             let role = reqBody.role;
-
+            console.log(role) ;
             if (role && !ROLES.includes(role)) {
                 return res.send({ status: false, message: "Not valid role" });
             }
@@ -818,20 +850,20 @@ module.exports = {
             const newOtp = generateOTP();
 
             if (!username) {
-                return res.send({ status: 400, message: "please provide email" });
+                return res.status(400).send({ status: 400, message: "please provide email" });
             }
 
             const isUser = await UserLogins.findOne({ $or: [{ email: username }] });
 
             if (!isUser) {
-                return res.send({ status: 400, message: "User not found" });
+                return res.status(400).send({ status: 400, message: "User not found" });
             }
             if(isUser && isUser.deactive) {
-                return res.send({ status: 400, message: block_user_messsage });
+                return res.status(400).send({ status: 400, message: block_user_messsage });
             }
 
             if(isUser.deactive && isUser.roles != "ADMIN") {
-                return res.send({ status: 400, message: block_user_messsage });   
+                return res.status(400).send({ status: 400, message: block_user_messsage });   
             }
 
             const isOtp = await otp.findOneAndUpdate({ loginid: isUser._id }, { $inc: { attempt: 1 }, otp: newOtp });
@@ -846,14 +878,14 @@ module.exports = {
             msg_body += `<a href="http://13.234.31.171/api/resetPasswordView/mobile?q=${isUser._id}">reset password</a>:<br />`;
 
 
+            await Helper.sendEmail(isUser.email, `Your Verification code`, `Your verification code to reset your password is ${newOtp}`)
 
+            // await Helper.sendEmail(isUser.email, 'Reset Password', msg_body);
 
-            await Helper.sendEmail(isUser.email, 'Reset Password', msg_body);
-
-            return res.send({ status: 200, message: "Otp sent to your email address" });
+            return res.status(200).send({ status: 200, message: "Otp sent to your email address" , otp: newOtp });
 
         } catch (error) {
-            return res.send({ status: 400, message: error.message });
+            return res.status(500).send({ status: 500, message: error.message });
         }
 
  
@@ -863,13 +895,8 @@ module.exports = {
 
     recoverpassword: async (req, res, next) => { 
         try {
-
-
-           
+            
             const { username, old_password, password, otpchk } = req.body;
-       
-
-           
             if (!username || !password || !otpchk) {
                 return res.send({ status: false, message: "please provide required params" })
             }
@@ -1037,216 +1064,92 @@ if(old_password === undefined){
 
     },
 
-    createbussiness: async (req, res, next) => {
+    addVehicle: async (req, res, next) => {
         try {
+            
             const reqBody = req.body;
-            const { storeName, bemail, address, phone } = req.body;
-
-            if (!bemail || !phone || !storeName || !address) {
-                return res.send({ status: false, message: "Required Parameter is missing" });
+            const car_images = [];
+            let certification ;
+            if(req.files.length > 0) {
+                for(let i=1 ; i < req.files.length ; i++){
+                    car_images.push(req.files[i].location) ; 
+                }
             }
-
-            const reqFiles = req.files;
-            const imageFiles = [];
-            const imageFilesThumbnail = [];
-            let FSI = null;
-            let FSIThumbnail = null;
-
-            const loginId = req.user._id;
-
-            // const isUser = await UserLogins.findById(loginId).lean().exec();
-
-            // if (!isUser) {
-            //     return res.send({ status: false, message: "Seller not found" });
-            // }
-
-            // console.log(isUser.email, bemail, isUser.mobile_number, phone);
-
-            // if (isUser.email !== bemail || isUser.mobile_number !== phone) {
-            //     return res.send({ status: false, message: "Email or Phone not match to your profile" });
-            // }
-
-
-            if (reqFiles) {
-                reqFiles.forEach(E => {
-
-
-                    var filePath = path.join(__dirname, '../public/thumbnail/');
-
-                    if (!fs.existsSync(filePath)) {
-                        fs.mkdirSync(filePath);
-                    }
-
-                    const fileUrl = filePath + E.filename;
-
-                    sharp(E.path).resize(300, 200).toFile(fileUrl, function (err) {
-                        if (err) {
-                            console.log(err);
-                        }
-                        console.log('FILEEEEEEEE', fileUrl);
-                    });
-
-
-                    const str = E.originalname;
-                    const extension = str.substr(str.lastIndexOf(".") + 1);
-                    const fJson = {
-                        file: E.filename,
-                        title: E.originalname,
-                        file_type: extension,
-                        file_size: E.size
-                    }
-
-                    if (E.fieldname === 'images') {
-                        imageFiles.push(fJson);
-                        imageFilesThumbnail.push(`thumbnail/${E.filename}`);
-                    }
-                    if (E.fieldname === 'FSI') {
-                        FSI = fJson;
-                        FSIThumbnail = `thumbnail/${E.filename}`;
-                    }
-                })
+            if(req.files && req.files[0] && req.files[0].location ){
+                certification = req.files[0].location;
             }
-
             const jsonData = {
-                storeName: storeName,
-                bemail: bemail,
-                address: address,
-                phone: phone,
-                gstno: reqBody.gstno,
-                gstcert: reqBody.gstcert,
-                panNumber: reqBody.panNumber,
-                idno: reqBody.idno,
-                acNumber: reqBody.acNumber,
-                ifsc: reqBody.ifsc,
-                branch: reqBody.branch,
-                idproof: reqBody.idproof,
-                images: imageFiles,
-                other: reqBody.other,
-                typeSeller: reqBody.typeSeller,
-                loginid: loginId,
-                FSI: FSI,
-                fsaai_no: reqBody.fsaai_no,
-                thumbnailImages: imageFilesThumbnail,
-                FSI_thumbnail: FSIThumbnail,
+                
+                user_id : reqBody.user_id,
+                model_id : reqBody.model_id,
+                year : reqBody.year,
+                colour : reqBody.colour_id,
+                seat_available : reqBody.seat_available,
+                carrying_capacity : reqBody.carrying_capacity,
+                carrying_dimension : reqBody.carrying_dimension,
+                is_smoking : reqBody.is_smoking,
+                insurance_no : reqBody.insurance_no,
+                insurance_certificate: certification,
+                images: car_images,
+
             };
-
-            const created = await (new Bussiness(jsonData)).save();
-            await SendNotification("ADMIN", '', 'business_verify', `${bemail} is send a request for a business verification.`);
-
-            return res.send({ status: true, data: created._id, message: 'Bussiness created successfully' });
+            const created = await (new UserVehicle(jsonData)).save();
+            return res.send({ status: true, data: created._id, message: 'car added successfully' });
         } catch (error) {
             return res.send({ status: false, message: error.message });
         }
     },
 
-    updatebussiness: async (req, res, next) => {
+    updateVehicle: async (req, res, next) => {
         try {
+            
             const reqBody = req.body;
-            const { bussiness_id, storeName, bemail, address, phone } = req.body;
-
-            if (!bussiness_id) {
-                return res.send({ status: false, message: "Bussiness Id is Required" });
+            const car_images = [];
+            let certification ;
+            if(req.files.length > 0) {
+                for(let i=1 ; i < req.files.length ; i++){
+                    car_images.push(req.files[i].location) ; 
+                }
             }
-
-            if (!bemail || !phone || !storeName || !address) {
-                return res.send({ status: false, message: "Required Parameter is missing" });
+            if(req.files && req.files[0] && req.files[0].location ){
+                certification = req.files[0].location;
             }
-
-            const reqFiles = req.files;
-            const imageFiles = [];
-            const imageFilesThumbnail = [];
-            let FSI = null;
-            let FSIThumbnail = null;
-
-            if (reqFiles) {
-                reqFiles.forEach(E => {
-
-                    var filePath = path.join(__dirname, '../public/thumbnail/');
-
-                    if (!fs.existsSync(filePath)) {
-                        fs.mkdirSync(filePath);
-                    }
-
-                    const fileUrl = filePath + E.filename;
-
-                    sharp(E.path).resize(300, 200).toFile(fileUrl, function (err) {
-                        if (err) {
-                            console.log(err);
-                        }
-                        console.log('FILEEEEEEEE', fileUrl);
-                    });
-
-                    const str = E.originalname;
-                    const extension = str.substr(str.lastIndexOf(".") + 1);
-                    const fJson = {
-                        file: E.filename,
-                        title: E.originalname,
-                        file_type: extension,
-                        file_size: E.size
-                    }
-                    if (E.fieldname === 'images') {
-                        imageFiles.push(fJson);
-                        imageFilesThumbnail.push(`thumbnail/${E.filename}`);
-                    }
-
-                    if (E.fieldname === 'FSI') {
-                        FSI = fJson;
-                        FSIThumbnail = `thumbnail/${E.filename}`;
-                    }
-                })
-            }
-
             const jsonData = {
-                storeName: storeName,
-                // bemail: bemail,
-                address: address,
-                // phone: phone,
-                gstno: reqBody.gstno,
-                gstcert: reqBody.gstcert,
-                panNumber: reqBody.panNumber,
-                idno: reqBody.idno,
-                acNumber: reqBody.acNumber,
-                ifsc: reqBody.ifsc,
-                branch: reqBody.branch,
-                idproof: reqBody.idproof,
-                other: reqBody.other,
-                typeSeller: reqBody.typeSeller,
-                fsaai_no: reqBody.fsaai_no
+                
+                user_id : reqBody.user_id,
+                model_id : reqBody.model_id,
+                year : reqBody.year,
+                colour : reqBody.colour_id,
+                seat_available : reqBody.seat_available,
+                carrying_capacity : reqBody.carrying_capacity,
+                carrying_dimension : reqBody.carrying_dimension,
+                is_smoking : reqBody.is_smoking,
+                insurance_no : reqBody.insurance_no,
+                insurance_certificate: certification,
+                images: car_images,
+
             };
+            const isVehicle = await UserVehicle.findById(reqBody.vehicle_id);
 
-            const isBussiness = await Bussiness.findById(bussiness_id);
-
-            if (!isBussiness) {
-                return res.send({ status: false, message: 'Bussiness data not found for this id' });
+            if (!isVehicle) {
+                return res.send({ status: false, message: 'Vehicle data not found for this id' });
             }
 
-            const isUser = await UserLogins.findById(isBussiness.loginid);
+            const isUser = await UserLogins.findById(isVehicle.user_id);
 
             if (!isUser) {
                 return res.send({ status: false, message: 'User not found' });
             }
-
-            if (imageFiles.length) {
-                if (isUser.isBussinessVerified) {
-                    jsonData.$push = { images: imageFiles, thumbnailImages: imageFilesThumbnail };
-                } else {
-                    jsonData.images = imageFiles;
-                    jsonData.thumbnailImages = imageFilesThumbnail;
-                }
-            }
-
-            if (FSI) {
-                jsonData.FSI = FSI;
-                jsonData.FSI_thumbnail = FSIThumbnail;
-            }
-
-            await Bussiness.findByIdAndUpdate(bussiness_id, jsonData);
-
-            return res.send({ status: true, data: {}, message: 'Bussiness updated successfully' });
+            await UserVehicle.findByIdAndUpdate(reqBody.vehicle_id, jsonData);
+            return res.send({ status: true, data: {}, message: 'Vehicle updated successfully' });
         } catch (error) {
             return res.send({ status: false, message: error.message });
         }
     },
+
+
+
+
 
     updateprofile: async (req, res, next) => {
 
@@ -1262,7 +1165,7 @@ if(old_password === undefined){
             if (data && data._id) {
                 req.body['updated'] = new Date();
 
-            let avatar = null;
+             let avatar = null;
                const data = {
                   username :  req.body.name,
                   email :  req.body.email,
@@ -1278,7 +1181,7 @@ if(old_password === undefined){
                     
                 }).catch((err) => {
                     return res.send({ status: 400, message: err.errmsg });
-                    
+                
                 });
             } 
             // else {
@@ -1293,12 +1196,11 @@ if(old_password === undefined){
         });
     },
 
-    getBussiness: (req, res, next) => {
-        var id = req.body._id
-        var _id = id || req.user._id
-        Bussiness.find({ loginid: _id }).populate('loginid', 'isBussinessVerified email username').then((data) => {
-            let isCreated = (data.length > 0) ? 1 : 0;
-            res.send({ status: true, data, isCreated })
+    getVehicle: (req, res, next) => {
+        var user_id = req.body.user_id
+        //var _id = id || req.user._id
+        UserVehicle.findOne({ user_id: user_id }).populate('user_id').then((data) => {
+            res.send({ status: true, data})
             return;
         })
     },
@@ -1847,6 +1749,14 @@ if(old_password === undefined){
             return res.send({ status: false, message: error.message });
         }
     }
+
+
+
+    
+
+    
+
+
 
 }
 

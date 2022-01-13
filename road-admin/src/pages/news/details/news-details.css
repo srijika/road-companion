@@ -1,0 +1,15 @@
+.app-news-detail-date {
+ margin-top: 10px;
+ font-weight: bold;
+}
+
+.app-news-detail-desc {
+    line-height: 1.5rem;
+    text-align: justify;
+}
+
+.app-news-detail-slider img {
+height: 700px;
+width: 100%;
+object-fit: cover;
+}

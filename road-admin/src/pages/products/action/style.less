@@ -1,0 +1,71 @@
+@import '~antd/lib/style/themes/default.less';
+
+.uploader{ background:#fff; text-align:center; 
+	:global{
+		.ant-upload.ant-upload-select-picture-card{display: flex;
+			overflow:hidden;
+			margin: 0 35px 20px 0;
+			float: none;
+			background: #fff;
+			height: 170px;
+			width: 170px;
+			padding: 0;
+			background:lighten(@primary-color, 40%);
+			border: 6px solid #fff;
+			box-shadow:0px 0px 10px 0px @disabled-color;
+			span{display: flex; align-items: center; justify-content: center; padding: 0;}
+		}
+	}
+}
+.uploaderImg{ 
+	margin: 0 35px 20px 0;
+	float: none;
+	background: #fff;
+	height: 170px;
+	width: 170px;
+	padding: 0;
+	background: transparent;
+	border: 6px solid #fff;
+	box-shadow:0px 0px 10px 0px @disabled-color;
+	text-align:center;
+	position:relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	.removeImg{top: 148px; right:-19px;}
+	.editPen{top: -19px; right:-19px;}
+}
+
+.editPen{
+    position: absolute;
+    right: 22px;
+    top: -9px;
+	color:@primary-color;
+    box-shadow: 0 0 4px 0 @disabled-color;
+    border-radius: 50%;
+    background: #fff;
+    height: 30px;
+    width: 30px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	cursor:pointer;
+}
+
+.removeImg{
+    position: absolute;
+    right: 22px;
+    top: 154px;
+	color:@primary-color;
+    box-shadow: 0 0 4px 0 @disabled-color;
+    border-radius: 50%;
+    background: #fff;
+    height: 30px;
+    width: 30px;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+	cursor:pointer;
+}

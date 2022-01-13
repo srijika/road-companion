@@ -26,8 +26,7 @@ console.log("get_UserInfo" ,get_UserInfo)
             get_UserInfo : get_UserInfo
 
         };
-
-
+        
         return res.send({
             status: true,
             countData: DBdata,

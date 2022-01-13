@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 
-const localDB = "mongodb://127.0.0.1:27017/choovoo";
+const localDB = "mongodb://127.0.0.1:27017/roadmap";
 
 mongoose.connect(process.env.MONGODB_URI || localDB,
     { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false }
@@ -29,14 +29,17 @@ module.exports = {
     Feed: require('../models/feeds'),
     FeedLike: require('../models/feed.likes'),
     FeedComment: require('../models/feed.comments'),
-
     Review: require('../models/shop_review'),
-    Shop: require('../models/shop'),
+    Car: require('../models/cars'),
+    CarType: require('../models/car_types'),
+    Color: require('../models/colors'),
+    CarModel: require('../models/car_model'),
     Tag: require('../models/tag'),
     ServiceTag: require('../models/user_servicing_tags'),
     PostReport: require('../models/post-report'),
     PostReport: require('../models/post-report'),
     Appointment: require('../models/appointment'),
+    UserVehicle: require('../models/user_vehicle'),
     FriendRequest: require('../models/friend-request'),
     HtmlPages: require('../models/htmlPages'),
     Frequently_Asked_Question: require('../models/frequently_asked_question'),

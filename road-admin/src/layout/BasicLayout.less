@@ -1,0 +1,33 @@
+@import '~antd/lib/style/themes/default.less';
+
+.sidebarDiv{border-right: 0; z-index: 1; /*background: #c75348; background: linear-gradient(@primary-color, @primary-color);*/
+	.ant-layout-sider-zero-width-trigger{display:none}
+}
+.headerdiv{ background: #665e3c;  padding: 0 ; height:61px; z-index: 5; box-shadow: 0px 0px 3px #58130d;}
+.contentDiv{height: calc(100vh - 61px); padding: 20px; }
+.cardtable{border-top: 1px solid #bf3427;}
+.cardtable ul.ant-pagination.ant-table-pagination{padding: 0 24px}
+.cardtable .ant-table-thead > tr > th{white-space: nowrap}
+.tablesearch + .ant-input-group-addon{padding: 0; border: 0}
+.tablesearch + .ant-input-group-addon button{border-radius: 0 4px 4px 0;}
+.custom-filter-dropdown{padding: 5px; box-shadow: 0 0 2px #ccc; background: #fff}
+.tabletopfield{display: flex; justify-content: space-between;}
+
+@media screen and (max-width:676px){
+  .tabletopfield button span{display: none}
+  .contentDiv{padding: 15px; }
+}
+
+@media screen and (max-width:576px){
+  .sidebarDiv{position: fixed;
+    height: 100%;
+    z-index: 2;
+    top: 54px;
+    padding-top: 6px;}
+  .contentDiv{min-height: 100vh; padding-top: 71px }
+  .sidebarDiv [class="ant-layout-sider-zero-width-trigger"]{ display: none;
+    top: 17px;
+    background: linear-gradient(90deg, #b6352a, #821918)
+  }
+  .headerdiv{position: fixed; top: 0; width: 100%; }
+}

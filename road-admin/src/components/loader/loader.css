@@ -1,0 +1,3 @@
+.loader{position: fixed; top:0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001;    text-align: center;}
+.loader i{position: absolute; top: 50%; color:#fff;}
+.loader svg{position: absolute; top: 50%; color:#fff; transform: translate(-50%,-50%)}

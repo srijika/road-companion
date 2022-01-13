@@ -1,0 +1,84 @@
+/* @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800'); */
+@import '~antd/lib/style/themes/default.less';
+
+.basicpage{
+	// background: linear-gradient(@primary-color, @primary-color);
+	// /* animation: mymove 10s infinite; */
+	// animation-fill-mode: forwards;
+	// background-size: 400% 400%;
+	// padding: 0 15px
+	background: #0d0d39;
+background: linear-gradient(180deg, #0d0d39 0%, #24234f 50%, #33314f 100%);
+}
+
+.OTPInput{
+	padding-left: 15px;
+    letter-spacing: 60px;
+    border: 0;
+    //background-image: linear-gradient(to left, black 70%, rgba(255, 255, 255, 0) 0%);
+    background-position: bottom;
+    background-size: 70px 3px;
+    background-repeat: repeat-x;
+    background-position-x: 40px;
+}
+
+/* @-webkit-keyframes mymove {
+	0%{background-position:51% 0%}
+    50%{background-position:50% 100%}
+    100%{background-position:51% 0%}
+}
+
+@keyframes mymove {	
+	0%{background-position:51% 0%}
+    50%{background-position:50% 100%}
+    100%{background-position:51% 0%}	
+} */
+
+.logo{max-width: 80px; margin: 0 auto; text-align: center; margin-bottom: 25px;}
+.basicbox{
+	background: rgba(255,255,255,1);
+	border-radius: 40px;
+	overflow: hidden;
+	width:100%;
+	max-width: 750px;
+	display: flex; justify-content: space-around; align-items: center;
+	box-shadow: 0px 0px 10px lighten(#fffefe,35%);
+}
+
+
+form{width:100%; max-width:290px}
+.mainimg{height: 100%;     
+	background-image: url(../public/static/images/banner.png);
+	background-size: cover; position: relative;
+	background-position: center; }
+.registerimg{ background-image: url(../public/static/images/banner.png);}
+.resetimg{background-image: url(https://images.unsplash.com/1/bag-and-hands.jpg?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=e67590234d9417585f3717e8fd804add&auto=format&fit=crop&w=747&q=80);}
+.mainimg:after{content: '';
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: rgba(238,58,41,0.2);}
+.mainform{height: 100%;  padding:25px; min-height: 200px; width:100%;     display: flex;
+    justify-content: center;
+	align-items: center;     flex-flow: column;}
+.ant-form-item-explain, .ant-form-item-extra {
+    font-size: 10px !important;
+}
+.eyeicon img { max-width: 15px; opacity: 0.4;}
+.PassPattern{margin: 0; font-size: 0.7rem;  list-style: none}
+.PassPattern .active{color:#6ad834}
+/* .ant-tooltip-content .ant-tooltip-arrow{border-bottom-color:rgb(208, 190, 190)} */
+/* .ant-tooltip-inner{background: rgb(208, 190, 190)} */
+
+@media screen and (max-width:600px){
+	.mainimg{display: none}
+}
+
+
+.responsiveTable {
+	width: 100%; overflow-x: auto;
+	.ant-table-content{overflow-y:auto}
+}
+.responsiveTable .ant-table-tbody > tr > td{min-width:200px; max-width:50%}
+
+
