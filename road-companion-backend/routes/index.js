@@ -133,7 +133,7 @@ app.get('/api/get-car-color-detail',carController.getColorDetail);
 // for add and edit user vehicle 
 
 app.post("/api/add-vehicle", upload.any(),authCtrl.addVehicle); 
-app.post("/api/edit-vehicle", upload.any(),authCtrl.updateVehicle); 
+app.put("/api/edit-vehicle", authenticateJWT ,upload.any(),authCtrl.updateVehicle); 
 app.post("/api/get-vehicle",authCtrl.getVehicle); 
 
 

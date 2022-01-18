@@ -29,6 +29,7 @@ var fs = require('fs');
 var request = require('request');
 const excel = require('exceljs');
 
+
 let saltRounds = 10;
 notEmpty = (obj) => {
     let t = Object.keys(obj).filter(i => (obj[i] == undefined || obj[i].toString().length == 0));
@@ -161,12 +162,10 @@ module.exports = {
             // email sending
 
             //await Helper.sendEmail(email, 'New Signup', msg_body);
-            return res.send({ status: 200, user_id: userLoginCreate._id,accessToken:accessToken, message: `${roleType} Sign Up Successfully`});
+            return res.send({ status: 200, user: userLoginCreate,accessToken:accessToken, message: `${roleType} Sign Up Successfully.`});
 
 
         } catch (error) {
-          
-          
             if (error.errmsg && error.errmsg.indexOf('E11000') > -1) {
                 return res.send({ status: 403, message: "User Already Exist, Please try with other username or email" })
             }
@@ -1080,10 +1079,12 @@ if(old_password === undefined){
             }
             const jsonData = {
                 
+                make_id : reqBody.make_id,
+                type_id : reqBody.type_id,
                 user_id : reqBody.user_id,
                 model_id : reqBody.model_id,
                 year : reqBody.year,
-                colour : reqBody.colour_id,
+                colour : reqBody.colour,
                 seat_available : reqBody.seat_available,
                 carrying_capacity : reqBody.carrying_capacity,
                 carrying_dimension : reqBody.carrying_dimension,
@@ -1102,7 +1103,7 @@ if(old_password === undefined){
 
     updateVehicle: async (req, res, next) => {
         try {
-            
+           
             const reqBody = req.body;
             const car_images = [];
             let certification ;
@@ -1119,7 +1120,7 @@ if(old_password === undefined){
                 user_id : reqBody.user_id,
                 model_id : reqBody.model_id,
                 year : reqBody.year,
-                colour : reqBody.colour_id,
+                colour : reqBody.colour,
                 seat_available : reqBody.seat_available,
                 carrying_capacity : reqBody.carrying_capacity,
                 carrying_dimension : reqBody.carrying_dimension,
@@ -1130,7 +1131,7 @@ if(old_password === undefined){
 
             };
             const isVehicle = await UserVehicle.findById(reqBody.vehicle_id);
-
+                
             if (!isVehicle) {
                 return res.send({ status: false, message: 'Vehicle data not found for this id' });
             }
@@ -1140,8 +1141,10 @@ if(old_password === undefined){
             if (!isUser) {
                 return res.send({ status: false, message: 'User not found' });
             }
+          
             await UserVehicle.findByIdAndUpdate(reqBody.vehicle_id, jsonData);
-            return res.send({ status: true, data: {}, message: 'Vehicle updated successfully' });
+            
+            return res.send({ status: true, message: 'Vehicle updated successfully..' });
         } catch (error) {
             return res.send({ status: false, message: error.message });
         }
