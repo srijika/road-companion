@@ -7,10 +7,11 @@ import TextEditor from '../../../components/sharing/text-editor'
 import moment from 'moment';
 import { connect } from 'dva'; 
 import styles from './style.less'; 
-import { getSubCatbyCategory } from '../../../services/api'
+import { getSubCatbyCategory } from '../../../services/api';
 // import { RMIUploader } from "react-multiple-image-uploader";
 import MultiImageInput from 'react-multiple-image-input';
 import HTMLDecoderEncoder from 'html-encoder-decoder';
+import cars from '../../../models/cars';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -18,16 +19,20 @@ const timestemp = (new Date()).getTime();
 const { RangePicker } = DatePicker;
 const formItemLayout = { labelCol: { xs: { span: 24, }, sm: { span: 24, }, } };
 const baseUrl = process.env.REACT_APP_ApiUrl
-const AddEditPages = props => {
+const AddEditColor = props => {
 	const [form] = Form.useForm();
 	const { dispatch } = props;
 	const [Inquiry, setInquiry] = useState('');
-	const [PageId, setPageId] = useState('');
+	const [carId, setCarId] = useState('');
 	const [count, setCount] = useState(0)
+
 
 	useEffect(() => {
 		let unmounted = false;
 		window.scroll(0, 0);
+		//props.dispatch({ type: 'blogsCategory/blogsCategoryList' });
+		// props.dispatch({ type: 'category/categoryList' });
+		
 		if (props.match.params.id) {
 			DetailFun(props.match.params.id)
 		} else {
@@ -35,42 +40,60 @@ const AddEditPages = props => {
 		}
 		return () => { unmounted = true; }
 	}, [dispatch])
-	
-	const DetailFun = (id) => {
-		props.dispatch({ type: 'pages/pagesDetail', payload: id });
-	}
+
 
 	useEffect(() => {
 		let unmounted = false;
 
-		if(props.pages.add){
-			dispatch({ type: 'pages/clearAction'});
-			props.history.push('/pages');
+
+		
+		if(props.colors.add){
+			dispatch({ type: 'colors/clearAction'});
+			console.log(props.colors.add.message)
+			if(props.colors.add.message){
+				props.history.push('/car-colors');
+			
+			}
 		}
 		
-		if(props.pages.edit){
-			dispatch({ type: 'pages/clearAction'});
-			props.history.push('/pages');
+		if(props.colors.edit){
+			dispatch({ type: 'colors/clearAction'});
+			
+			if(props.colors.edit.message){
+				props.history.push('/car-colors');
+
+			}
+
 		}
-		
-		if(props.pages && props.pages.detail && props.pages.detail.status){
-			let data = props.pages.detail.data[0];
-			setPageId(data._id)
-			setInquiry(HTMLDecoderEncoder.decode(data.html));
+		if(props.colors && props.colors.detail && props.colors.detail.status){
+			let data = props.colors.detail.data[0];
+			setCarId(data._id)
+			//setInquiry(HTMLDecoderEncoder.decode(data.html));
+			//console.log(data.html)
 			form.setFieldsValue({
 				['title']: data.title, 
-				['description']: data.description, 
-				['isActive']: data.isActive, 
-
+				['_id']: data._id,
+				['isActive']: data.isActive == true  ? true : false,
 			})
+		}else {
+			form.resetFields();
 		}
 
 		return () => { unmounted = true; }
-	}, [props.pages])
+	}, [props.colors])
 
+
+	
+	const DetailFun = (id) => {
+		props.dispatch({ type: 'colors/detailColor', payload: id });
+	}
+
+	
+
+	
 	const cancelFun = () => {
 		form.resetFields();
-		props.history.push('/pages');
+		props.history.push('/colors');
 	}
 
 	const onFinish = val => {
@@ -78,11 +101,10 @@ const AddEditPages = props => {
 		val = convertUndefinedObjectKeysToEmptyString(val);
 
 		if (props.match.params.id) {
-			val._id = PageId;
-
-			dispatch({ type: 'pages/EditPages', payload: val });
+			val._id = carId;
+			dispatch({ type: 'colors/EditColor', payload: val });
 		}else {
-			dispatch({ type: 'pages/AddPages', payload: val });
+			dispatch({ type: 'colors/AddColor', payload: val });
 		}
 	}
 
@@ -99,49 +121,33 @@ const AddEditPages = props => {
 	}
 
 	return (
-		<Card title={<span><LeftOutlined onClick={() => props.history.push('/pages')} /> 
-			{ props.detail ? 'Edit Page' : 'Add Page'}</span>} style={{ marginTop: "0" }}>
+		<Card title={<span><LeftOutlined onClick={() => props.history.push('/car-colors')} /> 
+			{ carId ? 'Edit Color' : 'Add Color'}</span>} style={{ marginTop: "0" }}>
 
 			<Form {...formItemLayout} form={form} name="loc_info" layout="vertical" onFinish={onFinish} className="innerFields">
-			
+				
 				<Row gutter={15}>
 					<Col sm={24} md={12}>
-						<Form.Item name="title" label="Title" rules={[{ required: true, message: 'Field required!' },]}  >
-							<Input placeholder="Title" />
+						<Form.Item name="title" label="Color Name" rules={[{ required: true, message: 'Field required!' },]}  >
+							<Input placeholder="Color Name" />
 						</Form.Item>
 					</Col>
 				</Row>
-
-
-				<Row gutter={15}>
-					<Col sm={24} md={24}>
-						<Form.Item name="html" label="html" rules={[{ required: false, message: 'This field is required!' }]} >
-							<TextEditor returnVal={val => setInquiry(val)} data={Inquiry}/>
-						</Form.Item>
-					</Col>
-				</Row>
-
 				<Form.Item  name="isActive" valuePropName="checked" >
                   <Checkbox>isActive</Checkbox>
-              </Form.Item>
+             	 </Form.Item>
 
 				<Form.Item className="mb-0">
 					<Button onClick={cancelFun}>Cancel</Button>&nbsp;&nbsp;
 					<Button type="primary" className="btn-w25 btn-primary-light" onClick={() => form.submit()}>Save</Button>
 				</Form.Item>
-
-	
-
-		
-
-				
 			</Form>
 
 		</Card>
 	)
 };
 
-export default connect(({ pages, global, loading }) => ({
-	pages: pages,
+export default connect(({ colors, global, loading }) => ({
+	colors: colors,
 	global: global
-}))(AddEditPages);
+}))(AddEditColor);

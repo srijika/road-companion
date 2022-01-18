@@ -11,6 +11,7 @@ import { getSubCatbyCategory } from '../../../services/api'
 // import { RMIUploader } from "react-multiple-image-uploader";
 import MultiImageInput from 'react-multiple-image-input';
 import HTMLDecoderEncoder from 'html-encoder-decoder';
+import cars from '../../../models/cars';
 
 const { Text } = Typography;
 const { TextArea } = Input;
@@ -18,16 +19,27 @@ const timestemp = (new Date()).getTime();
 const { RangePicker } = DatePicker;
 const formItemLayout = { labelCol: { xs: { span: 24, }, sm: { span: 24, }, } };
 const baseUrl = process.env.REACT_APP_ApiUrl
-const AddEditPages = props => {
+const AddEditCarModel = props => {
 	const [form] = Form.useForm();
 	const { dispatch } = props;
 	const [Inquiry, setInquiry] = useState('');
-	const [PageId, setPageId] = useState('');
+	const [carId, setCarId] = useState('');
 	const [count, setCount] = useState(0)
+
+
+	let brandList = [];
+	if(props.cars.list !== undefined){
+		
+		let data = props.cars.list ;
+		brandList = data ? data : ''  ;
+		console.log(brandList) ;
+	}
 
 	useEffect(() => {
 		let unmounted = false;
 		window.scroll(0, 0);
+		 props.dispatch({ type: 'cars/carList' });
+		
 		if (props.match.params.id) {
 			DetailFun(props.match.params.id)
 		} else {
@@ -35,42 +47,61 @@ const AddEditPages = props => {
 		}
 		return () => { unmounted = true; }
 	}, [dispatch])
-	
-	const DetailFun = (id) => {
-		props.dispatch({ type: 'pages/pagesDetail', payload: id });
-	}
+
 
 	useEffect(() => {
 		let unmounted = false;
 
-		if(props.pages.add){
-			dispatch({ type: 'pages/clearAction'});
-			props.history.push('/pages');
+		if(props.carModels.add){
+			dispatch({ type: 'carModels/clearAction'});
+			console.log(props.cars.add.message)
+			if(props.cars.add.message){
+				props.carModels.push('/car-models');
+			
+			}
 		}
 		
-		if(props.pages.edit){
-			dispatch({ type: 'pages/clearAction'});
-			props.history.push('/pages');
-		}
-		
-		if(props.pages && props.pages.detail && props.pages.detail.status){
-			let data = props.pages.detail.data[0];
-			setPageId(data._id)
-			setInquiry(HTMLDecoderEncoder.decode(data.html));
-			form.setFieldsValue({
-				['title']: data.title, 
-				['description']: data.description, 
-				['isActive']: data.isActive, 
+		if(props.carModels.edit){
+			dispatch({ type: 'carModels/clearAction'});
+			
+			if(props.carModels.edit.message){
+				props.history.push('/car-models');
 
+			}
+
+		}
+
+
+			
+		if(props.carModels && props.carModels.detail && props.carModels.detail.data ){
+			console.log("details" , props.carModels.detail.data[0])
+
+			let data = props.carModels.detail.data[0];
+			setCarId(data._id)
+
+			form.setFieldsValue({
+				['car_model']: data.car_model, 
+				['car_id']: data.car_id,
+				['_id']: data._id,
+				['isActive']: data.isActive == true ? true : false,
 			})
+
+			
+		}else {
+			form.resetFields();
 		}
 
 		return () => { unmounted = true; }
-	}, [props.pages])
+	}, [props.carModels])
 
+
+	
+	const DetailFun = (id) => {
+		props.dispatch({ type: 'carModels/detailCarModel', payload: id });
+	}
 	const cancelFun = () => {
 		form.resetFields();
-		props.history.push('/pages');
+		props.history.push('/car-models');
 	}
 
 	const onFinish = val => {
@@ -78,11 +109,10 @@ const AddEditPages = props => {
 		val = convertUndefinedObjectKeysToEmptyString(val);
 
 		if (props.match.params.id) {
-			val._id = PageId;
-
-			dispatch({ type: 'pages/EditPages', payload: val });
+			val._id = carId;
+			dispatch({ type: 'carModels/EditCarModel', payload: val });
 		}else {
-			dispatch({ type: 'pages/AddPages', payload: val });
+			dispatch({ type: 'carModels/AddCarModel', payload: val });
 		}
 	}
 
@@ -99,49 +129,39 @@ const AddEditPages = props => {
 	}
 
 	return (
-		<Card title={<span><LeftOutlined onClick={() => props.history.push('/pages')} /> 
-			{ props.detail ? 'Edit Page' : 'Add Page'}</span>} style={{ marginTop: "0" }}>
-
+		<Card title={<span><LeftOutlined onClick={() => props.history.push('/car-models')} /> 
+			{ props.carModels.detail ? 'Edit Car Model' : 'Add Car Model'}</span>} style={{ marginTop: "0" }}>
 			<Form {...formItemLayout} form={form} name="loc_info" layout="vertical" onFinish={onFinish} className="innerFields">
-			
+			<Col sm={24} md={12}>
+						<Form.Item name="car_id" label="Car Brand" rules={[{ required: true, message: 'This field is required!' }]}>
+							<Select placeholder="Car Brand">
+								{brandList.map((item, index) => <Select.Option key={index} value={item._id}>{item.brand_name}</Select.Option>)}
+							</Select>
+						</Form.Item>
+			</Col>
 				<Row gutter={15}>
 					<Col sm={24} md={12}>
-						<Form.Item name="title" label="Title" rules={[{ required: true, message: 'Field required!' },]}  >
-							<Input placeholder="Title" />
+						<Form.Item name="car_model" label="Model Name" rules={[{ required: true, message: 'Field required!' },]}  >
+							<Input placeholder="Model Name" />
 						</Form.Item>
 					</Col>
 				</Row>
-
-
-				<Row gutter={15}>
-					<Col sm={24} md={24}>
-						<Form.Item name="html" label="html" rules={[{ required: false, message: 'This field is required!' }]} >
-							<TextEditor returnVal={val => setInquiry(val)} data={Inquiry}/>
-						</Form.Item>
-					</Col>
-				</Row>
-
 				<Form.Item  name="isActive" valuePropName="checked" >
                   <Checkbox>isActive</Checkbox>
-              </Form.Item>
+             	 </Form.Item>
 
 				<Form.Item className="mb-0">
 					<Button onClick={cancelFun}>Cancel</Button>&nbsp;&nbsp;
 					<Button type="primary" className="btn-w25 btn-primary-light" onClick={() => form.submit()}>Save</Button>
 				</Form.Item>
-
-	
-
-		
-
-				
 			</Form>
 
 		</Card>
 	)
 };
 
-export default connect(({ pages, global, loading }) => ({
-	pages: pages,
-	global: global
-}))(AddEditPages);
+export default connect(({ carModels, global,cars, loading }) => ({
+	carModels: carModels,
+	global: global,
+	cars:cars 
+}))(AddEditCarModel);

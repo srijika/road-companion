@@ -14,6 +14,16 @@ import Reports from '../../pages/reports/list';
 import CarList from '../../pages/cars/list';
 import AddEditCar from '../../pages/cars/action/addEditCar';
 
+import CarModelList from '../../pages/cars-model/list';
+import AddEditCarModel from '../../pages/cars-model/action/addEdit';
+
+import CarColorList from '../../pages/colors/list';
+import AddEditCarColor from '../../pages/colors/action/addEdit';
+
+import CarTypeList from '../../pages/types/list';
+import AddEditCarType from '../../pages/types/action/addEdit';
+
+
 
 
 
@@ -260,8 +270,20 @@ class SubRoute extends Component {
 			 <Route exact path={"/car-brand/add"} component={AddEditCar}/>
 			 <PrivateRoute exact path='/car-brand/edit/:id' component={AddEditCar} />
 
+			 {/* car model routes */}
+			 
+			 <Route exact path={"/car-models"} component={CarModelList}/>
+			 <Route exact path={"/car-models/add"} component={AddEditCarModel}/>
+			 <PrivateRoute exact path='/car-models/edit/:id' component={AddEditCarModel} />
 
 
+			 <Route exact path={"/car-colors"} component={CarColorList}/>
+			 <Route exact path={"/car-colors/add"} component={AddEditCarColor}/>
+			 <PrivateRoute exact path='/car-colors/edit/:id' component={AddEditCarColor} />
+
+			 <Route exact path={"/car-types"} component={CarTypeList}/>
+			 <Route exact path={"/car-type/add"} component={AddEditCarType}/>
+			 <PrivateRoute exact path='/car-type/edit/:id' component={AddEditCarType} />
 
 
 

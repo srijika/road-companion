@@ -1,4 +1,4 @@
-import {getCarsList,createCars,editCar,deleteCar} 
+import {getCarsList,createCars,editCar,deleteCar,getCarDetails} 
 from '../services/api'
 import {message} from 'antd'; 
 
@@ -18,6 +18,7 @@ export default {
   },
 
   effects: {
+    
     *carList({ payload }, { call, put }) {
       let response = {};
         response = yield call(getCarsList); 
@@ -42,6 +43,15 @@ export default {
       if(!response.status) {message.error(response.msg || response.message || response.err, 5);}
 	    yield put({ type: 'edit', message: response.status });
     },
+
+    *detailCar({ payload }, { call, put }) {
+
+      const response = yield call(getCarDetails, payload);
+      console.log(payload)
+      if(!response.status) {message.error(response.msg || response.message || response.err, 5);}
+      yield put({ type: 'detail', ...response});
+    },
+
     *clearAction({ payload }, { call, put }) {
       yield put({ type: 'clear' });
     },
@@ -51,6 +61,9 @@ export default {
 
     list (state, action) {
       return { ...state, list:[...action.data] };
+    },
+    detail(state, action) {
+      return { ...state, detail: action };
     },
     delete (state, action) {
       return { ...state, delete:action };
@@ -63,7 +76,8 @@ export default {
     },
     clear (state,action) {
       return { ...state,  detail:{}, delete:false, add:false, edit:false };
-    }
+    },
+    
 
   },
 };
