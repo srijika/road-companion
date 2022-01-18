@@ -1,4 +1,4 @@
-import {getColorList,createColor,editColor,deleteColor} 
+import {getColorList,createColor,editColor,deleteColor,getColorDetail} 
 from '../services/api'
 import {message} from 'antd'; 
 
@@ -42,6 +42,15 @@ export default {
       if(!response.status) {message.error(response.msg || response.message || response.err, 5);}
 	    yield put({ type: 'edit', message: response.status });
     },
+    *detailColor({ payload }, { call, put }) {
+
+      const response = yield call(getColorDetail, payload);
+      console.log(payload)
+      if(!response.status) {message.error(response.msg || response.message || response.err, 5);}
+      yield put({ type: 'detail', ...response});
+
+    },
+    
     *clearAction({ payload }, { call, put }) {
       yield put({ type: 'clear' });
     },
@@ -63,7 +72,10 @@ export default {
     },
     clear (state,action) {
       return { ...state,  detail:{}, delete:false, add:false, edit:false };
-    }
+    },
+    detail(state, action) {
+      return { ...state, detail: action };
+    },
 
   },
 };

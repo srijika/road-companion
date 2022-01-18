@@ -4,14 +4,14 @@ import Apploader from '../../components/loader/loader'
 import { connect } from 'dva';
 import { Empty, Card, Typography, Alert, Input, Button, Table, Radio, Divider, Switch, Row, Col, Avatar, Pagination, Tabs, Modal, Badge, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import AddEdit from './action/addEdit';
+//import AddEdit from './action/addEdit';
 import { getTitleImage } from '../../utils/functions';
 import Moment from 'react-moment';
 const { Search } = Input;
 const { Text } = Typography;
 const { TabPane } = Tabs;
 
-class PagesList extends React.Component {
+class CarTypeList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -28,7 +28,7 @@ class PagesList extends React.Component {
 			listData: []
 		}
 
-		setTimeout(() => document.title = 'Page List', 100,);
+		setTimeout(() => document.title = 'Car Type List', 100,);
 		this.isUpdate = false;
 	}
 	
@@ -40,7 +40,7 @@ class PagesList extends React.Component {
 
 	
 	ListFun = () => {
-		this.props.dispatch({ type: 'pages/pagesList', payload: {} });
+		this.props.dispatch({ type: 'types/carTypeList', payload: {} });
 	}
 
 	ShowSizeChange = (current, size) => this.setState({ limit: size }, () => this.ListFun());
@@ -49,9 +49,8 @@ class PagesList extends React.Component {
 
 	searchVal = (val) => {
 		this.state.searchText = val;
-		const resultAutos = this.props.pages.list.filter((auto) => 
-									auto.title.toLowerCase().includes(val.toLowerCase()) || 
-									auto.description.toLowerCase().includes(val.toLowerCase())
+		const resultAutos = this.props.types.list.filter((auto) => 
+									auto.title.toLowerCase().includes(val.toLowerCase()) 
 							)
 		this.setState({ listData: resultAutos })
 	}
@@ -61,13 +60,14 @@ class PagesList extends React.Component {
 		this.setState({ detail: '', addModel: false })
 	}
 
-	deletePages = id => {
-		this.props.dispatch({ type: 'pages/deletePages', payload: id });
+	deleteCars = id => {
+
+		this.props.dispatch({ type: 'types/deleteCarType', payload: id });
 	}
 
 	getSnapshotBeforeUpdate(prevProps, prevState) {
-        if ( this.props.pages.delete) {
-			this.props.dispatch({ type: 'pages/clearAction'});
+        if ( this.props.types.delete) {
+			this.props.dispatch({ type: 'types/clearAction'});
             this.ListFun();
 			return true
         }
@@ -81,14 +81,15 @@ class PagesList extends React.Component {
 
 	render() {
 		const { inactive, limit, searchText, addModel, detail } = this.state;
-		const { pages } = this.props;
+		const { types } = this.props;
 		if (this.state.searchText == '') {
-			this.state.listData = pages.list ? pages.list : [];
+			this.state.listData = types.list ? types.list : [];
+			
 		}
 
 		const columns = [
 			{
-				title: <strong>Title</strong>,
+				title: <strong>Car Type</strong>,
 				dataIndex: 'title'
 			},
 			{ title: <strong>isActive</strong>, dataIndex: 'isActive',
@@ -99,8 +100,8 @@ class PagesList extends React.Component {
 			{
 				title: <strong>Action</strong>,  align: 'center',
 				render: (val, data) => <div onClick={e => e.stopPropagation()}>
-					<Button type="primary" onClick={()=>{this.props.history.push('/pages/edit/' + data.slug )}}><EditOutlined /></Button>
-					<Popconfirm title="Are you sure delete this page?" onConfirm={e => { this.deletePages(data.slug); e.stopPropagation() }} okText="Yes" cancelText="No" >
+					<Button type="primary" onClick={()=>{this.props.history.push('/car-type/edit/' + data._id )}}><EditOutlined /></Button>
+					<Popconfirm title="Are you sure delete this car type?" onConfirm={e => { this.deleteCars(data._id); e.stopPropagation() }} okText="Yes" cancelText="No" >
 						<Button type="danger" ><DeleteOutlined /></Button>
 					</Popconfirm>
 				</div>
@@ -114,7 +115,7 @@ class PagesList extends React.Component {
 						<Search placeholder="Search..." onChange={(e) => this.searchVal(e.target.value)} value={searchText} />
 					</Col>
 					<Col>
-						<Button type="primary" onClick={() => this.props.history.push('/pages/add')  }>Add</Button>
+						<Button type="primary" onClick={() => this.props.history.push('/car-type/add')  }>Add</Button>
 					</Col>
 				</Row>
 
@@ -144,6 +145,6 @@ class PagesList extends React.Component {
 	}
 };
 
-export default connect(({ pages, loading }) => ({
-	pages, loading
-}))(PagesList);
+export default connect(({ types, loading }) => ({
+	types, loading
+}))(CarTypeList);

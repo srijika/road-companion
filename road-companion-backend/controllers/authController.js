@@ -1156,9 +1156,12 @@ if(old_password === undefined){
 
     updateprofile: async (req, res, next) => {
 
-        const { email, phone, name } = req.body;
-      
-        if (!email || !phone || !name ) {
+       
+
+        const { name } = req.body;
+        
+
+        if ( !name ) {
             res.send({ status: false, message: "Required Parameter is missing" });
             return;
         }
@@ -1170,9 +1173,9 @@ if(old_password === undefined){
 
              let avatar = null;
                const data = {
-                  username :  req.body.name,
-                  email :  req.body.email,
-                  mobile_number :  req.body.phone,  
+                  name :  req.body.name,
+                //   email :  req.body.email,
+                //  mobile_number :  req.body.phone,  
 
                }
                if(req.files && req.files[0] && req.files[0].location ){

@@ -330,7 +330,11 @@ export function editCar(params) {
 }
 
 export function deleteCar(params) {
-  return request('/api/delete-car',{method:'POST',body:params});
+  return request('/api/delete-car?slug='+params,{method:'DELETE'});
+}
+
+export function getCarDetails(params){
+  return request('/api/get-car-detail?slug='+params,{method:'GET'});
 }
 
 // cars models
@@ -347,7 +351,11 @@ export function editCarModel(params) {
 }
 
 export function deleteCarModel(params) {
-  return request('/api/delete-car-model',{method:'POST', body:params});
+  return request('/api/delete-car-model?slug='+params,{method:'DELETE'});
+}
+
+export function getCarModelDetail(params){
+  return request('/api/get-car-model-detail?slug='+params,{method:'GET'});
 }
 
 // colors
@@ -361,12 +369,16 @@ export function createColor(params) {
 }
 
 export function editColor(params) {
-  return request('/api/update-car-color',{method:'PUT', body:params});
+  return request('/api/update-car-color',{method:'POST', body:params});
 }
 
 export function deleteColor(params) {
-  return request('/api/delete-car-color',{method:'DELETE', body:params});
+  return request('/api/delete-car-color?slug='+params,{method:'DELETE'});
 }
+export function getColorDetail(params){
+  return request('/api/get-car-color-detail?slug='+params,{method:'GET'});
+}
+
 
 // car type
 
@@ -375,14 +387,18 @@ export function getCarsTypeList(params){
 }
 
 export function createCarType(params) {
-  return request('/api/create-html-pages',{method:'POST', body:params});
+  return request('/api/create-car-type',{method:'POST', body:params});
 }
 export function editCarType(params) {
   return request('/api/update-car-type',{method:'POST', body:params});
 }
 
 export function deleteCarType(params) {
-  return request('/api/delete-car-type',{method:'POST',body:params});
+  return request('/api/delete-car-type?slug='+params,{method:'DELETE'});
+}
+
+export function getCarTypeDetail(params){
+  return request('/api/get-car-type-detail?slug='+params,{method:'GET'});
 }
 
 

@@ -23,19 +23,19 @@ const AddEditPages = props => {
 	}
 	
 
-	useEffect(() => {
-		let unmounted = false;
-		window.scroll(0, 0);
-		props.dispatch({ type: 'blogsCategory/blogsCategoryList' });
-		// props.dispatch({ type: 'category/categoryList' });
-		
-		if (props.match.params.id) {
-			DetailFun(props.match.params.id)
-		} else {
-			form.resetFields();
-		}
-		return () => { unmounted = true; }
-	}, [dispatch])
+		useEffect(() => {
+			let unmounted = false;
+			window.scroll(0, 0);
+			props.dispatch({ type: 'blogsCategory/blogsCategoryList' });
+			// props.dispatch({ type: 'category/categoryList' });
+			
+			if (props.match.params.id) {
+				DetailFun(props.match.params.id)
+			} else {
+				form.resetFields();
+			}
+			return () => { unmounted = true; }
+		}, [dispatch])
 
 
 
@@ -92,10 +92,10 @@ const AddEditPages = props => {
 			console.log(props.blogs.edit.message)
 
 			console.log(props)
-if(props.blogs.edit.message){
-	props.history.push('/blogs');
+			if(props.blogs.edit.message){
+				props.history.push('/blogs');
 
-}
+			}
 
 		}
 

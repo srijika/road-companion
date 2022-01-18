@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const schema = new Schema({
-    username: { type: String},
-    email: { type: String, unique: true, required: true },
+    name : { type: String },
+    email: { type: String, unique: true },
     mobile_number: { type: String },
-    password: { type: String, required: true },
+    password: { type: String },
     roles: { type: String }, // 'CUSTOMER'  'USER'  'ADMIN'
     type_login: { type: String },
     otp: { type: String, default: null },
@@ -14,9 +14,7 @@ const schema = new Schema({
     avatar: { type: String, default: null },
     no_of_loggedin: { type: Number, default: 0 },
     last_login_time: { type: Date, default: null }, // for login history
-
-
-
+    
 
     // ip_address: { type: String, default: null },
     // mobile_otp: { type: String, default: null },

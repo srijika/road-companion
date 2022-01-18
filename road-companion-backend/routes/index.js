@@ -87,32 +87,40 @@ app.post('/api/delete-friend-request', authenticateJWT, friendCtrl.deletefriendr
 // ----- For car modules apis -----//
 app.post("/api/create-car",carController.createCar); 
 app.post("/api/update-car", carController.updateCar);
-app.post('/api/delete-car',carController.deleteCar); 
+app.delete('/api/delete-car', carController.deleteCar)
+//app.post('/api/delete-car',carController.deleteCar); 
 app.post('/api/getall-cars',carController.getAllCars); 
-app.post('/api/get-cars',carController.getCars); 
+app.post('/api/get-cars',carController.getCars);
+app.get('/api/get-car-detail',carController.getCarDetail);
+
 
 // ----- For car models modules apis -----//
 app.post("/api/create-car-model",carController.createCarModel); 
 app.post("/api/update-car-model", carController.updateCarModel);
-app.post('/api/delete-car-model',carController.deleteCarModel); 
+app.delete('/api/delete-car-model',carController.deleteCarModel); 
 app.post('/api/getall-car-model',carController.getAllCarModels); 
-app.post('/api/get-cars-model',carController.getCarModel); 
+app.post('/api/get-cars-model',carController.getCarModel);
+app.get('/api/get-car-model-detail',carController.getCarModelDetail);
+
 
 // ----- For car type modules apis -----//
 
 app.post("/api/create-car-type",carController.createCarType); 
 app.post("/api/update-car-type", carController.updateCarType);
-app.post('/api/delete-car-type',carController.deleteCarType); 
+app.delete('/api/delete-car-type',carController.deleteCarType); 
 app.post('/api/getall-car-type',carController.getAllCarType); 
 app.post('/api/get-cars-type',carController.getCarType); 
+app.get('/api/get-car-type-detail',carController.getCarTypeDetail);
 
 // ----- For car color modules apis -----//
 
 app.post("/api/create-car-color",carController.createColor); 
 app.post("/api/update-car-color", carController.updateColor);
 app.post('/api/delete-car-color',carController.deleteColor); 
+app.delete('/api/delete-car-color',carController.deleteColor); 
 app.post('/api/getall-car-color',carController.getAllColor); 
 app.post('/api/get-cars-color',carController.getColor); 
+app.get('/api/get-car-color-detail',carController.getColorDetail);
 
 
 
@@ -232,7 +240,7 @@ app.post("/api/get-vehicle",authCtrl.getVehicle);
   app.post('/api/createprofile', authenticateJWT, authCtrl.crateprofile)
   app.post('/api/user/status',  authCtrl.userActiveDeactiveStatus)
   app.post('/api/maintenance-mode',  authCtrl.maintenanceMode)
-  app.post('/api/updateprofile', authenticateJWT ,upload.any() , authCtrl.updateprofile)
+  app.post('/api/updateprofile', authenticateJWT, upload.any(), authCtrl.updateprofile)
   app.post('/api/getalluserlist', authCtrl.getalluser);
 
 }

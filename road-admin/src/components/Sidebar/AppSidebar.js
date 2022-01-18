@@ -24,11 +24,11 @@ const menu = [
 	},
 	{
 		path: '#', name: 'Master', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
-			{ path: '/tags', name: 'Service', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
+			// { path: '/tags', name: 'Service', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
 			{ path: '/car-brands', name: 'Car Brand', icon: <CarOutlined />, auth: ['ADMIN'] }, 
 			{ path: '/car-models', name: 'Car Models', icon:<CarOutlined />, auth: ['ADMIN'] }, 
-
-			
+			{ path: '/car-colors', name: 'Car Colors', icon:<CarOutlined />, auth: ['ADMIN'] }, 
+			{ path: '/car-types', name: 'Car Types', icon:<CarOutlined />, auth: ['ADMIN'] }, 
 		]
 	},
 
@@ -98,9 +98,10 @@ class AppSidebar extends Component {
 			let maintenanceMode = this.getSingleSettingData(settings, 'SELLER_WEB_UNDER_MAINTENANCE');
 			
 			let user_detail =  res?.data?.user_detail;
-
+			
 			console.log('user_detail');
-			console.log(user_detail);
+			
+
 
 			if(user_detail?.maintenance_mode_for_user) {
 				this.setState({ maintenanceModeModal: true })

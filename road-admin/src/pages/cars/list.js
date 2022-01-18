@@ -60,7 +60,8 @@ class CarList extends React.Component {
 		this.setState({ detail: '', addModel: false })
 	}
 
-	deletePages = id => {
+	deleteCars = id => {
+
 		this.props.dispatch({ type: 'cars/deleteCar', payload: id });
 	}
 
@@ -99,8 +100,8 @@ class CarList extends React.Component {
 			{
 				title: <strong>Action</strong>,  align: 'center',
 				render: (val, data) => <div onClick={e => e.stopPropagation()}>
-					<Button type="primary" onClick={()=>{this.props.history.push('/cars/edit/' + data._id )}}><EditOutlined /></Button>
-					<Popconfirm title="Are you sure delete this page?" onConfirm={e => { this.deletePages(data.slug); e.stopPropagation() }} okText="Yes" cancelText="No" >
+					<Button type="primary" onClick={()=>{this.props.history.push('/car-brand/edit/' + data._id )}}><EditOutlined /></Button>
+					<Popconfirm title="Are you sure delete this car brand?" onConfirm={e => { this.deleteCars(data._id); e.stopPropagation() }} okText="Yes" cancelText="No" >
 						<Button type="danger" ><DeleteOutlined /></Button>
 					</Popconfirm>
 				</div>
@@ -114,7 +115,7 @@ class CarList extends React.Component {
 						<Search placeholder="Search..." onChange={(e) => this.searchVal(e.target.value)} value={searchText} />
 					</Col>
 					<Col>
-						<Button type="primary" onClick={() => this.props.history.push('/pages/add')  }>Add</Button>
+						<Button type="primary" onClick={() => this.props.history.push('/car-brand/add')  }>Add</Button>
 					</Col>
 				</Row>
 

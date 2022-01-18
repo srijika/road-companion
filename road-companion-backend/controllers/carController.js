@@ -20,9 +20,11 @@ module.exports = {
     createCar: async (req, res, next) => {
         
         try {
-            const { brand_name } = req.body;
+            const { brand_name ,isActive } = req.body;
+            const status =   isActive === '' ? false : true  ;   
             const data = {
-                brand_name
+                brand_name,
+                isActive:status
             }
              let findCar = await Car.find({ brand_name }) ; 
              
@@ -42,9 +44,10 @@ module.exports = {
     updateCar: async (req, res, next) => {
         try {
             const reqBody = req.body;
-            const carId = reqBody.car_id;
-
-            let findCar = await Car.find({ _id: { $ne: carId }, car_brand: reqBody.car_brand });
+            const carId = reqBody._id;
+            reqBody.isActive = reqBody.isActive === '' ? false : true ;
+            
+            let findCar = await Car.find({ _id: { $ne: carId }, brand_name: reqBody.brand_name });
             
             if (findCar.length > 0) {
                 res.send({ status: 400, message: "Car Already Exits" });
@@ -54,8 +57,6 @@ module.exports = {
             if (!carId) {
                 return res.send({ status: 400, message: 'Id is required' });
             }
-            
-
             await Car.findByIdAndUpdate(carId, reqBody).lean().exec();
 
             return res.send({ status: 200, message: 'Car updated successfully' });
@@ -67,12 +68,14 @@ module.exports = {
 
     deleteCar: async (req, res, next) => {
         try {
-            const { _id } = req.body;
+
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
             
-            if (!_id) {
+            if (!slug) {
                 return res.send({ status: 400, message: '_id is required' });
             }
-            const deleted = await Car.findOneAndRemove({ _id: req.body._id }).lean().exec();
+            const deleted = await Car.findOneAndRemove({ _id: slug }).lean().exec();
 
             if (!deleted) {
                 return res.send({ status: 400, message: 'Car not found' });
@@ -113,12 +116,12 @@ module.exports = {
 
     getCarDetail: async (req, res, next) => {
         try {
-            const reqBody = req.body;
-            const id = reqBody.car_id ; 
-            const cars = await Car.findOne({  }) ;
-            if (cars.length === 0) {
-                return res.send({ status: 400, message: 'cars not found'});
-            }
+
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
+            console.log(slug) ;
+            const cars = await Car.find({_id: slug}).lean().exec();
+            console.log(cars);
             return res.send({ status: 200, data: cars });
 
         } catch (error) {
@@ -133,11 +136,13 @@ module.exports = {
 
      createCarModel: async (req, res, next) => {
          try {
-            const { car_id, car_model } = req.body;
+            const { car_id, car_model ,isActive } = req.body;
+            const status =   isActive === '' ? false : true  ;   
             
             const data = {
                 car_id,
-                car_model
+                car_model,
+                isAction:status
             }
             let findModal = await CarModel.find({ car_model })
          
@@ -157,9 +162,10 @@ module.exports = {
     updateCarModel: async (req, res, next) => {
         try {
             const reqBody = req.body;
-            const Id = reqBody.model_id ;
-            let findCarModel = await CarModel.find({ _id: { $ne:Id }, car_model: reqBody.car_model });
+            const Id = reqBody._id ;
+            reqBody.isActive = reqBody.isActive === '' ? false : true ;
             
+            let findCarModel = await CarModel.find({ _id: { $ne:Id }, car_model: reqBody.car_model });
             if (findCarModel.length > 0) {
                 res.send({ status: 400, message: "Car Model Already Exits" });
                 return false;
@@ -204,17 +210,31 @@ module.exports = {
 
     deleteCarModel: async (req, res, next) => {
         try {
-            const { _id } = req.body;
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
             
-            if (!_id) {
+            if (!slug) {
                 return res.send({ status: 400, message: '_id is required' });
             }
-            const deleted = await CarModel.findOneAndRemove({ _id: req.body._id }).lean().exec();
+            const deleted = await CarModel.findOneAndRemove({ _id:slug }).lean().exec();
 
             if (!deleted) {
                 return res.send({ status: 400, message: 'Car Model not found' });
             }
             return res.send({ status: 200, message: 'Car Model deleted successfully' });
+        } catch (error) {
+            return res.send({ status: 400, message: error.message });
+        }
+    },
+
+    getCarModelDetail: async (req, res, next) => {
+        try {
+
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
+            const cars = await CarModel.find({_id: slug}).lean().exec();
+            return res.send({ status: 200, data: cars });
+
         } catch (error) {
             return res.send({ status: 400, message: error.message });
         }
@@ -226,9 +246,11 @@ module.exports = {
     createColor: async (req, res, next) => {
         
         try {
-            const { title } = req.body;
+            const { title,isActive } = req.body;
+            const status =   isActive === '' ? false : true  ;   
             const data = {
-                title
+                title,
+                isActive : status
             }
              let findColor = await Color.find({ title }) ; 
              
@@ -248,7 +270,10 @@ module.exports = {
     updateColor: async (req, res, next) => {
         try {
             const reqBody = req.body;
-            const Id = reqBody.color_id;
+            const Id = reqBody._id;
+          
+            reqBody.isActive = reqBody.isActive === '' ? false : true ;
+           
             let findColor = await Color.find({ _id: { $ne: Id }, title: reqBody.title });
             
             if (findColor.length > 0) {
@@ -268,12 +293,13 @@ module.exports = {
 
     deleteColor: async (req, res, next) => {
         try {
-            const { _id } = req.body;
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
             
-            if (!_id) {
+            if (!slug) {
                 return res.send({ status: 400, message: '_id is required' });
             }
-            const deleted = await Color.findOneAndRemove({ _id: req.body._id }).lean().exec();
+            const deleted = await Color.findOneAndRemove({ _id: slug }).lean().exec();
 
             if (!deleted) {
                 return res.send({ status: 400, message: 'Color not found' });
@@ -310,6 +336,19 @@ module.exports = {
             return res.send({ status: false, message: error.message });
         }
     },
+
+    getColorDetail: async (req, res, next) => {
+        try {
+
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
+            const colors = await Color.find({_id: slug}).lean().exec();
+            return res.send({ status: 200, data: colors });
+
+        } catch (error) {
+            return res.send({ status: 400, message: error.message });
+        }
+    },
     
     //-------------------------END--------------------//
     //---------------- Functions for cars type  -------------//
@@ -317,10 +356,13 @@ module.exports = {
     createCarType: async (req, res, next) => {
         
         try {
-            const { title } = req.body;
+            const { title,isActive } = req.body;
+            const status =   isActive === '' ? false : true  ;   
             const data = {
-                title
-            }
+                title,
+                isActive :  status
+            }   
+            
              let findCarType = await CarType.find({ title }) ; 
              
              if (findCarType.length > 0) {
@@ -339,12 +381,12 @@ module.exports = {
     updateCarType: async (req, res, next) => {
         try {
             const reqBody = req.body;
-            const Id = reqBody.type_id;
-
-            let findCarType = await Color.find({ _id: { $ne: Id }, title: reqBody.title });
+            const Id = reqBody._id;
+            reqBody.isActive = reqBody.isActive === '' ? false : true
+            let findCarType = await CarType.find({ _id: { $ne: Id }, title: reqBody.title });
             
             if (findCarType.length > 0) {
-                res.send({ status: 400, message: "Color Already Exits" });
+                res.send({ status: 400, message: "Car type Already Exits" });
                 return false;
             }
 
@@ -360,12 +402,13 @@ module.exports = {
 
     deleteCarType: async (req, res, next) => {
         try {
-            const { _id } = req.body;
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
             
-            if (!_id) {
+            if (!slug) {
                 return res.send({ status: 400, message: '_id is required' });
             }
-            const deleted = await CarType.findOneAndRemove({ _id: req.body._id }).lean().exec();
+            const deleted = await CarType.findOneAndRemove({ _id: slug }).lean().exec();
 
             if (!deleted) {
                 return res.send({ status: 400, message: 'Color not found' });
@@ -400,6 +443,19 @@ module.exports = {
 
         } catch (error) {
             return res.send({ status: false, message: error.message });
+        }
+    },
+
+    getCarTypeDetail: async (req, res, next) => {
+        try {
+
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
+            const carTypes = await CarType.find({_id: slug}).lean().exec();
+            return res.send({ status: 200, data: carTypes });
+
+        } catch (error) {
+            return res.send({ status: 400, message: error.message });
         }
     },
      

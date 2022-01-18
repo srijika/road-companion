@@ -7,7 +7,8 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
     
     car_id:{type: String},
-    car_model :{type:String}
+    car_model :{type:String},
+    isActive: { type: Boolean, default: true },
 },{
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });
