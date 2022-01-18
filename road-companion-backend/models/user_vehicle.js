@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
-    type_id: { type: Schema.ObjectId, ref: 'CarType' },
+    type_id: { type: Schema.ObjectId, ref: 'car_types' },
     make_id: { type: Schema.ObjectId, ref: 'Car' },
     user_id: { type: Schema.ObjectId, ref: 'users' },
-    model_id:{ type: Schema.ObjectId, ref: 'CarModel' },
+    model_id:{ type: Schema.ObjectId, ref: 'car_model' },
     year: { type: String, default: null },
     colour: { type: String, default: null },
     seat_available: { type: String, default: null },

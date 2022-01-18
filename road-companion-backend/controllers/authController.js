@@ -1199,13 +1199,21 @@ if(old_password === undefined){
         });
     },
 
-    getVehicle: (req, res, next) => {
+    getVehicle: async (req, res, next) => {
         var user_id = req.body.user_id
-        //var _id = id || req.user._id
-        UserVehicle.findOne({ user_id: user_id }).populate('user_id').then((data) => {
-            res.send({ status: true, data})
-            return;
-        })
+
+        console.log('working fdgjdfgkhj');
+
+        // UserVehicle.findOne({ user_id: user_id }).populate('user_id').then((data) => {
+        //     res.send({ status: true, data})
+        //     return;
+        // })
+
+        let data = await UserVehicle.findOne({ user_id: user_id }).populate('user_id').populate('model_id').lean().exec();
+
+        console.log(data);
+
+        return res.send({ status: true, data });
     },
 
     getBussinessByBussnessId: async (req, res, next) => {
