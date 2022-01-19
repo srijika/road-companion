@@ -43,7 +43,8 @@ module.exports = {
     FriendRequest: require('../models/friend-request'),
     HtmlPages: require('../models/htmlPages'),
     Frequently_Asked_Question: require('../models/frequently_asked_question'),
-
+    UserBackground: require('../models/user_backgrounds'),
+    
 
 
 

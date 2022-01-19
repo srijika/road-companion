@@ -12,6 +12,7 @@ const schema = new Schema({
     isMobileVerified: { type: Boolean, default: false },
     user_status: { type: Boolean, default: false },
     avatar: { type: String, default: null },
+    user_background: { type: String },
     no_of_loggedin: { type: Number, default: 0 },
     last_login_time: { type: Date, default: null }, // for login history
     
