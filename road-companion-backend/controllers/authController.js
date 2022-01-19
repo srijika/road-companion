@@ -1105,6 +1105,7 @@ if(old_password === undefined){
         try {
            
             const reqBody = req.body;
+           
             const car_images = [];
             let certification ;
             if(req.files.length > 0) {
@@ -1133,20 +1134,27 @@ if(old_password === undefined){
             const isVehicle = await UserVehicle.findById(reqBody.vehicle_id);
                 
             if (!isVehicle) {
-                return res.send({ status: false, message: 'Vehicle data not found for this id' });
+                return res.status(400).send({ status: false, message: 'Vehicle data not found for this id' });
             }
 
             const isUser = await UserLogins.findById(isVehicle.user_id);
 
             if (!isUser) {
-                return res.send({ status: false, message: 'User not found' });
+                return res.status(400).send({ status: false, message: 'User not found' });
             }
           
-            await UserVehicle.findByIdAndUpdate(reqBody.vehicle_id, jsonData);
-            
-            return res.send({ status: true, message: 'Vehicle updated successfully..' });
+              UserVehicle.findByIdAndUpdate(reqBody.vehicle_id, jsonData).then((data)=>{
+
+                return res.status(200).send({ status: true, message: 'Vehicle updated successfully..',data:data });
+
+              }).catch(()=>{
+
+                return res.status(400).send({  message: 'error' });
+              });
+              
+
         } catch (error) {
-            return res.send({ status: false, message: error.message });
+            return res.status(400).send({ status: false, message: error.message });
         }
     },
 
