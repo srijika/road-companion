@@ -970,9 +970,7 @@ module.exports = {
         //                 res.send({ status: false })
         //             }
         //         })
-
         //     }
-
         // })
     },
     recoverpasswordfrommobile: async (req, res, next) => {
