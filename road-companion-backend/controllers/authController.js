@@ -1108,6 +1108,7 @@ module.exports = {
         try {
 
             const reqBody = req.body;
+           
             const car_images = [];
             let certification;
             if (req.files.length > 0) {
@@ -1136,20 +1137,20 @@ module.exports = {
             const isVehicle = await UserVehicle.findById(reqBody.vehicle_id);
 
             if (!isVehicle) {
-                return res.send({ status: false, message: 'Vehicle data not found for this id' });
+                return res.status(400).send({ status: false, message: 'Vehicle data not found for this id' });
             }
 
             const isUser = await UserLogins.findById(isVehicle.user_id);
 
             if (!isUser) {
-                return res.send({ status: false, message: 'User not found' });
+                return res.status(400).send({ status: false, message: 'User not found' });
             }
 
             await UserVehicle.findByIdAndUpdate(reqBody.vehicle_id, jsonData);
 
             return res.send({ status: true, message: 'Vehicle updated successfully..' });
         } catch (error) {
-            return res.send({ status: false, message: error.message });
+            return res.status(400).send({ status: false, message: error.message });
         }
     },
 
