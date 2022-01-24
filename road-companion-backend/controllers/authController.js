@@ -391,8 +391,8 @@ module.exports = {
 
     loginUser: async (req, res, next) => {
         const { username, password } = req.body;
-        console.log(req.body)
-        // return;
+      
+        
 
         UserLogins.findOne({ $or: [{ email: username }] }).then((data) => {
 
@@ -414,7 +414,7 @@ module.exports = {
                         });
                         return;
                     }
-                    res.send({ status: 400, message: "Invalid password!" });
+                    res.status(400).send({  message: "Invalid password!" });
                 } else {
                     UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({})
                     return res.json({
@@ -426,7 +426,7 @@ module.exports = {
                 }
 
             } else {
-                res.send({ status: 400, message: "email not found" });
+                res.status(400).send({  message: "email not found" });
             }
         })
 
