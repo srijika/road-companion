@@ -20,6 +20,7 @@ const fs = require('fs');
 const userBackgroundController = require('../controllers/userBackgroundController');
 
 const carController = require('../controllers/carController');
+const UserTripController = require('../controllers/userTripController');
 const reviewController = require('../controllers/reviewController');
 const tagController = require('../controllers/tagController');
 const reportController = require('../controllers/reportController');
@@ -115,7 +116,18 @@ app.post('/api/get-cars-color',carController.getColor);
 
 app.post("/api/add-vehicle", upload.any(),authCtrl.addVehicle); 
 app.put("/api/edit-vehicle", upload.any(),authCtrl.updateVehicle); 
-app.post("/api/get-vehicle",authCtrl.getVehicle); 
+app.post("/api/get-vehicle",authCtrl.getVehicle);
+
+
+//trips moudle routes
+ 
+app.post("/api/add-trip", upload.any(),UserTripController.createTrip); 
+app.post("/api/update-trip", upload.any(),UserTripController.updateTrip); 
+
+
+
+
+
 
 app.post("/api/add-background", upload.any(), userBackgroundController.addBackground); 
 app.post("/api/get-background", userBackgroundController.getBackground); 
