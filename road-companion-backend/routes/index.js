@@ -115,7 +115,7 @@ app.post('/api/get-cars-color',carController.getColor);
 // for add and edit user vehicle 
 
 app.post("/api/add-vehicle", upload.any(),authCtrl.addVehicle); 
-app.put("/api/edit-vehicle", upload.any(),authCtrl.updateVehicle); 
+app.post("/api/edit-vehicle", upload.any(),authCtrl.updateVehicle); 
 app.post("/api/get-vehicle",authCtrl.getVehicle);
 
 

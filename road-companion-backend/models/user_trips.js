@@ -33,7 +33,15 @@ const schema = new Schema({
     travel_price: { type: String},
     luggage_price: { type: String},
     available_seats: { type: String},
+    driver_name: { type: String},
+    license_no: { type: String},
     luggage_weight: { type: String},
+    
+    from_city: { type: String},
+    to_city: { type: String},
+    from_state: { type: String},
+    to_state: { type: String},
+
     description: { type: String},
     ssn_number: { type: String},
     is_smoking: { type: String, enum : ['YES','NO'] },
