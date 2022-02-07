@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var authCtrl = require('../controllers/authController')
-var friendCtrl = require('../controllers/friendRequestController')
+
 
 const jwt = require('jsonwebtoken');
 var cors = require('cors')
@@ -11,28 +11,26 @@ var multer = require("multer");
 
 
 
-var homePageBannerController = require('../controllers/homePageBannerController');
 
 
 const Path = require('path');
 const fs = require('fs');
 
-const blogController = require('../controllers/blogController');
+
 const userBackgroundController = require('../controllers/userBackgroundController');
 
-// const { update } = require('../models/otp');
-const authController = require('../controllers/authController');
 const carController = require('../controllers/carController');
+const UserTripController = require('../controllers/userTripController');
 const reviewController = require('../controllers/reviewController');
 const tagController = require('../controllers/tagController');
 const reportController = require('../controllers/reportController');
-const appointmentController = require('../controllers/appointmentController');
+
 const adminController = require('../controllers/adminController');
 const htmlPagesController = require('../controllers/htmlPagesController');
 const frequentlyAskedQuestion = require('../controllers/frequentlyAskedQuestion');
-const frontController  = require('../controllers/front.controller');
+
 const settingController  = require('../controllers/setting.controller');
-const feedController  = require('../controllers/feeds.controller');
+
 
 const multerS3 = require('multer-s3');
 const aws = require('aws-sdk');
@@ -82,9 +80,6 @@ var routefunctions = (app) => {
 
 // friend requests 
 
-app.post('/api/send-friend-request', authenticateJWT, friendCtrl.sendfriendrequest); 
-app.post('/api/accept-friend-request', authenticateJWT, friendCtrl.acceptfriendrequest); 
-app.post('/api/delete-friend-request', authenticateJWT, friendCtrl.deletefriendrequest); 
 
 // ----- For car modules apis -----//
 app.post("/api/create-car",carController.createCar); 
@@ -117,18 +112,25 @@ app.post('/api/getall-car-color',carController.getAllColor);
 app.post('/api/get-cars-color',carController.getColor); 
 
 
-
-
-
-
-
-
-
 // for add and edit user vehicle 
 
 app.post("/api/add-vehicle", upload.any(),authCtrl.addVehicle); 
-app.put("/api/edit-vehicle", upload.any(),authCtrl.updateVehicle); 
-app.post("/api/get-vehicle",authCtrl.getVehicle); 
+app.post("/api/edit-vehicle", upload.any(),authCtrl.updateVehicle); 
+app.post("/api/get-vehicle",authCtrl.getVehicle);
+
+
+//trips moudle routes
+ 
+app.post("/api/add-trip", upload.any(),UserTripController.createTrip); 
+app.post("/api/update-trip", upload.any(),UserTripController.updateTrip); 
+app.post("/api/get-trips", UserTripController.getTrips); 
+app.post("/api/nearby-trips", UserTripController.getNearByTrips); 
+app.post("/api/get-trip-detail", UserTripController.getTripDetail); 
+
+
+
+
+
 
 app.post("/api/add-background", upload.any(), userBackgroundController.addBackground); 
 app.post("/api/get-background", userBackgroundController.getBackground); 
@@ -136,17 +138,7 @@ app.post("/api/get-background", userBackgroundController.getBackground);
 
 
 
-  // FEED POST APIS BY SUNIL 
-  app.post('/api/feed/lists', feedController.list)
-  app.post('/api/feed/view', feedController.viewFeed)
-  app.post('/api/feed/create', upload.any('feeds'), feedController.create)
-  app.delete('/api/feed/:feed_id/delete', feedController.delete)
-
-  app.post('/api/feed/likes', feedController.feedLikes)
-  app.post('/api/feed/comment', feedController.feedComment)
-  app.delete('/api/comment/:comment_id/delete', feedController.commentDelete)
-  app.post('/api/comment/likes', feedController.commentLikes)
-  
+ 
   //Shop REVIEW API
   app.post("/api/create/shop/review",  reviewController.createShopReview)
   app.post("/api/delete/shop/review",  reviewController.deleteShopReview)
@@ -170,15 +162,7 @@ app.post("/api/get-background", userBackgroundController.getBackground);
     app.post("/api/delete/post-report", authenticateJWT, reportController.deletePostReport)
     app.post("/api/get/user/report-list",authenticateJWT,  reportController.getUserPostReport)
     app.post("/api/get/report-list",authenticateJWT,  reportController.getAllPostReport)
-
-    //User Appointment
-    app.post("/api/create/user-appointment",authenticateJWT ,  appointmentController.createUserAppointment)
-    app.post("/api/update/appointment-status",authenticateJWT ,  appointmentController.updateAppointmentStatus)
-    app.get("/api/get-appointment/list",authenticateJWT ,  appointmentController.getAppointmentList)
-    app.post("/api/get-appointment/barber/list",authenticateJWT ,  appointmentController.getAppointmentListByBarber)
-    app.post("/api/get-appointment/user/list",authenticateJWT ,  appointmentController.getAppointmentListUser)
-
-
+    
     //Dashboard API
     app.post('/api/dashboard', authenticateJWT, adminController.dashBoard);
 

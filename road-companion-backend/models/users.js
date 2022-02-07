@@ -15,6 +15,7 @@ const schema = new Schema({
     user_background: { type: String },
     no_of_loggedin: { type: Number, default: 0 },
     last_login_time: { type: Date, default: null }, // for login history
+    firebase_fcm_token: { type: String, default: null }, // for login history
     
 
     // ip_address: { type: String, default: null },
@@ -22,7 +23,6 @@ const schema = new Schema({
     // socialid: { type: String , },
     // deactive: { type: Boolean, default: false },  
     // maintenance_mode_for_user: { type: Boolean, default: false },  
-    // firebase_token: { type: String, default: null }, // for login history
     // note: { type: String }
 
 });
