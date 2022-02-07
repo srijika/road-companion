@@ -33,11 +33,19 @@ module.exports = {
             var from = JSON.parse("[" + req.body.to_location + "]");
             obj.from_location = {"type":"Point","coordinates":to}
             obj.to_location = {"type":"Point","coordinates":from}
+            console.log('not_converted',req.body.date_of_departure) ; 
+            var departureDate = new Date(req.body.date_of_departure)  ; 
+            var arrivalDate = new Date(req.body.date_of_arrival)  ; 
+            console.log('converted_date',departureDate) ;
+            obj.date_of_departure = departureDate;
+            obj.date_of_arrival     = arrivalDate ;
             const Trip = new UserTrip(obj);
             const created = await Trip.save();
-            return res.send({ status: 200, message: 'Trip created successfully' });
+            //console.log(created);
+            return res.status(200).send({ data:created ,  message: 'Trip created successfully' });
 
         } catch (error) {
+            console.log(error.message) ;
             return res.send({ status: 400, message: error.message });
         }
        
@@ -65,9 +73,43 @@ module.exports = {
         } catch (error) {
             return res.send({ status: 400, message: error.message });
         }
+     },
+
+
+     //function for nearby trips 
+
+     nearBytrip:async (req, res, next) => {
+       
+        const {date,fromLatt,fromLong} = req.body ;
+         UserTrip.find({$and:[{from_location: {
+             $near: {
+                 $maxDistance: 25000,
+                 $geometry: {
+                     type: "Point",
+                     coordinates: [fromLatt, fromLong]
+                    }
+                }
+            }},{date_of_departure:{
+                $gte: `${date}T00:00:00.000Z`, 
+                $lt: `${date}T23:59:59.999Z`
+            }}]}, function(err, trips) 
+            {
+               if (err)
+               {
+                   return res.status(400).send({message: err.message });
+               }
+                console.log(trips) ;
+               return res.status(200).send({data: trips });
+            }).populate('user_id');
+        
+        },
+
+     
+
 
         
-    },
+
+
 
     deleteCar: async (req, res, next) => {
         try {

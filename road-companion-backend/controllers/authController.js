@@ -1020,22 +1020,32 @@ module.exports = {
 
     },
 
-    changepassword: (req, res, next) => {
-        if (!password || !confirmpassword || !oldpassword) {
-            res.send({ status: false, message: "please provide required params" })
-            return;
-        }
-        let username = req.user.username;
-        UserLogins.findOne({ $or: [{ email: username, password: oldpassword }, { username: username, password: oldpassword }] }).then(data => {
-            if (data && data._id) {
-                UserLogins.update({ $or: [{ email: username }, { username: username }] }, { password: password }).then(d => {
-
-                    res.send({ status: true, message: "Updated" })
-                })
-
+    changePassword: async (req, res, next) => { 
+        try {
+             const { username, old_password, password } = req.body;
+             
+             if (!username || !password || !old_password) {
+                return res.status(400).send({status:400, message: "please provide required params" })
             }
 
-        })
+            const isUser = await UserLogins.findOne({ $or: [{ email: username }] });
+
+            if (!isUser) {
+                return res.send({ status:400, message: "User not found" });
+            }
+            let current_password = isUser.password;
+
+            const checkPassword = await bcrypt.compare(old_password, current_password);
+            if(checkPassword == false) {
+                return res.send({ status:400, message: 'Current password not matched for your old password' });    
+            }
+            const hashPassword = bcrypt.hashSync(password, saltRounds);
+            await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
+        
+            return res.send({ status: 200, message: 'Password updated successfully' });
+         } catch (error) {
+            return res.send({ status: 400, message: error.message });
+        }
     },
 
 

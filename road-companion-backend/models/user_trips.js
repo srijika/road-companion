@@ -15,6 +15,7 @@ const geoSchema = new Schema({
 const schema = new Schema({
     
     user_id: { type: Schema.ObjectId, ref: 'users' },
+    vehicle_id: { type: Schema.ObjectId, ref: 'user_vehicle' },
     from_destination: { type: String},
     to_destination: { type: String},
     from_location : {
@@ -25,8 +26,8 @@ const schema = new Schema({
         type: geoSchema,
         index: '2dsphere',
     },
-    date_of_departure: { type: String},
-    date_of_arrival: { type: String},
+    date_of_departure: { type: Date},
+    date_of_arrival: { type: Date},
     time_of_departure: { type: String},
     time_of_arrival: { type: String},
     travel_price: { type: String},
@@ -43,6 +44,8 @@ const schema = new Schema({
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });
+
+schema.index({ "from_location": "2dsphere", "to_location":"2dsphere"});
 
 schema.set('toJSON', { virtuals: true });
 
