@@ -88,41 +88,79 @@ module.exports = {
         } catch (error) {
             return res.send({ status: 400, message: error.message });
         }
-     },
+    },
 
 
-     //function for nearby trips 
+    //function for nearby trips 
 
-     nearBytrip:async (req, res, next) => {
-       
-        const {date,fromLatt,fromLong} = req.body ;
-         UserTrip.find({$and:[{from_location: {
-             $near: {
-                 $maxDistance: 25000,
-                 $geometry: {
-                     type: "Point",
-                     coordinates: [fromLatt, fromLong]
-                    }
-                }
-            }},{date_of_departure:{
-                $gte: `${date}T00:00:00.000Z`, 
-                $lt: `${date}T23:59:59.999Z`
-            }}]}, function(err, trips) 
-            {
-               if (err)
-               {
-                   return res.status(400).send({message: err.message });
-               }
-                console.log(trips) ;
-               return res.status(200).send({data: trips });
-            }).populate('user_id');
-        
-        },
+    nearBytrip: async (req, res, next) => {
 
-     
+        try {
+
+            
+            const trips = await UserTrip.find({});
+            
+            return res.status(200).send({ data: trips });
+            
+        }catch(e) {
+            return res.status(400).send({ message: e.error });
+        }
+
+        // const { date, fromLatt, fromLong } = req.body;
+        // UserTrip.find({
+        //     $and: [{
+        //         from_location: {
+        //             $near: {
+        //                 $maxDistance: 25000,
+        //                 $geometry: {
+        //                     type: "Point",
+        //                     coordinates: [fromLatt, fromLong]
+        //                 }
+        //             }
+        //         }
+        //     }, {
+        //         date_of_departure: {
+        //             $gte: `${date}T00:00:00.000Z`,
+        //             $lt: `${date}T23:59:59.999Z`
+        //         }
+        //     }]
+        // }, function (err, trips) {
+        //     if (err) {
+        //         return res.status(400).send({ message: err.message });
+        //     }
+        //     console.log(trips);
+        //     return res.status(200).send({ data: trips });
+        // }).populate('user_id');
+
+    },
 
 
-        
+    nearBytripDetail: async (req, res, next) => {
+
+        // try {
+            
+            let {trip_id} =  req.body;
+            const tripDetail = await UserTrip.findOne({ _id: trip_id }).populate('user_id').lean().exec();
+
+            let userVehicle = await UserVehicle.findOne({ user_id: tripDetail.user_id._id }).populate('type_id').
+            populate('model_id').
+            populate('make_id').
+            lean().exec()
+
+            console.log('userVehicle');
+            console.log(userVehicle);
+
+            tripDetail['userVehicle'] = userVehicle;
+
+
+            return res.status(200).send({ status: 200, tripDetail: tripDetail });
+        // } catch (error) {
+        //     return res.status(400).send({ status: 400, message: error.message });
+        // }
+
+    },
+
+
 
 
 
@@ -145,6 +183,12 @@ module.exports = {
             return res.send({ status: 400, message: error.message });
         }
     },
+
+
+
+
+
+
 
     getCars: async (req, res, next) => {
         try {

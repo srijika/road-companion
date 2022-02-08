@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema({
     type_id: { type: Schema.ObjectId, ref: 'car_types' },
-    make_id: { type: Schema.ObjectId, ref: 'Car' },
+    make_id: { type: Schema.ObjectId, ref: 'car' },
     user_id: { type: Schema.ObjectId, ref: 'users' },
     model_id:{ type: Schema.ObjectId, ref: 'car_model' },
     year: { type: String, default: null },

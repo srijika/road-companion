@@ -28,8 +28,9 @@ const schema = new Schema({
     },
     date_of_departure: { type: Date},
     date_of_arrival: { type: Date},
-    time_of_departure: { type: String},
-    time_of_arrival: { type: String},
+    time_of_departure: { type: Date},
+    time_of_arrival: { type: Date},
+    
     travel_price: { type: String},
     luggage_price: { type: String},
     available_seats: { type: String},
