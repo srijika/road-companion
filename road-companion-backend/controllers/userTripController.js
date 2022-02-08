@@ -94,9 +94,8 @@ module.exports = {
      //function for nearby trips 
 
      nearBytrip:async (req, res, next) => {
-       
-        const {date,fromLatt,fromLong} = req.body ;
-         UserTrip.find({$and:[{from_location: {
+         const {date,fromLatt,fromLong,fromCity,toCity} = req.body ;
+          UserTrip.find({$and:[{from_location: {
              $near: {
                  $maxDistance: 25000,
                  $geometry: {
@@ -107,7 +106,7 @@ module.exports = {
             }},{date_of_departure:{
                 $gte: `${date}T00:00:00.000Z`, 
                 $lt: `${date}T23:59:59.999Z`
-            }}]}, function(err, trips) 
+            }},{from_city:fromCity,to_city:toCity}]}, function(err, trips) 
             {
                if (err)
                {
