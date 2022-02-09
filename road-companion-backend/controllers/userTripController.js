@@ -1,4 +1,4 @@
-const { UserTrip, UserVehicle } = require('../_helper/db');
+const { UserTrip, UserVehicle, Rider } = require('../_helper/db');
 var path = require('path');
 var fs = require('fs');
 const mongoose = require('mongoose');
@@ -22,8 +22,6 @@ module.exports = {
         try {
             let license = '';
 
-            console.log(req.body);
-            console.log('req.body working');
             const obj = {};
             if (req.files && req.files[0] && req.files[0].location) {
                 license = req.files[0].location;
@@ -38,8 +36,6 @@ module.exports = {
             obj.from_location = { "type": "Point", "coordinates": to }
             obj.to_location = { "type": "Point", "coordinates": from }
 
-            console.log('obj');
-            console.log(obj);
 
             const Trip = new UserTrip(obj);
             await Trip.save();
@@ -55,11 +51,35 @@ module.exports = {
     getTrips: async (req, res, next) => {
         try {
             let user_id = req.body.user_id;
-            console.log('working');
-            console.log(user_id);
-            let trips = await UserTrip.find({ user_id: user_id });
-            console.log('trips');
-            return res.status(200).send({ status: 400, data: trips, message: "trips get successfully" });
+
+            
+            
+
+            // let trips =  await UserTrip.aggregate([
+            //     { "$match": { user_id: mongoose.Types.ObjectId(user_id) } },
+
+            //     {
+            //         $lookup:
+            //           {
+            //             from: 'user_vehicle',
+            //             localField: 'vehicle_id',
+            //             foreignField: '_id',
+            //             as: 'vehicleData'
+            //           }
+            //      }
+            // ])
+
+            
+            let trips = await UserTrip.find({ user_id: user_id }).populate('vehicle_id').lean().exec();
+            console.log('trips')
+            console.log(trips)
+            
+
+            let rides = await Rider.find({ user_id: user_id }).populate('trip_id');
+
+            
+            
+            return res.status(200).send({ status: 400, data: trips, rides: rides , message: "trips get successfully" });
         } catch (e) {
             console.log(e);
             return res.status(400).send({ status: 400, message: e.message });
@@ -135,6 +155,33 @@ module.exports = {
     },
 
 
+
+    // nearBytrip:async (req, res, next) => {
+    //     const {date,fromLatt,fromLong,fromCity,toCity} = req.body ;
+    //      UserTrip.find({$and:[{from_location: {
+    //         $near: {
+    //             $maxDistance: 25000,
+    //             $geometry: {
+    //                 type: "Point",
+    //                 coordinates: [fromLatt, fromLong]
+    //                }
+    //            }
+    //        }},{date_of_departure:{
+    //            $gte: `${date}T00:00:00.000Z`, 
+    //            $lt: `${date}T23:59:59.999Z`
+    //        }},{from_city:fromCity,to_city:toCity}]}, function(err, trips) 
+    //        {
+    //           if (err)
+    //           {
+    //               return res.status(400).send({message: err.message });
+    //           }
+    //            console.log(trips) ;
+    //           return res.status(200).send({data: trips });
+    //        }).populate('user_id');
+       
+    //    },
+
+
     nearBytripDetail: async (req, res, next) => {
 
         // try {
@@ -147,9 +194,6 @@ module.exports = {
             populate('make_id').
             lean().exec()
 
-            console.log('userVehicle');
-            console.log(userVehicle);
-
             tripDetail['userVehicle'] = userVehicle;
 
 
@@ -160,8 +204,18 @@ module.exports = {
 
     },
 
+    confirmTrip: async (req, res, next) => {
 
+        try {
+            let reqData = req.body;
+            const rider = await new Rider(reqData).save();
 
+            return res.status(200).send({ status: 200, message: "Trip created successfully" });
+        } catch (error) {
+            return res.status(400).send({ status: 400, message: error.message });
+        }
+    },
+    
 
 
     deleteCar: async (req, res, next) => {
@@ -223,9 +277,9 @@ module.exports = {
 
             const reqQuery = req.query;
             const slug = reqQuery.slug;
-            console.log(slug);
+        
             const cars = await Car.find({ _id: slug }).lean().exec();
-            console.log(cars);
+           
             return res.send({ status: 200, data: cars });
 
         } catch (error) {
