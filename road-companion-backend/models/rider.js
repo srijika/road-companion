@@ -8,9 +8,10 @@ const schema = new Schema({
     carrying_dim_height: { type: Number },
     carrying_dim_width: { type: Number },
     carrying_capacity_weight: { type: Number },
+    amount: { type: Number },
 
-    trip_type: {type: String}, // Luggage or book_seat
-    status: { type: String },
+    trip_type: {type: String}, // LUGGAGE or BOOK_SEAT
+    status: { type: String }, // INTRESTED , CANCELLED , CONFIRMED , PICKUP, FINISHED 
 },{
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });

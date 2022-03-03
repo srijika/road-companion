@@ -2,7 +2,7 @@ const { page } = require('pdfkit');
 const { Blog } = require('../_helper/db');
 var path = require('path');
 var fs = require('fs');
-const sharp = require('sharp');
+// const sharp = require('sharp');
 
 module.exports = {
     createBlogs: async (req, res, next) => {
@@ -38,11 +38,11 @@ module.exports = {
                 }
                 
                 const fileUrl = filePath + E.filename;
-                sharp(E.path).resize(300, 200).toFile(fileUrl, function (err) {
-                    if (err) {
-                        console.log(err)
-                    }
-                });
+                // sharp(E.path).resize(300, 200).toFile(fileUrl, function (err) {
+                //     if (err) {
+                //         console.log(err)
+                //     }
+                // });
                 
                 filename = E.filename;
                 });

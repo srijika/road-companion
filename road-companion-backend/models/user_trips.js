@@ -37,6 +37,7 @@ const schema = new Schema({
     driver_name: { type: String},
     license_no: { type: String},
     luggage_weight: { type: String},
+    trip_status: { type: String, default: "NOT_STARTED"}, // NOT_STARTED , STARTED , FINISHED 
     
     from_city: { type: String},
     to_city: { type: String},
