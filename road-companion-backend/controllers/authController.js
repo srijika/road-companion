@@ -23,7 +23,7 @@ var transporter = nodemailer.createTransport({
 
 let adminEmail = "admin@galinukkad.com";
 const Helper = require('../core/helper');
-const sharp = require('sharp');
+// const sharp = require('sharp');
 var path = require('path');
 var fs = require('fs');
 var request = require('request');
@@ -1235,7 +1235,7 @@ module.exports = {
     getVehicle: async (req, res, next) => {
         var user_id = req.body.user_id
 
-        console.log('working fdgjdfgkhj');
+      
 
         // UserVehicle.findOne({ user_id: user_id }).populate('user_id').then((data) => {
         //     res.send({ status: true, data})
@@ -1243,8 +1243,6 @@ module.exports = {
         // })
 
         let data = await UserVehicle.findOne({ user_id: user_id }).populate('user_id').populate('model_id').lean().exec();
-
-        console.log(data);
 
         return res.send({ status: true, data });
     },

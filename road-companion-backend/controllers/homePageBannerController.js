@@ -1,7 +1,6 @@
 const { HomePageBanner } = require('../_helper/db');
 const fs = require('fs');
 const path = require('path');
-const sharp = require('sharp');
 
 module.exports = {
     createHPBanner: async (req, res, next) => {
@@ -27,12 +26,6 @@ module.exports = {
 
                 const fileUrl = filePath + reqFiles[0].filename;
 
-                sharp(reqFiles[0].path).resize(300, 200).toFile(fileUrl, function (err) {
-                    if (err) {
-                        console.log(err);
-                    }
-                    console.log('FILEEEEEEEE', fileUrl);
-                });
 
             } else {
                 return res.send({ status: false, message: 'Image not found' });

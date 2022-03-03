@@ -45,7 +45,8 @@ module.exports = {
     Frequently_Asked_Question: require('../models/frequently_asked_question'),
     UserBackground: require('../models/user_backgrounds'),
     UserTrip: require('../models/user_trips'),
-    
+    Rider: require('../models/rider'),
+    StripePayment: require('../models/stripe_payment'),
 
 
 };

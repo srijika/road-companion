@@ -28,14 +28,16 @@ const schema = new Schema({
     },
     date_of_departure: { type: Date},
     date_of_arrival: { type: Date},
-    time_of_departure: { type: String},
-    time_of_arrival: { type: String},
+    time_of_departure: { type: Date},
+    time_of_arrival: { type: Date},
+    
     travel_price: { type: String},
     luggage_price: { type: String},
     available_seats: { type: String},
     driver_name: { type: String},
     license_no: { type: String},
     luggage_weight: { type: String},
+    trip_status: { type: String, default: "NOT_STARTED"}, // NOT_STARTED , STARTED , FINISHED 
     
     from_city: { type: String},
     to_city: { type: String},
