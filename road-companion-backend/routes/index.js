@@ -45,11 +45,19 @@ const aws = require('aws-sdk');
 // });
 
 
+// aws.config.update({
+//   secretAccessKey: 'UAPoCUVPmAqL34In8V/VFSy9q+YvMEYHMBTF/qAI',
+//   accessKeyId: 'AKIAZ32E2PNKQB5J64NP',
+//   region: 'us-east-1'
+// });
+
 aws.config.update({
-  secretAccessKey: 'UAPoCUVPmAqL34In8V/VFSy9q+YvMEYHMBTF/qAI',
-  accessKeyId: 'AKIAZ32E2PNKQB5J64NP',
+  secretAccessKey: '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',
+  accessKeyId: 'AKIAZ32E2PNK67MEH4GM',
   region: 'us-east-1'
 });
+
+
 
 const s3 = new aws.S3();
 const upload = multer({
@@ -142,6 +150,18 @@ var routefunctions = (app) => {
   app.post("/api/confirm-trip/test", UserTripController.confirmTripTest);
 
   app.post("/api/trip-status-update", UserTripController.tripStatusUpdate);
+  app.post("/api/ride-status-update", UserTripController.rideStatusUpdate);
+
+//trips moudle routes
+ 
+// app.post("/api/add-trip", upload.any(),UserTripController.createTrip); 
+// app.post("/api/update-trip", upload.any(),UserTripController.updateTrip); 
+// app.post("/api/nearby-trips", upload.any(),UserTripController.nearBytrip); 
+// app.post("/api/trip-detail", upload.any(),UserTripController.tripDetail); 
+// app.post("/api/send-request", upload.any(),UserTripController.sendRequest); 
+// app.post("/api/accept-decline-request", upload.any(),UserTripController.acceptDeclineRequest); 
+// app.post("/api/my-trips", upload.any(),UserTripController.myTrips); 
+
 
   app.post("/api/get-trips", UserTripController.getTrips);
   app.post("/api/nearby-trip-detail", UserTripController.nearBytripDetail);
@@ -151,7 +171,7 @@ var routefunctions = (app) => {
 
 
 
-  app.post("/api/booked-trip-detail", UserTripController.myBookedTripDetail);
+  app.post("/api/booked-trip-detail", UserTripController.tripDetail);
   app.post("/api/accept-decline-trip", UserTripController.acceptDeclineTrip);
 
 
@@ -163,7 +183,7 @@ var routefunctions = (app) => {
 
 
   //Shop REVIEW API
-  app.post("/api/create/shop/review", reviewController.createShopReview)
+  app.post("/api/add-review", reviewController.addReview)
   app.post("/api/delete/shop/review", reviewController.deleteShopReview)
 
   //Tag API

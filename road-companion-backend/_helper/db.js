@@ -46,6 +46,7 @@ module.exports = {
     UserBackground: require('../models/user_backgrounds'),
     UserTrip: require('../models/user_trips'),
     Rider: require('../models/rider'),
+    Review: require('../models/review'),
     StripePayment: require('../models/stripe_payment'),
 
 
