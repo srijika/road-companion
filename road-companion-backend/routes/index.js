@@ -137,9 +137,9 @@ var routefunctions = (app) => {
   app.post("/api/get-vehicle", authCtrl.getVehicle);
 
   //trips moudle routes
-  app.post("/api/add-trip", upload.any(), UserTripController.createTrip);
-  app.post("/api/update-trip", upload.any(), UserTripController.updateTrip);
-  app.post("/api/nearby-trips", upload.any(), UserTripController.nearBytrip);
+  // app.post("/api/add-trip", upload.any(), UserTripController.createTrip);
+  // app.post("/api/update-trip", upload.any(), UserTripController.updateTrip);
+  // app.post("/api/nearby-trips", upload.any(), UserTripController.nearBytrip);
   // app.post("/api/trip-detail", upload.any(),UserTripController.nearBytrip); 
   // app.post("/api/send-request", upload.any(),UserTripController.nearBytrip); 
   // app.post("/api/accept-decline-request", upload.any(),UserTripController.nearBytrip); 
@@ -151,6 +151,17 @@ var routefunctions = (app) => {
 
   app.post("/api/trip-status-update", UserTripController.tripStatusUpdate);
   app.post("/api/ride-status-update", UserTripController.rideStatusUpdate);
+
+//trips moudle routes
+ 
+// app.post("/api/add-trip", upload.any(),UserTripController.createTrip); 
+// app.post("/api/update-trip", upload.any(),UserTripController.updateTrip); 
+// app.post("/api/nearby-trips", upload.any(),UserTripController.nearBytrip); 
+// app.post("/api/trip-detail", upload.any(),UserTripController.tripDetail); 
+// app.post("/api/send-request", upload.any(),UserTripController.sendRequest); 
+// app.post("/api/accept-decline-request", upload.any(),UserTripController.acceptDeclineRequest); 
+// app.post("/api/my-trips", upload.any(),UserTripController.myTrips); 
+
 
   app.post("/api/get-trips", UserTripController.getTrips);
   app.post("/api/nearby-trip-detail", UserTripController.nearBytripDetail);
