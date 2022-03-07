@@ -1634,10 +1634,7 @@ module.exports = {
                 return;
             });
         })
-
-
-
-    },
+     },
 
     setMobileIsVerified: async (req, res, next) => {
 
