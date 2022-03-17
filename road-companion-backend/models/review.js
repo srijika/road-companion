@@ -6,7 +6,9 @@ const schema = new Schema({
     reviewer_id: { type: Schema.ObjectId, ref: 'users' },
     title: { type: String, },
     description: { type: String, },
-    rating: {type: Number}, 
+    rating: {type: Number},
+    status:{ type: String},
+
 },{
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });

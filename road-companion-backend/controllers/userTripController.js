@@ -25,35 +25,27 @@ module.exports = {
     //---------------- Functions for trips modules -------------//
 
     createTrip: async (req, res, next) => {
+        try {
+            let license = '';
+            const obj = {};
+            if (req.files && req.files[0] && req.files[0].location) {
+                license = req.files[0].location;
+                obj.driving_license_image = license;
+            }
+            for (let [key, value] of Object.entries(req.body)) {
+                obj[key] = value;
+            }
 
-        // try {
-        let license = '';
-
-        console.log('req.body')
-        console.log(req.body)
-
-        const obj = {};
-        if (req.files && req.files[0] && req.files[0].location) {
-            license = req.files[0].location;
-            obj.driving_license_image = license;
+            var to = JSON.parse("[" + req.body.from_location + "]");
+            var from = JSON.parse("[" + req.body.to_location + "]");
+            obj.from_location = { "type": "Point", "coordinates": to }
+            obj.to_location = { "type": "Point", "coordinates": from }
+            const Trip = new UserTrip(obj);
+            await Trip.save();
+            return res.status(200).send({ status: 200, message: 'Trip created successfully' });
+        } catch (error) {
+            return res.status(400).send({ status: 400, message: error.message });
         }
-        for (let [key, value] of Object.entries(req.body)) {
-            obj[key] = value;
-        }
-
-        var to = JSON.parse("[" + req.body.from_location + "]");
-        var from = JSON.parse("[" + req.body.to_location + "]");
-        obj.from_location = { "type": "Point", "coordinates": to }
-        obj.to_location = { "type": "Point", "coordinates": from }
-
-
-        const Trip = new UserTrip(obj);
-        await Trip.save();
-        console.log('working');
-        return res.status(200).send({ status: 200, message: 'Trip created successfully' });
-        // } catch (error) {
-        //     return res.status(400).send({ status: 400, message: error.message });
-        // }
 
     },
 
@@ -61,10 +53,8 @@ module.exports = {
     getTrips: async (req, res, next) => {
         try {
 
-            let search = req.query.search;
-            console.log('search', search)
-
-            let user_id = req.body.user_id;
+            let search = req.query.search?req.query.search : '';
+             let user_id = req.body.user_id;
 
 
 
@@ -140,8 +130,6 @@ module.exports = {
                         trip_status: 1,
                         from_location: 1,
                         to_location: 1,
-
-
                         from_destination: 1,
                         to_destination: 1,
                         date_of_departure: 1,
@@ -164,8 +152,7 @@ module.exports = {
             ]).exec();;
 
 
-
-
+console.log(trips); 
 
             // Add Distance to all trips with lat long
             trips.forEach((item) => {
@@ -304,11 +291,7 @@ module.exports = {
 
             let distance = await Helper.distanceCalculate(from_lat, to_lat, from_lng, to_lng)
             tripDetail[0]['distance'] = parseInt(distance) + " KM";
-
-
-
-          
-            let reviews = await Review.find({ driver_id: userVehicle.user_id }).lean().exec();
+              let reviews = await Review.find({ driver_id: userVehicle.user_id }).lean().exec();
 
             return res.status(200).send({ status: 200, data: tripDetail[0], reviews, message: "booked trip detail data" });
         } catch (e) {
@@ -1104,32 +1087,70 @@ module.exports = {
 
     getTripByDate: async (req, res, next) => {
         
-            
             const reqBody = req.body;
-            let date = new Date().toISOString().slice(0, 10);
+           
+            // let date = new Date().toISOString().slice(0, 10);
             let userId =  mongoose.Types.ObjectId(reqBody.user_id);
-            UserTrip.find({
+            UserTrip.findOne({
                     $and: [{
                         user_id: userId
                     }, 
                     {
                         date_of_departure: {
-                            $gte: `${date}T00:00:00.000Z`,
+                            $gte: `${reqBody.dateString}T00:00:00.000Z`,
+                            $lte: `${reqBody.dateString}T23:59:59.999Z`
                            
                         }
                     },
                    
                 ]
-                }, function (err, trips) {
+                }, function (err, trip) {
         
                     if (err) {
                         return res.status(400).send({ message: err.message });
                     }
-                   
-                    return res.status(200).send({ data: trips });
+
+
+                    //console.log(trips);
+                    return res.status(200).send({ data: trip });
                 });
             
     },
+
+    getAllTripByDate: async (req, res, next) => {
+        
+        const reqBody = req.body;
+        console.log('req_body',reqBody) ;
+        let date = new Date().toISOString().slice(0, 10);
+        let userId =  mongoose.Types.ObjectId(reqBody.user_id);
+        UserTrip.find({
+                $and: [{
+                    user_id: userId
+                }, 
+                {
+                    date_of_departure: {
+                        $gte: `${date}T00:00:00.000Z`,
+                        //$lte: `${reqBody.dateString}T23:59:59.999Z`
+                       
+                    }
+                },
+               
+            ]
+            }, function (err, trips) {
+    
+                if (err) {
+                    return res.status(400).send({ message: err.message });
+                }
+
+                    
+                    return res.status(200).send({ data: trips });
+            });
+        
+    },
+
+    
+
+
 
   
 

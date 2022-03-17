@@ -29,7 +29,7 @@ module.exports = {
     Feed: require('../models/feeds'),
     FeedLike: require('../models/feed.likes'),
     FeedComment: require('../models/feed.comments'),
-    Review: require('../models/shop_review'),
+   
     Car: require('../models/cars'),
     CarType: require('../models/car_types'),
     Color: require('../models/colors'),
