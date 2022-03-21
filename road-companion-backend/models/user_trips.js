@@ -12,6 +12,7 @@ const geoSchema = new Schema({
     }
   });  
 
+
 const schema = new Schema({
     
     user_id: { type: Schema.ObjectId, ref: 'users' },

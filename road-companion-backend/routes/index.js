@@ -51,12 +51,20 @@ const aws = require('aws-sdk');
 //   region: 'us-east-1'
 // });
 
-aws.config.update({
-  secretAccessKey: 'oFJNCMa7wCCIOLh7WMxSRwPB3CufNgk3SVXvHmcM',
-  accessKeyId: 'AKIAZ32E2PNK67MEH4GM',
-  region: 'us-east-1'
-});
 
+// Wavess3 bucket
+// aws.config.update({
+//   secretAccessKey: 'oFJNCMa7wCCIOLh7WMxSRwPB3CufNgk3SVXvHmcM',
+//   accessKeyId: 'AKIAZ32E2PNK67MEH4GM',
+//   region: 'us-east-1'
+// });
+const bucketName = process.env.S3_BUCKET_NAME;
+
+aws.config.update({
+  secretAccessKey: process.env.S3_BUCKET_SECRET_ACCESS_KEY,
+  accessKeyId: process.env.S3_BUCKET_ACCESS_KEY_ID,
+  region: 'us-east-2'
+});
 
 
 const s3 = new aws.S3();
@@ -64,7 +72,7 @@ const upload = multer({
   storage: multerS3({
     s3: s3,
     // bucket: 'choovoo-test',
-    bucket: 'wavess3',
+    bucket: bucketName,
     key: function (req, file, cb) {
       const str = file.originalname;
       const extension = str.substr(str.lastIndexOf("."));
@@ -73,6 +81,21 @@ const upload = multer({
     }
   })
 });
+
+const deleteFilesFromS3 = (image) => {
+  //  let image = 'public_asset/16472433016711419.jpg';
+  const params = {
+    Bucket: bucketName,
+    Key: image
+  }
+
+  s3.deleteObject(params, (err, data) => {
+    if (error) {
+      res.status(500).send(error);
+    }
+    res.status(200).send("File has been deleted successfully");
+  });
+}
 
 var routefunctions = (app) => {
 
@@ -133,7 +156,17 @@ var routefunctions = (app) => {
 
   // for add and edit user vehicle 
   app.post("/api/add-vehicle", upload.any(), authCtrl.addVehicle);
+
   app.post("/api/edit-vehicle", upload.any(), authCtrl.updateVehicle);
+
+  // app.post("/api/edit-vehicle",
+  //   [{
+  //     name: 'insurance_certificate', maxCount: 1
+  //   }, {
+  //     name: 'images', maxCount: 1
+  //   }]
+  //   , authCtrl.updateVehicle);
+  app.post("/api/delete-vehicle-image", authCtrl.deleteVehicleImage);
   app.post("/api/get-vehicle", authCtrl.getVehicle);
 
   //trips moudle routes
@@ -152,22 +185,22 @@ var routefunctions = (app) => {
   app.post("/api/trip-status-update", UserTripController.tripStatusUpdate);
   app.post("/api/ride-status-update", UserTripController.rideStatusUpdate);
 
-//trips moudle routes
- 
-// app.post("/api/add-trip", upload.any(),UserTripController.createTrip); 
-// app.post("/api/update-trip", upload.any(),UserTripController.updateTrip); 
-// app.post("/api/nearby-trips", upload.any(),UserTripController.nearBytrip); 
-// app.post("/api/trip-detail", upload.any(),UserTripController.tripDetail); 
-// app.post("/api/send-request", upload.any(),UserTripController.sendRequest); 
-// app.post("/api/accept-decline-request", upload.any(),UserTripController.acceptDeclineRequest); 
-// app.post("/api/my-trips", upload.any(),UserTripController.myTrips); 
+  //trips moudle routes
+
+  // app.post("/api/add-trip", upload.any(),UserTripController.createTrip); 
+  // app.post("/api/update-trip", upload.any(),UserTripController.updateTrip); 
+  // app.post("/api/nearby-trips", upload.any(),UserTripController.nearBytrip); 
+  // app.post("/api/trip-detail", upload.any(),UserTripController.tripDetail); 
+  // app.post("/api/send-request", upload.any(),UserTripController.sendRequest); 
+  // app.post("/api/accept-decline-request", upload.any(),UserTripController.acceptDeclineRequest); 
+  // app.post("/api/my-trips", upload.any(),UserTripController.myTrips); 
 
 
   app.post("/api/get-trips", UserTripController.getTrips);
   app.post("/api/nearby-trip-detail", UserTripController.nearBytripDetail);
   app.post("/api/get-trips-by-date", UserTripController.getTripByDate);
 
-  
+
 
 
 
@@ -271,6 +304,7 @@ var routefunctions = (app) => {
 
 
   app.post('/api/notification-list', notificationController.list);
+  app.post('/api/read-notification', notificationController.readNotification);
 
 }
 

@@ -1,6 +1,7 @@
 const db = require('../_helper/db');
 const UserLogins = db.UserLogins;
 const UserVehicle = db.UserVehicle;
+const Review = db.Review;
 
 const Profile = db.Profile;
 const otp = db.Otp;
@@ -20,7 +21,7 @@ var transporter = nodemailer.createTransport({
         pass: 'oaelwbhhckizzoce'
     }
 });
-
+const aws = require('aws-sdk');
 let adminEmail = "admin@galinukkad.com";
 const Helper = require('../core/helper');
 // const sharp = require('sharp');
@@ -122,7 +123,7 @@ module.exports = {
                 email: email,
                 password: hash,
                 roles: roleType,
-                otp: userOtp, 
+                otp: userOtp,
                 firebase_fcm_token: firebase_fcm_token
             };
 
@@ -166,7 +167,7 @@ module.exports = {
         } catch (error) {
             if (error.errmsg && error.errmsg.indexOf('E11000') > -1) {
                 return res.send({ status: 403, message: "User Already Exist, Please try with other username or email" })
-            }   
+            }
 
             return res.send({ status: 400, message: error.message })
         }
@@ -199,7 +200,7 @@ module.exports = {
 
             }
 
-            if(isUser) {
+            if (isUser) {
                 return res.status(500).send({ status: 500, message: "User Already exist!" });
             }
 
@@ -294,25 +295,25 @@ module.exports = {
         const { username, password, firebase_fcm_token, isOtp } = req.body;
 
         if (!isOtp) {
-           return res.send({ status: false, message: "please provide isOtp" });
-        } 
+            return res.send({ status: false, message: "please provide isOtp" });
+        }
         console.log();
 
-        let isUser = await UserLogins.findOne({email: username});
+        let isUser = await UserLogins.findOne({ email: username });
 
-        if(isUser) {
+        if (isUser) {
             let compare = bcrypt.compareSync(password, data.password);
 
             console.log(compare);
 
-        }else {
+        } else {
             return res.status(400).send({ status: 400, err: "Please enter valid email" })
         }
 
 
 
 
-        
+
         // else {
         //     if (isOtp == 0) {    // if is otp is false
         //         UserLogins.findOne({ $or: [{ email: username },] }).then((data) => {
@@ -406,9 +407,9 @@ module.exports = {
     },
 
     loginUser: async (req, res, next) => {
-        const { username, password , firebase_fcm_token} = req.body;
-      
-        
+        const { username, password, firebase_fcm_token } = req.body;
+
+
         console.log('working');
 
         UserLogins.findOne({ $or: [{ email: username }] }).then((data) => {
@@ -431,7 +432,7 @@ module.exports = {
                         });
                         return;
                     }
-                    res.status(400).send({  message: "Invalid password!" });
+                    res.status(400).send({ message: "Invalid password!" });
                 } else {
                     UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date(), firebase_fcm_token } }).then({})
                     return res.json({
@@ -443,7 +444,7 @@ module.exports = {
                 }
 
             } else {
-                res.status(400).send({  message: "email not found" });
+                res.status(400).send({ message: "email not found" });
             }
         })
 
@@ -455,7 +456,7 @@ module.exports = {
         // let user = await UserLogins.findOne({ $or: [{ email: email }, { username: username }] });
         let user = await UserLogins.findOne({ email: email });
         console.log(user)
-        if (!user) { 
+        if (!user) {
             // if user is not available
             let role_type = "CUSTOMER";
             let password = generateOTP();
@@ -690,6 +691,10 @@ module.exports = {
 
 
             const { email, password, } = req.body;
+
+            console.log('req.body -----')
+            console.log(req.body)
+
             if (!email || !password) {
                 return res.status(500).send({ status: false, message: "please provide required params" })
             }
@@ -703,9 +708,13 @@ module.exports = {
 
             const hashPassword = bcrypt.hashSync(password, saltRounds);
 
+            console.log('hashPassword ----------')
+            console.log(hashPassword)
+            console.log(isUser)
+
             await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
 
-
+            console.log('pass updated')
             return res.status(200).send({ status: 200, message: 'Password updated successfully Please Login !' });
 
         } catch (error) {
@@ -1036,30 +1045,30 @@ module.exports = {
 
     },
 
-    changePassword: async (req, res, next) => { 
+    changePassword: async (req, res, next) => {
         try {
-             const { username, old_password, password } = req.body;
-             
-             if (!username || !password || !old_password) {
-                return res.status(400).send({status:400, message: "please provide required params" })
+            const { username, old_password, password } = req.body;
+
+            if (!username || !password || !old_password) {
+                return res.status(400).send({ status: 400, message: "please provide required params" })
             }
 
             const isUser = await UserLogins.findOne({ $or: [{ email: username }] });
 
             if (!isUser) {
-                return res.send({ status:400, message: "User not found" });
+                return res.send({ status: 400, message: "User not found" });
             }
             let current_password = isUser.password;
 
             const checkPassword = await bcrypt.compare(old_password, current_password);
-            if(checkPassword == false) {
-                return res.send({ status:400, message: 'Current password not matched for your old password' });    
+            if (checkPassword == false) {
+                return res.send({ status: 400, message: 'Current password not matched for your old password' });
             }
             const hashPassword = bcrypt.hashSync(password, saltRounds);
             await UserLogins.findByIdAndUpdate(isUser._id, { password: hashPassword });
-        
+
             return res.send({ status: 200, message: 'Password updated successfully' });
-         } catch (error) {
+        } catch (error) {
             return res.send({ status: 400, message: error.message });
         }
     },
@@ -1100,14 +1109,20 @@ module.exports = {
             const reqBody = req.body;
             const car_images = [];
             let certification;
+
             if (req.files.length > 0) {
-                for (let i = 1; i < req.files.length; i++) {
-                    car_images.push(req.files[i].location);
+                for (let i = 0; i < req.files.length; i++) {
+                    let fieldname = req.files[i].fieldname;
+                    if(fieldname == "images") {
+                        car_images.push(req.files[i].location);
+                    }
+
+                    if(fieldname == "insurance_certificate") {
+                        certification = req.files[0].location;
+                    }
                 }
             }
-            if (req.files && req.files[0] && req.files[0].location) {
-                certification = req.files[0].location;
-            }
+
             const jsonData = {
 
                 make_id: reqBody.make_id,
@@ -1139,16 +1154,23 @@ module.exports = {
             const reqBody = req.body;
             const car_images = [];
             let certification;
+
+            
             if (req.files.length > 0) {
-                for (let i = 1; i < req.files.length; i++) {
-                    car_images.push(req.files[i].location);
+                for (let i = 0; i < req.files.length; i++) {
+                    let fieldname = req.files[i].fieldname;
+                    if(fieldname == "images") {
+                        car_images.push(req.files[i].location);
+                    }
+
+                    if(fieldname == "insurance_certificate") {
+                        certification = req.files[0].location;
+                    }
                 }
             }
-            if (req.files && req.files[0] && req.files[0].location) {
-                certification = req.files[0].location;
-            }
-            const jsonData = {
+          
 
+            const jsonData = {
                 user_id: reqBody.user_id,
                 model_id: reqBody.model_id,
                 year: reqBody.year,
@@ -1159,15 +1181,25 @@ module.exports = {
                 carrying_dimension_height: reqBody.carrying_dimension_height,
                 is_smoking: reqBody.is_smoking,
                 insurance_no: reqBody.insurance_no,
-                insurance_certificate: certification,
-                images: car_images,
-
             };
+
+            if(certification){
+                jsonData['insurance_certificate'] = certification;
+            }
+
             const isVehicle = await UserVehicle.findById(reqBody.vehicle_id);
 
             if (!isVehicle) {
                 return res.send({ status: false, message: 'Vehicle data not found for this id' });
             }
+
+            if(car_images.length > 0){
+                isVehicle.images.map((item) => {
+                    car_images.push(item);
+                })
+                jsonData['images'] = car_images;
+            }
+
 
             const isUser = await UserLogins.findById(isVehicle.user_id);
 
@@ -1179,20 +1211,53 @@ module.exports = {
 
             return res.send({ status: true, message: 'Vehicle updated successfully..' });
         } catch (error) {
-            return res.send({ status: false, message: error.message });
+            console.log(error.message)
+            return res.status(400).send({ status: false, message: error.message });
         }
     },
 
 
 
+    deleteVehicleImage: async (req, res, next) => {
+        try {
 
+            const { filename, vehicle_id, type } = req.body;
+
+            const s3 = new aws.S3();
+            const bucketName = process.env.S3_BUCKET_NAME;
+            let imgName = filename.split('/').pop();
+            const params = {
+                Bucket: bucketName,
+                Key: `public_asset/${imgName}`
+            }
+
+            s3.deleteObject(params, (error, data) => {
+                if (error) {
+                    res.status(500).send(error);
+                }
+                console.log("File has been deleted successfully");
+            });
+
+            let userVehicle = await UserVehicle.findById(vehicle_id).then((vehicle) => {
+
+                if(type == "insurance") {
+                    vehicle.insurance_certificate = "";
+                }
+
+                let arr = vehicle.images.filter((item) => item != filename )
+                vehicle.images = arr;
+                vehicle.save();
+            });
+
+            return res.send({ status: true, message: 'File has been deleted successfully..' });
+        } catch (error) {
+            console.log('error ---------->'+error.message)
+            return res.status(400).send({ status: false, message: error.message });
+        }
+    },
 
     updateprofile: async (req, res, next) => {
-
-
-
         const { name, user_background } = req.body;
-
 
         if (!name) {
             res.send({ status: false, message: "Required Parameter is missing" });
@@ -1234,9 +1299,6 @@ module.exports = {
 
     getVehicle: async (req, res, next) => {
         var user_id = req.body.user_id
-
-      
-
         // UserVehicle.findOne({ user_id: user_id }).populate('user_id').then((data) => {
         //     res.send({ status: true, data})
         //     return;
@@ -1475,8 +1537,16 @@ module.exports = {
     getUserDetail: async (req, res, next) => {
         try {
             let user = await UserLogins.findById(req.body.user_id).lean().exec();
+
+            let reviews = await Review.find({ driver_id: user._id }).select('rating').lean().exec()
+            let totalRating = 0;
+            if (reviews.length > 0) {
+                totalRating = await Helper.getReviewRatingCalculate(reviews);
+            }
+            
+            user['totalRating'] = totalRating;
             return res.status(200).send({ status: true, user: user, });
-        }catch(e) {
+        } catch (e) {
             return res.status(400).send({ status: true, message: e.message });
         }
 
@@ -1634,7 +1704,7 @@ module.exports = {
                 return;
             });
         })
-     },
+    },
 
     setMobileIsVerified: async (req, res, next) => {
 

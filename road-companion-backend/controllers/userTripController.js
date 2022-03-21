@@ -1,4 +1,4 @@
-const { UserTrip, UserVehicle, Rider, Notification, StripePayment, Review } = require('../_helper/db');
+const { UserTrip, UserVehicle, Rider, Notification, StripePayment, Review, UserLogins } = require('../_helper/db');
 var path = require('path');
 var fs = require('fs');
 const mongoose = require('mongoose');
@@ -14,7 +14,8 @@ aws.config.update({
     region: 'ap-south-1'
 });
 const s3Bucket = new aws.S3({ params: { Bucket: 'choovoo-test' } });
-const Stripe = require("stripe")
+const Stripe = require("stripe");
+const { getReviewRatingCalculate } = require('../core/helper');
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -125,6 +126,10 @@ module.exports = {
                         to_destination: { $first: "$to_destination" },
                         date_of_departure: { $first: "$date_of_departure" },
                         time_of_departure: { $first: "$time_of_departure" },
+
+                        date_of_arrival: { $first: "$date_of_arrival" },
+                        time_of_arrival: { $first: "$time_of_arrival" },
+
                         is_smoking: { $first: "$is_smoking" },
                         user_id: { $first: "$user_id" },
                         vehicleData: { $first: "$vehicleData" },
@@ -146,6 +151,8 @@ module.exports = {
                         to_destination: 1,
                         date_of_departure: 1,
                         time_of_departure: 1,
+                        date_of_arrival: 1,
+                        time_of_arrival: 1,
                         is_smoking: 1,
                         user_id: 1,
 
@@ -168,36 +175,84 @@ module.exports = {
 
 
             // Add Distance to all trips with lat long
-            trips.forEach((item) => {
-                let from_location = item.from_location.coordinates;
-                let to_location = item.to_location.coordinates;
-                let from_lat = from_location[0]
-                let from_lng = from_location[1]
-                let to_lat = to_location[0]
-                let to_lng = to_location[1]
-                let distance = Helper.distanceCalculate(from_lat, to_lat, from_lng, to_lng)
-                item['distance'] = parseInt(distance) + " KM";
-            })
+
 
             // let trips = await UserTrip.find({ user_id: user_id }).populate('vehicle_id').lean().exec();
 
 
-            let rides = await Rider.find({ user_id: user_id }).sort({ 'created_at': -1 }).populate('trip_id').lean().exec();
-            rides.forEach((item) => {
-                let from_location = item.trip_id.from_location.coordinates;
-                let to_location = item.trip_id.to_location.coordinates;
-                let from_lat = from_location[0]
-                let from_lng = from_location[1]
-                let to_lat = to_location[0]
-                let to_lng = to_location[1]
-                let distance = Helper.distanceCalculate(from_lat, to_lat, from_lng, to_lng)
-                item.trip_id['distance'] = parseInt(distance) + " KM";
+            //let rides = await Rider.find({ user_id: user_id }).sort({ 'created_at': -1 }).populate('trip_id').lean().exec();
+
+            let rides = await Rider.aggregate([
+                { "$match": { user_id: mongoose.Types.ObjectId(user_id) }, },
+                {
+                    $lookup: {
+                        from: 'user_trips',
+                        localField: 'trip_id',
+                        foreignField: '_id',
+                        as: 'trip_id'
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$trip_id",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'user_vehicles',
+                        localField: 'trip_id.vehicle_id',
+                        foreignField: '_id',
+                        as: 'trip_id.vehicleData'
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'reviews',
+                        localField: 'trip_id.user_id',
+                        foreignField: 'driver_id',
+                        as: 'driverReviews'
+                    }
+                },
+                // {
+                //     $group: {
+                //         _id: "$_id",
+                //         trip_id : {$push : "$trip_id"},
+                //         driverReviews: {$push : "$driverReviews"},
+                //         // package_desc: {$first : "$package_desc"},
+                //         // package_price: {$first : "$package_price"}
+                //     }
+                // },
+                { $sort: { '_id': -1 } }
+            ]).exec();
+
+
+            // TRIP CREATOR USER TOTAL REVIEW RATINGS
+            let promises = rides.map((item) => {
+                let reviews;
+                if (item && item.driverReviews) {
+
+                    reviews = item.driverReviews;
+                    let totalRating = 0;
+                    if (reviews.length > 0) {
+                        totalRating = Helper.getReviewRatingCalculate(reviews);
+                    }
+                    item['totalRating'] = totalRating;
+                }
+
+                return item;
             })
 
+            // REMOVE UNNECESSARY DRIVER REVIEW DATA BECAUSE WE CALCULATE DRIVER LISTING REVIEW
+            rides = await Promise.all(promises);
+
+            rides.map((item) => {
+                delete item.driverReviews;
+                return item;
+            });
 
 
-
-            return res.status(200).send({ status: 400, data: trips, rides: rides, message: "trips get successfully" });
+            return res.status(200).send({ status: 200, data: trips, rides: rides, message: "trips get successfully" });
         } catch (e) {
             console.log(e);
             return res.status(400).send({ status: 400, message: e.message });
@@ -210,7 +265,7 @@ module.exports = {
         try {
 
             let trip_id = req.body.trip_id;
-            console.log(trip_id)
+
 
             let tripDetail = await UserTrip.aggregate([
                 { "$match": { _id: mongoose.Types.ObjectId(trip_id) } },
@@ -306,9 +361,9 @@ module.exports = {
             tripDetail[0]['distance'] = parseInt(distance) + " KM";
 
 
-
-          
             let reviews = await Review.find({ driver_id: userVehicle.user_id }).lean().exec();
+            let totalRating = await getReviewRatingCalculate(reviews);
+            tripDetail[0]['totalRating'] = totalRating;
 
             return res.status(200).send({ status: 200, data: tripDetail[0], reviews, message: "booked trip detail data" });
         } catch (e) {
@@ -345,28 +400,53 @@ module.exports = {
 
     nearBytrip: async (req, res, next) => {
 
-        // try {
+        try {
+            const { date, fromLat, fromLong } = req.body;
 
 
-        // GET TRIP ON TODAY DATE
-        //     const today = moment().startOf('day')
-        //     const trips = await UserTrip.find(
-        //         // {}
-        //         {
-        //             created_at: {
-        //                 $gte: today.toDate(), 
-        //             }
-        //         }
-        //     ).populate('vehicle_id', 'images').populate('user_id', 'avatar');
+            // GET TRIP ON TODAY DATE
+            const today = moment().startOf('day')
 
-        //     console.log(trips)
-        //     console.log(trips)
+            let trips = await UserTrip.find({
+                from_location: {
+                    $near: {
+                        $maxDistance: 25000,
+                        $geometry: {
+                            type: "Point",
+                            coordinates: [fromLat, fromLong]
+                        }
+                    }
+                },
+                // created_at: {
+                //     $gte: today.toDate(), 
+                // },
+                // trip_status: "NOT_STARTED",
+            }).populate('vehicle_id', 'images').populate('user_id', 'avatar');
+
+            return res.status(200).send({ data: trips });
 
 
-        //     return res.status(200).send({ data: trips });
-        // } catch (e) {
-        //     return res.status(400).send({ message: e.error });
-        // }
+
+
+
+
+            return;
+            // const trips = await UserTrip.find(
+            //     {
+                    // created_at: {
+                    //     $gte: today.toDate(), 
+                    // }
+            //     }
+            // ).populate('vehicle_id', 'images').populate('user_id', 'avatar');
+
+            // console.log('trips')
+            // console.log(trips.length)
+
+            // return res.status(200).send({ data: trips });
+        } catch (e) {
+            console.log('error ----------', e)
+            return res.status(400).send({ message: e.error });
+        }
         // console.log('working sdfsdfsdf12')
 
 
@@ -396,6 +476,7 @@ module.exports = {
             if (err) {
                 return res.status(400).send({ message: err.message });
             }
+            console.log(trips);
             console.log(trips);
             return res.status(200).send({ data: trips });
         }).populate('user_id');
@@ -456,9 +537,16 @@ module.exports = {
         tripDetail['distance'] = parseInt(distance) + " KM";
 
 
-        let reviews = await Review.find({driver_id: tripDetail.user_id}).lean().exec();
+        let reviews = await Review.find({ driver_id: tripDetail.user_id }).lean().exec();
 
-        return res.status(200).send({ status: 200, tripDetail: tripDetail, reviews:reviews.reverse()  });
+        let totalRating = await getReviewRatingCalculate(reviews);
+        tripDetail['totalRating'] = totalRating;
+
+
+        console.log('tripDetail')
+        console.log(tripDetail)
+
+        return res.status(200).send({ status: 200, tripDetail: tripDetail, reviews: reviews.reverse() });
         // } catch (error) {
         //     return res.status(400).send({ status: 400, message: error.message });
         // }
@@ -492,6 +580,7 @@ module.exports = {
             } else {
                 amount = tripDetail.travel_price * reqData.total_seats;
             }
+
             reqData['status'] = "INTRESTED";
             reqData['amount'] = amount;
 
@@ -611,7 +700,8 @@ module.exports = {
         try {
 
             let reqData = req.body;
-            let user_id = reqData.user_id;
+            let rider_user_id = reqData.user_id;
+            let rider_name = reqData.rider_name;
             let trip_id = reqData.trip_id;
 
             const tripDetail = await UserTrip.findOne({ _id: trip_id, });
@@ -636,6 +726,7 @@ module.exports = {
             } else {
                 amount = tripDetail.travel_price * reqData.total_seats;
             }
+
             reqData['status'] = "INTRESTED";
             reqData['amount'] = amount;
 
@@ -648,10 +739,32 @@ module.exports = {
             }
 
 
-            return res.status(200).send({ status: 200, message: "Ride successfully created.." });
 
+            let messageData = {
+                user_id: tripDetail.user_id,
+                message: `You have a new requested ride from a ${rider_name}.`,
+                type: "MY_TRIP_DETAIL",
+                reference_id: tripDetail._id
+            }
+
+            await Notification(messageData).save();
+
+
+
+            let notificationData = {
+                user_id: tripDetail.user_id,
+                message: `You have a new requested ride from a ${rider_name}.`,
+            };
+
+            await firebase.sendPushNotificationToSingleUser(notificationData);
+
+
+            console.log('completed')
+
+            return res.status(200).send({ status: 200, message: "Ride successfully created.." });
         } catch (e) {
-            return res.status(400).send({ status: 200, message: "Something went wrong in api." });
+            console.log(e)
+            return res.status(400).send({ status: 400, message: "Something went wrong in api." });
         }
 
 
@@ -662,12 +775,29 @@ module.exports = {
         try {
             let { status, rider_id } = req.body;
 
-            console.log(req.body)
-            // await Rider.update({_id: rider_id}, { $set: { status: status } });
             await Rider.updateOne({ _id: rider_id }, { status: status });
+            let riderData = await Rider.findOne({ _id: rider_id });
+
+            let messageData = {
+                user_id: riderData.user_id,
+                message: `Your request has been ${status.toLowerCase()}.`,
+                type: "BOOKED_TRIP_DETAIL",
+                reference_id: riderData.trip_id
+            }
+            await Notification(messageData).save();
+
+            status = status.toLowerCase();
+            let notificationData = {
+                user_id: riderData.user_id,
+                message: `Your request has been ${status}.`,
+            };
+
+            firebase.sendPushNotificationToSingleUser(notificationData);
 
             return res.status(200).send({ status: 200, message: `User ride ${status} successfully` });
+
         } catch (error) {
+            console.log('error ---------', error)
             return res.status(400).send({ status: 400, message: error.message });
         }
 
@@ -728,7 +858,7 @@ module.exports = {
             return res.send({ status: 400, message: error.message });
         }
     },
-    
+
     getCars: async (req, res, next) => {
         try {
             const cars = await Car.find();
@@ -1103,35 +1233,35 @@ module.exports = {
     },
 
     getTripByDate: async (req, res, next) => {
-        
-            
-            const reqBody = req.body;
-            let date = new Date().toISOString().slice(0, 10);
-            let userId =  mongoose.Types.ObjectId(reqBody.user_id);
-            UserTrip.find({
-                    $and: [{
-                        user_id: userId
-                    }, 
-                    {
-                        date_of_departure: {
-                            $gte: `${date}T00:00:00.000Z`,
-                           
-                        }
-                    },
-                   
-                ]
-                }, function (err, trips) {
-        
-                    if (err) {
-                        return res.status(400).send({ message: err.message });
-                    }
-                   
-                    return res.status(200).send({ data: trips });
-                });
-            
+
+
+        const reqBody = req.body;
+        let date = new Date().toISOString().slice(0, 10);
+        let userId = mongoose.Types.ObjectId(reqBody.user_id);
+        UserTrip.find({
+            $and: [{
+                user_id: userId
+            },
+            {
+                date_of_departure: {
+                    $gte: `${date}T00:00:00.000Z`,
+
+                }
+            },
+
+            ]
+        }, function (err, trips) {
+
+            if (err) {
+                return res.status(400).send({ message: err.message });
+            }
+
+            return res.status(200).send({ data: trips });
+        });
+
     },
 
-  
+
 
 
 

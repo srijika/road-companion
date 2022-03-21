@@ -74,6 +74,72 @@ const Helper = {
     },
 
 
+
+
+    getReviewRatingCalculate(reviews) {
+
+
+        let reviewObj = {
+            fiveStar: 0,
+            fourStar: 0,
+            threeStar: 0,
+            twoStar: 0,
+            oneStar: 0,
+        };
+
+        let five = 1;
+        let four = 1;
+        let three = 1;
+        let two = 1;
+        let one = 1;
+        reviews.map((item) => {
+            if (item.rating == 5) {
+                reviewObj.fiveStar = five++;
+            } else if (item.rating == 4) {
+                reviewObj.fourStar = four++;
+            } else if (item.rating == 3) {
+                reviewObj.threeStar = three++;
+            } else if (item.rating == 2) {
+                reviewObj.twoStar = two++;
+            } else if (item.rating == 1) {
+                reviewObj.oneStar = one++;
+            }
+
+        })
+
+        let totalRating = ((5*reviewObj.fiveStar) + (4 * reviewObj.fourStar)+ (3 * reviewObj.threeStar) + (2 * reviewObj.twoStar) + (1 * reviewObj.oneStar))
+        //let totalNumberOfReviews = parseInt(reviewObj?.fiveStar) + parseInt(reviewObj?.fourStar) + parseInt(reviewObj?.threeStar) + parseInt(reviewObj?.twoStar) + parseInt(reviewObj?.oneStar);
+        let totalNumberOfReviews = 0;
+        if(reviewObj && reviewObj.fiveStar) {
+            totalNumberOfReviews = totalNumberOfReviews + parseInt(reviewObj.fiveStar)
+        }
+
+        if(reviewObj && reviewObj.fourStar) {
+            totalNumberOfReviews = totalNumberOfReviews + parseInt(reviewObj.fourStar)
+        }
+
+        if(reviewObj && reviewObj.threeStar) {
+            totalNumberOfReviews = totalNumberOfReviews + parseInt(reviewObj.threeStar)
+        }
+
+        if(reviewObj && reviewObj.twoStar) {
+            totalNumberOfReviews = totalNumberOfReviews + parseInt(reviewObj.twoStar)
+        }
+
+        if(reviewObj && reviewObj.oneStar) {
+            totalNumberOfReviews = totalNumberOfReviews + parseInt(reviewObj.oneStar)
+        }
+
+        let result = totalRating / totalNumberOfReviews;
+        // console.log('totalNumberOfReviews')
+        // console.log(totalRating)
+        // console.log(totalNumberOfReviews)
+        // console.log(result)
+
+        return result;
+
+    }
+
 }
 
 module.exports = Helper;
