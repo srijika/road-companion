@@ -1175,16 +1175,17 @@ module.exports = {
 
     updateprofile: async (req, res, next) => {
 
-
+       
 
         const { name, user_background } = req.body;
 
+        
 
         if (!name) {
             res.send({ status: false, message: "Required Parameter is missing" });
             return;
         }
-
+        
         UserLogins.findOne({ _id: req.user._id }).then((data) => {
 
             if (data && data._id) {
@@ -1206,15 +1207,7 @@ module.exports = {
                     return res.send({ status: 400, message: err.errmsg });
                 });
             }
-            // else {
-            //     Profile.create(req.body).then((data) => {
-            //         res.send({ status: true, data })
-            //         return;
-            //     }).catch((err) => {
-            //         res.send({ status: false, message: err.errmsg })
-            //         return;
-            //     });
-            // }
+            
         });
     },
 

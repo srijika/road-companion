@@ -270,7 +270,7 @@ var routefunctions = (app) => {
   app.post('/api/createprofile', authenticateJWT, authCtrl.crateprofile)
   app.post('/api/user/status', authCtrl.userActiveDeactiveStatus)
   app.post('/api/maintenance-mode', authCtrl.maintenanceMode)
-  app.post('/api/updateprofile', authenticateJWT, upload.any(), authCtrl.updateprofile)
+  app.post('/api/updateprofile',  upload.any(), authCtrl.updateprofile)
   app.post('/api/getalluserlist', authCtrl.getalluser);
 
 
