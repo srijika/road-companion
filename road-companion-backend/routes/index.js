@@ -199,6 +199,7 @@ var routefunctions = (app) => {
   app.post("/api/get-trips", UserTripController.getTrips);
   app.post("/api/nearby-trip-detail", UserTripController.nearBytripDetail);
   app.post("/api/get-trips-by-date", UserTripController.getTripByDate);
+  app.post("/api/get-all-trips-by-date", UserTripController.getAllTripByDate);
 
 
 
@@ -216,8 +217,13 @@ var routefunctions = (app) => {
 
 
   //Shop REVIEW API
-  app.post("/api/add-review", reviewController.addReview)
-  app.post("/api/delete/shop/review", reviewController.deleteShopReview)
+  app.post("/api/add-review", reviewController.addReview);
+  app.put("/api/update-review", reviewController.updateReview);
+  app.delete("/api/delete-review", reviewController.deleteReview);
+  app.get("/api/review-list", reviewController.getDriverReview);
+  app.post('/api/review-status', reviewController.reviewStatus);
+  app.get("/api/review-detail", reviewController.reviewDetail);
+
 
   //Tag API
   app.post("/api/create/tag", authenticateJWT, tagController.createTag)
@@ -297,7 +303,7 @@ var routefunctions = (app) => {
   app.post('/api/createprofile', authenticateJWT, authCtrl.crateprofile)
   app.post('/api/user/status', authCtrl.userActiveDeactiveStatus)
   app.post('/api/maintenance-mode', authCtrl.maintenanceMode)
-  app.post('/api/updateprofile', authenticateJWT, upload.any(), authCtrl.updateprofile)
+  app.post('/api/updateprofile',  upload.any(), authCtrl.updateprofile)
   app.post('/api/getalluserlist', authCtrl.getalluser);
 
 

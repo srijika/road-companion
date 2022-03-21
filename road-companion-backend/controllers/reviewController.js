@@ -21,11 +21,30 @@ module.exports = {
     },
 
 
-    getDriverReview: async (req, res, next) => {
+    updateReview: async (req, res, next) => {
         try {
             const reqBody = req.body;
-            let reviews = await new Review.find({ driver_id: reqBody.user_id }).lean().exec();
+            const Id = reqBody._id;
 
+            if (!Id) {
+                return res.send({ status: false, message: 'Id is required' });
+            }
+             await Review.findByIdAndUpdate(Id, reqBody).lean().exec();
+             return res.send({ status: true, message: 'Review Updated successfully' });
+    
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+
+    getDriverReview: async (req, res, next) => {
+        try {
+            const reqQuery = req.query;
+            const slug = reqQuery.user_id;
+            
+            let reviews = await Review.find({ driver_id: slug }).populate('reviewer_id').lean().exec();
+           
             return res.send({ status: 200, data: reviews });
         } catch (error) {
 
@@ -34,20 +53,61 @@ module.exports = {
         }
     },
 
-
-
-    deleteShopReview: async (req, res, next) => {
+    reviewDetail: async (req, res, next) => {
         try {
-            const { _id } = req.body;
-            if (!_id) {
+            const reqQuery = req.query;
+            console.log(reqQuery) ;
+            const slug = reqQuery.slug;
+            
+           let review = await Review.findOne({ _id: slug }).lean().exec();
+           
+            return res.send({ status: 200, data: review });
+        } catch (error) {
+
+            console.log(error)
+            return res.send({ status: 400, message: error.message });
+        }
+    },
+
+    
+
+
+
+    deleteReview: async (req, res, next) => {
+        try {
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
+            if (!slug) {
                 return res.send({ status: 400, message: '_id is required' });
             }
-            const deleted = await Shop.findOneAndRemove({ _id: req.body._id }).lean().exec();
+            const deleted = await Review.findOneAndRemove({ _id: slug }).lean().exec();
 
             return res.send({ status: 200, message: 'Review deleted successfully' });
 
         } catch (error) {
             return res.send({ status: 400, message: error.message });
+        }
+    },
+
+
+    reviewStatus: async (req, res, next) => {
+        try {
+            let { id } = req.body;
+
+            Review.findById(id, function (err, data) {
+                data.status = data.status == 'Activate' ? 'Deactivate' :'Activate' ;
+                data.save((err, result) => {
+                    if (result) {
+                        return res.send({ status: true, message: "User action changed successfully" });
+                    } else {
+                        return res.send({ status: false, message: err });
+                    }
+                })
+            });
+
+        } catch (e) {
+            console.log(e);
+            return res.send({ status: false, message: e.message });
         }
     },
 

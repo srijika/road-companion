@@ -410,7 +410,7 @@ module.exports = {
             let trips = await UserTrip.find({
                 from_location: {
                     $near: {
-                        $maxDistance: 25000,
+                        $maxDistance: 50000,
                         $geometry: {
                             type: "Point",
                             coordinates: [fromLat, fromLong]
@@ -429,7 +429,7 @@ module.exports = {
 
 
 
-
+            
             return;
             // const trips = await UserTrip.find(
             //     {
@@ -1232,36 +1232,69 @@ module.exports = {
         }
     },
 
+ 
     getTripByDate: async (req, res, next) => {
-
-
+        
         const reqBody = req.body;
-        let date = new Date().toISOString().slice(0, 10);
-        let userId = mongoose.Types.ObjectId(reqBody.user_id);
-        UserTrip.find({
+       
+        // let date = new Date().toISOString().slice(0, 10);
+        let userId =  mongoose.Types.ObjectId(reqBody.user_id);
+        UserTrip.findOne({
+                $and: [{
+                    user_id: userId
+                }, 
+                {
+                    date_of_departure: {
+                        $gte: `${reqBody.dateString}T00:00:00.000Z`,
+                        $lte: `${reqBody.dateString}T23:59:59.999Z`
+                       
+                    }
+                },
+               
+            ]
+            }, function (err, trip) {
+    
+                if (err) {
+                    return res.status(400).send({ message: err.message });
+                }
+
+
+                //console.log(trips);
+                return res.status(200).send({ data: trip });
+            });
+        
+},
+
+getAllTripByDate: async (req, res, next) => {
+    
+    const reqBody = req.body;
+    console.log('req_body',reqBody) ;
+    let date = new Date().toISOString().slice(0, 10);
+    let userId =  mongoose.Types.ObjectId(reqBody.user_id);
+    UserTrip.find({
             $and: [{
                 user_id: userId
-            },
+            }, 
             {
                 date_of_departure: {
                     $gte: `${date}T00:00:00.000Z`,
-
+                    //$lte: `${reqBody.dateString}T23:59:59.999Z`
+                   
                 }
             },
-
-            ]
+           
+        ]
         }, function (err, trips) {
 
             if (err) {
                 return res.status(400).send({ message: err.message });
             }
 
-            return res.status(200).send({ data: trips });
+                
+                return res.status(200).send({ data: trips });
         });
-
-    },
-
-
+    
+},
 
 
 
