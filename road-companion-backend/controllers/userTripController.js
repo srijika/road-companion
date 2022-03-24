@@ -27,11 +27,12 @@ module.exports = {
 
     createTrip: async (req, res, next) => {
 
-        // try {
+        try {
         let license = '';
 
         console.log('req.body')
         console.log(req.body)
+        // return ;
 
         const obj = {};
         if (req.files && req.files[0] && req.files[0].location) {
@@ -52,9 +53,9 @@ module.exports = {
         await Trip.save();
         console.log('working');
         return res.status(200).send({ status: 200, message: 'Trip created successfully' });
-        // } catch (error) {
-        //     return res.status(400).send({ status: 400, message: error.message });
-        // }
+        } catch (error) {
+            return res.status(400).send({ status: 400, message: error.message });
+        }
 
     },
 
@@ -404,32 +405,33 @@ module.exports = {
             const { date, fromLat, fromLong } = req.body;
 
 
+            console.log('req.body')
+            console.log(req.body)
             // GET TRIP ON TODAY DATE
             const today = moment().startOf('day')
 
             let trips = await UserTrip.find({
                 from_location: {
                     $near: {
-                        $maxDistance: 50000,
+                        $maxDistance: 25000,
                         $geometry: {
                             type: "Point",
-                            coordinates: [fromLat, fromLong]
+                            coordinates: [fromLong, fromLat]
                         }
                     }
                 },
-                // created_at: {
-                //     $gte: today.toDate(), 
-                // },
-                // trip_status: "NOT_STARTED",
+                created_at: {
+                    $gte: today.toDate(), 
+                },
+                trip_status: "NOT_STARTED",
             }).populate('vehicle_id', 'images').populate('user_id', 'avatar');
+
+
+            console.log('trips.length -----', trips.length)
 
             return res.status(200).send({ data: trips });
 
 
-
-
-
-            
             return;
             // const trips = await UserTrip.find(
             //     {
@@ -813,7 +815,7 @@ module.exports = {
             await UserTrip.updateOne({ _id: trip_id }, { trip_status: trip_status });
 
             if (trip_status === "FINISHED") {
-                await Rider.updateMany({ trip_id: trip_id, status: "PICKUP" }, { status: 'FINISHED' });
+                await Rider.updateMany({ trip_id: trip_id }, { status: 'FINISHED' });
             }
 
             return res.status(200).send({ status: 200, message: `Trip status updated successfully` });

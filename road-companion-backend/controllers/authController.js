@@ -289,123 +289,105 @@ module.exports = {
     },
 
 
+      login: async (req, res, next) => {
 
-    login: async (req, res, next) => {
-
-        const { username, password, firebase_fcm_token, isOtp } = req.body;
+        const { username, password, isOtp } = req.body;
 
         if (!isOtp) {
-            return res.send({ status: false, message: "please provide isOtp" });
-        }
-        console.log();
-
-        let isUser = await UserLogins.findOne({ email: username });
-
-        if (isUser) {
-            let compare = bcrypt.compareSync(password, data.password);
-
-            console.log(compare);
-
+            res.send({ status: false, message: "please provide isOtp" });
         } else {
-            return res.status(400).send({ status: 400, err: "Please enter valid email" })
+            if (isOtp == 0) {    // if is otp is false
+                UserLogins.findOne({ $or: [{ email: username },] }).then((data) => {
+
+                    if (data && data._id) {
+
+
+                        let user_detail = data;
+
+                        let user = { username: data.email, _id: data._id, time: new Date().getTime(), role: data.roles };
+                        const accessToken = jwt.sign(user, accessTokenSecret);
+
+                        let compare = bcrypt.compareSync(password, data.password);
+                        if (!compare) {
+                            if (data.password === password) {
+                                UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({});
+                                res.json({
+                                    status: true,
+                                    accessToken,
+                                    user: data,
+                                    user_detail: user_detail,
+                                });
+                                return;
+                            }
+                            res.send({ status: false, message: "Invalid password!" });
+                        } else {
+                            UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date() } }).then({})
+                            return res.json({
+                                status: true,
+                                accessToken,
+                                user,
+                                user_detail: user_detail,
+                            });
+                        }
+
+                    } else {
+                        res.send({ status: false, message: "email not found" });
+                    }
+                })
+            } else if (isOtp == 1) { // if login by otp is true
+                // let otp = Math.floor(1000 + Math.random() * 9000);
+                console.log('otp is not false')
+                let otp = generateOTP();
+
+                if (username) {
+                    UserLogins.findOne({ $or: [{ email: username }] }).then((data) => {
+                        UserLogins.updateOne({ email: username }, { $set: { otp: otp } }).then(user => {
+                            var mailOptions = {
+                                from: 'mailto:no-reply@gmail.com',
+                                to: username,
+                                subject: 'New Signup',
+                                text: `Your one time otp is ${otp}`
+                            };
+                            transporter.sendMail(mailOptions, function (error, info) {
+                                if (error) {
+                                    console.log(error);
+                                } else {
+                                    console.log('Email sent: ' + info.response);
+                                }
+                            });
+                            res.send({ status: true, message: "Otp sent!" })
+                            return;
+                        }).catch(err => {
+                            res.send({ status: false, err: "An Error Occured" })
+                            return;
+                        })
+                    }).catch(err => {
+                        res.send({ status: false, err: "An Error Occured" })
+                        return;
+                    });
+
+                } else if (mobile_number) {
+                    UserLogins.findOne({ $or: [{ mobile_number: mobile_number }] }).then((data) => {
+                        UserLogins.updateOne({ mobile_number: mobile_number }, { $set: { otp: otp } }).then(async user => {
+                            await sendSms(mobile_number, generateOTP() + ' is your OTP for Login Transaction on Galinukkad and valid till 10 minutes. Do not share this OTP to anyone for security reasons.');
+
+
+                            res.send({ status: true, message: "Otp sent!" })
+                            return;
+                        }).catch(err => {
+                            res.send({ status: false, err: "An Error Occured" })
+                            return;
+                        })
+                    }).catch(err => {
+                        res.send({ status: false, err: "An Error Occured" })
+                        return;
+                    });
+                }
+            }
         }
-
-
-
-
-
-        // else {
-        //     if (isOtp == 0) {    // if is otp is false
-        //         UserLogins.findOne({ $or: [{ email: username },] }).then((data) => {
-
-        //             if (data && data._id) {
-
-
-        //                 let user_detail = data;
-
-        //                 let user = { username: data.email, _id: data._id, time: new Date().getTime(), role: data.roles };
-        //                 const accessToken = jwt.sign(user, accessTokenSecret);
-
-        //                 let compare = bcrypt.compareSync(password, data.password);
-        //                 if (!compare) {
-        //                     if (data.password === password) {
-        //                         UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date(), firebase_fcm_token } }).then({});
-        //                         res.json({
-        //                             status: true,
-        //                             accessToken,
-        //                             user: data,
-        //                             user_detail: user_detail,
-        //                         });
-        //                         return;
-        //                     }
-        //                     res.send({ status: false, message: "Invalid password!" });
-        //                 } else {
-        //                     UserLogins.updateOne({ _id: data._id }, { $set: { last_login_time: new Date(), firebase_fcm_token } }).then({})
-        //                     return res.json({
-        //                         status: true,
-        //                         accessToken,
-        //                         user,
-        //                         user_detail: user_detail,
-        //                     });
-        //                 }
-
-        //             } else {
-        //                 res.send({ status: false, message: "email not found" });
-        //             }
-        //         })
-        //     } else if (isOtp == 1) { // if login by otp is true
-        //         // let otp = Math.floor(1000 + Math.random() * 9000);
-        //         console.log('otp is not false')
-        //         let otp = generateOTP();
-
-        //         if (username) {
-        //             UserLogins.findOne({ $or: [{ email: username }] }).then((data) => {
-        //                 UserLogins.updateOne({ email: username }, { $set: { otp: otp } }).then(user => {
-        //                     var mailOptions = {
-        //                         from: 'no-reply@gmail.com',
-        //                         to: username,
-        //                         subject: 'New Signup',
-        //                         text: `Your one time otp is ${otp}`
-        //                     };
-        //                     transporter.sendMail(mailOptions, function (error, info) {
-        //                         if (error) {
-        //                             console.log(error);
-        //                         } else {
-        //                             console.log('Email sent: ' + info.response);
-        //                         }
-        //                     });
-        //                     res.send({ status: true, message: "Otp sent!" })
-        //                     return;
-        //                 }).catch(err => {
-        //                     res.send({ status: false, err: "An Error Occured" })
-        //                     return;
-        //                 })
-        //             }).catch(err => {
-        //                 res.send({ status: false, err: "An Error Occured" })
-        //                 return;
-        //             });
-
-        //         } else if (mobile_number) {
-        //             UserLogins.findOne({ $or: [{ mobile_number: mobile_number }] }).then((data) => {
-        //                 UserLogins.updateOne({ mobile_number: mobile_number }, { $set: { otp: otp } }).then(async user => {
-        //                     await sendSms(mobile_number, generateOTP() + ' is your OTP for Login Transaction on Galinukkad and valid till 10 minutes. Do not share this OTP to anyone for security reasons.');
-
-
-        //                     res.send({ status: true, message: "Otp sent!" })
-        //                     return;
-        //                 }).catch(err => {
-        //                     res.send({ status: false, err: "An Error Occured" })
-        //                     return;
-        //                 })
-        //             }).catch(err => {
-        //                 res.send({ status: false, err: "An Error Occured" })
-        //                 return;
-        //             });
-        //         }
-        //     }
-        // }
     },
 
+   
     loginUser: async (req, res, next) => {
         const { username, password, firebase_fcm_token } = req.body;
 
@@ -1263,7 +1245,10 @@ module.exports = {
             return;
         }
 
-        UserLogins.findOne({ _id: req.user._id }).then((data) => {
+        console.log('req.user._id')
+        let user_id = req.body.user_id
+
+        UserLogins.findOne({ _id: user_id }).then((data) => {
 
             if (data && data._id) {
                 req.body['updated'] = new Date();
@@ -1277,7 +1262,7 @@ module.exports = {
                     data['avatar'] = req.files[0].location;
                 }
 
-                UserLogins.updateOne({ _id: req.user._id }, data).then((data) => {
+                UserLogins.updateOne({ _id: user_id }, data).then((data) => {
                     return res.send({ status: 200, data });
 
                 }).catch((err) => {
