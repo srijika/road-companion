@@ -11,7 +11,7 @@ const schema = new Schema({
     amount: { type: Number },
 
     trip_type: {type: String}, // LUGGAGE or BOOK_SEAT
-    status: { type: String }, // INTRESTED , CANCELLED , CONFIRMED , PICKUP, FINISHED 
+    status: { type: String }, // INTRESTED , CANCELLED , CONFIRMED , FINISHED 
 },{
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });

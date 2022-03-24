@@ -169,16 +169,13 @@ var routefunctions = (app) => {
   //trips moudle routes
   app.post("/api/add-trip", upload.any(), UserTripController.createTrip);
   app.post("/api/update-trip", upload.any(), UserTripController.updateTrip);
-  app.post("/api/nearby-trips", upload.any(), UserTripController.nearBytrip);
-  // app.post("/api/trip-detail", upload.any(),UserTripController.nearBytrip);
-  // app.post("/api/send-request", upload.any(),UserTripController.nearBytrip);
-  // app.post("/api/accept-decline-request", upload.any(),UserTripController.nearBytrip);
-  // app.post("/api/my-trips", upload.any(),UserTripController.nearBytrip);
+  app.post("/api/nearby-trips", UserTripController.nearBytrip);
+  // app.post("/api/trip-detail", upload.any(),UserTripController.nearBytrip); 
+  // app.post("/api/send-request", upload.any(),UserTripController.nearBytrip); 
+  // app.post("/api/accept-decline-request", upload.any(),UserTripController.nearBytrip); 
+  // app.post("/api/my-trips", upload.any(),UserTripController.nearBytrip); 
 
-  app.post(
-    "/api/initiate-trip-payment",
-    UserTripController.initiateTripPayment
-  );
+  app.post("/api/initiate-trip-payment", UserTripController.initiateTripPayment);
   app.post("/api/confirm-trip", UserTripController.tripPayment);
   app.post("/api/confirm-trip/test", UserTripController.confirmTripTest);
 

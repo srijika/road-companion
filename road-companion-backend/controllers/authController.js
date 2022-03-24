@@ -287,7 +287,7 @@ module.exports = {
     },
 
 
-    login: async (req, res, next) => {
+      login: async (req, res, next) => {
 
         const { username, password, isOtp } = req.body;
 
@@ -341,7 +341,7 @@ module.exports = {
                     UserLogins.findOne({ $or: [{ email: username }] }).then((data) => {
                         UserLogins.updateOne({ email: username }, { $set: { otp: otp } }).then(user => {
                             var mailOptions = {
-                                from: 'no-reply@gmail.com',
+                                from: 'mailto:no-reply@gmail.com',
                                 to: username,
                                 subject: 'New Signup',
                                 text: `Your one time otp is ${otp}`
@@ -384,8 +384,8 @@ module.exports = {
             }
         }
     },
-    
-    
+
+   
     loginUser: async (req, res, next) => {
         const { username, password, firebase_fcm_token } = req.body;
 
@@ -1243,7 +1243,10 @@ module.exports = {
             return;
         }
 
-        UserLogins.findOne({ _id: req.user._id }).then((data) => {
+        console.log('req.user._id')
+        let user_id = req.body.user_id
+
+        UserLogins.findOne({ _id: user_id }).then((data) => {
 
             if (data && data._id) {
                 req.body['updated'] = new Date();
@@ -1257,7 +1260,7 @@ module.exports = {
                     data['avatar'] = req.files[0].location;
                 }
 
-                UserLogins.updateOne({ _id: req.user._id }, data).then((data) => {
+                UserLogins.updateOne({ _id: user_id }, data).then((data) => {
                     return res.send({ status: 200, data });
 
                 }).catch((err) => {
