@@ -48,6 +48,7 @@ module.exports = {
     Rider: require('../models/rider'),
     Review: require('../models/review'),
     StripePayment: require('../models/stripe_payment'),
+    WithdrawRequest:require('../models/withdraw_request')
 
 
 };

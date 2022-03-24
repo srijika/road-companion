@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema({
     
-    car_id:{type: String},
+    car_id:{type: Schema.ObjectId, ref:"car"},
     car_model :{type:String},
     isActive: { type: Boolean, default: true },
 },{

@@ -1,4 +1,4 @@
-const { UserTrip, UserVehicle, Rider, Notification, StripePayment, Review, UserLogins } = require('../_helper/db');
+const { UserTrip, UserVehicle, Rider, Notification, StripePayment, Review, UserLogins,WithdrawRequest } = require('../_helper/db');
 var path = require('path');
 var fs = require('fs');
 const mongoose = require('mongoose');
@@ -1171,6 +1171,51 @@ module.exports = {
         } catch (error) {
             return res.send({ status: 400, message: error.message });
         }
+    },
+
+    withdrawRequest: async (req,res,next)=> {
+
+        try {
+
+           
+            const withdrawRequest = new WithdrawRequest(req.body);
+            const created = await withdrawRequest.save();
+            return res.send({ status: 200, message: 'request generated successfully.' });
+        } catch (error){
+            return res.send({ status: 400, message: error.message });
+        }
+
+    },
+
+    withdrawList: async (req,res,next)=>{
+        
+        try {
+            const reqBody = req.body;
+            const Limit = reqBody.limit ? parseInt(reqBody.limit) : 10;
+            const PageNo = reqBody.page ? parseInt(reqBody.page) : 0;
+            const withdrawRequests = await WithdrawRequest.find().sort({ updated_at: -1 }).skip(Limit * PageNo).limit(Limit).lean().populate('user_id').exec();
+            const count = await WithdrawRequest.count();
+            return res.send({ status: true, data: withdrawRequests, count: count, message: 'All withdraw request get successfully' });
+
+        } catch (error) {
+            return res.send({ status: false, message: error.message });
+        }
+    },
+
+    withdrawDetail: async (req,res,next)=>{
+
+        try {
+
+            const reqQuery = req.query;
+            const slug = reqQuery.slug;
+            const withRequest = await WithdrawRequest.find({ _id: slug }).lean().exec();
+            return res.send({ status: 200, data: withRequest });
+        
+        } catch (error) {
+            return res.send({ status: 400, message: error.message });
+        }
+       
+
     },
 
     deleteCarType: async (req, res, next) => {

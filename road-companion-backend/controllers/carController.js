@@ -142,8 +142,9 @@ module.exports = {
             const data = {
                 car_id,
                 car_model,
-                isAction:status
+                isActive:status
             }
+            console.log(data);
             let findModal = await CarModel.find({ car_model })
          
             if (findModal.length > 0) {
@@ -199,7 +200,8 @@ module.exports = {
             const reqBody = req.body;
             const Limit = reqBody.limit ? parseInt(reqBody.limit) : 10;
             const PageNo = reqBody.page ? parseInt(reqBody.page) : 0;
-            const AllPages = await CarModel.find().sort({ updated_at: -1 }).skip(Limit * PageNo).limit(Limit).lean().exec();
+            const AllPages = await CarModel.find().sort({ updated_at: -1 }).skip(Limit * PageNo).limit(Limit).populate('car_id').lean().exec();
+            console.log(AllPages);
             const count = await CarModel.count();
             return res.send({ status: true, data: AllPages, count: count, message: 'Car Model get successfully' });
 
