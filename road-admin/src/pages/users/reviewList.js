@@ -3,15 +3,19 @@ import { Link } from 'react-router-dom';
 import Apploader from '../../components/loader/loader'
 import { connect } from 'dva';
 import { Empty, Card, Typography, Alert, Input, Button, Table, Radio, Divider, Switch, Row, Col, Avatar, Pagination, Tabs, Modal, Badge, Popconfirm } from 'antd';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import AddEdit from './action/addEdit';
+import { ConsoleSqlOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import axios from 'axios';
+//import AddEdit from './action/addEdit';
 import { getTitleImage } from '../../utils/functions';
 import Moment from 'react-moment';
 const { Search } = Input;
 const { Text } = Typography;
 const { TabPane } = Tabs;
 
-class CarModelList extends React.Component {
+const baseUrl = process.env.REACT_APP_ApiUrl;
+
+class ReviewList extends React.Component {
+	
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -22,25 +26,40 @@ class CarModelList extends React.Component {
 			inactive: false, 
 			searchText: '', 
 			loader: false, 
-			detail: '', 
+			
 			count: 0, 
 			Addcount: 0,
 			listData: []
 		}
-
-		setTimeout(() => document.title = 'Car Brand List', 100,);
+		setTimeout(() => document.title = 'User Reviews List', 100);
 		this.isUpdate = false;
 	}
 	
 	componentDidMount() {
 		this.ListFun();
 		
+		
+		
 	}
 
+	handleDeactiveReview = async (data) => {
+		let list = this.state.listData;
+		let list_update = list.map((item) => {
+			if(item._id === data) {
+				item.status = item.status == 'Activate' ? 'Deactivate' : 'Activate';
+			}
+			return item;	
+		})
+		this.setState({ listData: list_update })
+		await axios.post(`${baseUrl}/api/review-status`, {id: data});
+	}
 
 	
+	
 	ListFun = () => {
-		this.props.dispatch({ type: 'carModels/carModelList', payload: {} });
+		this.props.dispatch({ type: 'reviews/reviewList', payload: { user_id: this.props.match.params.userId } });
+		//this.props.dispatch({type: 'users/getDetail', payload: { _id:  this.props.match.params.userId, profile_id:  this.props.match.params.userId }});
+		
 	}
 
 	ShowSizeChange = (current, size) => this.setState({ limit: size }, () => this.ListFun());
@@ -49,25 +68,21 @@ class CarModelList extends React.Component {
 
 	searchVal = (val) => {
 		this.state.searchText = val;
-		const resultAutos = this.props.carModels.list.filter((auto) => 
-									auto.brand_name.toLowerCase().includes(val.toLowerCase()) 
+		const resultAutos = this.props.reviews.list.filter((auto) => 
+									auto.description.toLowerCase().includes(val.toLowerCase()) 
 							)
 		this.setState({ listData: resultAutos })
 	}
 
-	createCat = (val) => {
-		if (val) { this.ListFun() }
-		this.setState({ detail: '', addModel: false })
+	
+	deleteReview = id => {
+		
+		this.props.dispatch({ type: 'reviews/deleteReview', payload: id  });
 	}
-
-	deleteCars = id => {
-
-		this.props.dispatch({ type: 'carModels/deleteCarModel', payload: id });
-	}
-
+	
 	getSnapshotBeforeUpdate(prevProps, prevState) {
-        if ( this.props.carModels.delete) {
-			this.props.dispatch({ type: 'carModels/clearAction'});
+        if ( this.props.reviews.delete) {
+			this.props.dispatch({ type: 'reviews/clearAction'});
             this.ListFun();
 			return true
         }
@@ -81,32 +96,41 @@ class CarModelList extends React.Component {
 
 	render() {
 		const { inactive, limit, searchText, addModel, detail } = this.state;
-		const { carModels } = this.props;
+		const { reviews } = this.props;
 		if (this.state.searchText == '') {
-			this.state.listData = carModels.list ? carModels.list : [];
+			this.state.listData = reviews.list ? reviews.list : [];
 			
 		}
 
 		const columns = [
+			{ title:<strong> Users  </strong>, dataIndex: 'data.reviewer_id.email', render:(val,data)=> 
+
+			<div>
+				{data.reviewer_id.email}
+			</div>
+			 },
 			{
-				title: <strong>Brand Name</strong>,
-				render: (val, data) => <>{data?.car_id?.brand_name}</>
+				title: <strong>Review</strong>,
+				dataIndex: 'description'
 			},
 			{
-				title: <strong>Model Name</strong>,
-				dataIndex: 'car_model'
+				title: <strong>Rating</strong>,
+				dataIndex: 'rating'
 			},
 			
-			{ title: <strong>isActive</strong>, dataIndex: 'isActive',
-				render: (value, row) => {
-					return <span>{value === true ? "True" : "False" }</span> 
-				}
+			{ title:<strong> Status </strong>, dataIndex: 'status', render:(val,data)=> 
+
+			<div>
+				<Popconfirm title={`Are you sure you want to ${data.status ? "Activate" : "Deactivate"} this review?`} onConfirm={e=> {this.handleDeactiveReview(data._id)}} okText="Yes" cancelText="No" >
+					<Button type="primary" > {data.status=='Activate' ? data.status : data.status}  </Button>
+				</Popconfirm>
+			</div>
 			},
 			{
 				title: <strong>Action</strong>,  align: 'center',
 				render: (val, data) => <div onClick={e => e.stopPropagation()}>
-					<Button type="primary" onClick={()=>{this.props.history.push('/car-models/edit/' + data._id )}}><EditOutlined /></Button>
-					<Popconfirm title="Are you sure delete this car model?" onConfirm={e => { this.deleteCars(data._id); e.stopPropagation() }} okText="Yes" cancelText="No" >
+					<Button type="primary" onClick={()=>{this.props.history.push('/users/reviews/edit/' + data._id )}}><EditOutlined /></Button>
+					<Popconfirm title="Are you sure delete this reveiw?" onConfirm={e => { this.deleteReview(data._id); e.stopPropagation() }} okText="Yes" cancelText="No" >
 						<Button type="danger" ><DeleteOutlined /></Button>
 					</Popconfirm>
 				</div>
@@ -119,12 +143,13 @@ class CarModelList extends React.Component {
 					<Col>
 						<Search placeholder="Search..." onChange={(e) => this.searchVal(e.target.value)} value={searchText} />
 					</Col>
-					<Col>
-						<Button type="primary" onClick={() => this.props.history.push('/car-models/add')  }>Add</Button>
-					</Col>
+					{/* <Col>
+						<Button type="primary" onClick={() => this.props.history.push('/car-type/add')  }>Add</Button>
+					</Col> */}
 				</Row>
 
 				<div className="innerContainer">
+					<div><h3>User Reviews :   </h3></div>
 					<Card style={{ marginTop: "0" }} bodyStyle={{ padding: '0 15px 15px' }}>
 						<Table columns={columns} dataSource={this.state.listData}
 							rowKey={record => record._id}
@@ -150,6 +175,6 @@ class CarModelList extends React.Component {
 	}
 };
 
-export default connect(({ carModels, loading }) => ({
-	carModels, loading
-}))(CarModelList);
+export default connect(({ reviews,users,global, loading }) => ({
+	reviews,users,loading,global
+}))(ReviewList);

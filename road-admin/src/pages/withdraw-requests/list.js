@@ -11,7 +11,7 @@ const { Search } = Input;
 const { Text } = Typography;
 const { TabPane } = Tabs;
 
-class CarModelList extends React.Component {
+class WithdrawRequestList extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -28,7 +28,7 @@ class CarModelList extends React.Component {
 			listData: []
 		}
 
-		setTimeout(() => document.title = 'Car Brand List', 100,);
+		setTimeout(() => document.title = 'Withdraw Request List', 100);
 		this.isUpdate = false;
 	}
 	
@@ -37,10 +37,9 @@ class CarModelList extends React.Component {
 		
 	}
 
-
-	
 	ListFun = () => {
-		this.props.dispatch({ type: 'carModels/carModelList', payload: {} });
+	
+		this.props.dispatch({ type: 'withdrawrequests/withdrawList', payload: {} });
 	}
 
 	ShowSizeChange = (current, size) => this.setState({ limit: size }, () => this.ListFun());
@@ -49,8 +48,9 @@ class CarModelList extends React.Component {
 
 	searchVal = (val) => {
 		this.state.searchText = val;
-		const resultAutos = this.props.carModels.list.filter((auto) => 
-									auto.brand_name.toLowerCase().includes(val.toLowerCase()) 
+		console.log(this.props);
+		const resultAutos = this.props.withdrawrequests.list.filter((auto) => 
+									auto.name.toLowerCase().includes(val.toLowerCase()) 
 							)
 		this.setState({ listData: resultAutos })
 	}
@@ -60,19 +60,19 @@ class CarModelList extends React.Component {
 		this.setState({ detail: '', addModel: false })
 	}
 
-	deleteCars = id => {
+	// deleteCars = id => {
 
-		this.props.dispatch({ type: 'carModels/deleteCarModel', payload: id });
-	}
+	// 	//this.props.dispatch({ type: 'colors/deleteColor', payload: id });
+	// }
 
-	getSnapshotBeforeUpdate(prevProps, prevState) {
-        if ( this.props.carModels.delete) {
-			this.props.dispatch({ type: 'carModels/clearAction'});
-            this.ListFun();
-			return true
-        }
-        return null;
-    }
+	// getSnapshotBeforeUpdate(prevProps, prevState) {
+    //     if ( this.props.withdrawRequests.delete) {
+	// 		this.props.dispatch({ type: 'withdrawRequests/clearAction'});
+    //         this.ListFun();
+	// 		return true
+    //     }
+    //     return null;
+    // }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (snapshot) {
@@ -81,33 +81,51 @@ class CarModelList extends React.Component {
 
 	render() {
 		const { inactive, limit, searchText, addModel, detail } = this.state;
-		const { carModels } = this.props;
+		const { withdrawrequests } = this.props;
 		if (this.state.searchText == '') {
-			this.state.listData = carModels.list ? carModels.list : [];
+			this.state.listData = withdrawrequests.list ? withdrawrequests.list : [];
 			
 		}
 
 		const columns = [
 			{
-				title: <strong>Brand Name</strong>,
-				render: (val, data) => <>{data?.car_id?.brand_name}</>
-			},
+				title: <strong>User</strong>,
+				dataIndex: 'user_id', render:(val,data)=>
+				<>
+					
+					{data.user_id?.email}
+					
+				</>
+			 },
+
+			 {
+				title: <strong>User Wallet Amount</strong>,
+				dataIndex: 'user_id', render:(val,data)=>
+				<>
+					
+					{data.user_id?.wallet_amount ? data.user_id?.wallet_amount : '0'}
+					
+				</>
+			 },
+
+
+			
 			{
-				title: <strong>Model Name</strong>,
-				dataIndex: 'car_model'
+				title: <strong>Requested Amount</strong>,
+				dataIndex: 'requested_amount'
+			},
+
+			{
+				title: <strong>Status</strong>,
+				dataIndex: 'status'
 			},
 			
-			{ title: <strong>isActive</strong>, dataIndex: 'isActive',
-				render: (value, row) => {
-					return <span>{value === true ? "True" : "False" }</span> 
-				}
-			},
 			{
 				title: <strong>Action</strong>,  align: 'center',
 				render: (val, data) => <div onClick={e => e.stopPropagation()}>
-					<Button type="primary" onClick={()=>{this.props.history.push('/car-models/edit/' + data._id )}}><EditOutlined /></Button>
-					<Popconfirm title="Are you sure delete this car model?" onConfirm={e => { this.deleteCars(data._id); e.stopPropagation() }} okText="Yes" cancelText="No" >
-						<Button type="danger" ><DeleteOutlined /></Button>
+					
+					<Popconfirm title="Are you sure you want to pay?" onConfirm={e => { this.deleteCars(data._id); e.stopPropagation() }} okText="Yes" cancelText="No" >
+						<Button type="danger" >Pay</Button>
 					</Popconfirm>
 				</div>
 			},
@@ -119,9 +137,7 @@ class CarModelList extends React.Component {
 					<Col>
 						<Search placeholder="Search..." onChange={(e) => this.searchVal(e.target.value)} value={searchText} />
 					</Col>
-					<Col>
-						<Button type="primary" onClick={() => this.props.history.push('/car-models/add')  }>Add</Button>
-					</Col>
+					
 				</Row>
 
 				<div className="innerContainer">
@@ -150,6 +166,6 @@ class CarModelList extends React.Component {
 	}
 };
 
-export default connect(({ carModels, loading }) => ({
-	carModels, loading
-}))(CarModelList);
+export default connect(({ withdrawrequests, loading }) => ({
+	withdrawrequests, loading
+}))(WithdrawRequestList);

@@ -187,6 +187,7 @@ export function editUsers(params) {
   return request('/api/editUsers', { method: 'POST', body: params, });
 }
 export function deleteUser(params) {
+
   return request('/api/deleteuser', { method: 'POST', body: params, });
 }
 
@@ -401,6 +402,41 @@ export function getCarTypeDetail(params){
   return request('/api/get-car-type-detail?slug='+params,{method:'GET'});
 }
 
+// Review List 
+
+  export function getReviewList(params){
+    
+    return request('/api/review-list?user_id='+params.user_id,{method:'get'});
+  }
+
+  
+  export function editReview(params) {
+    return request('/api/update-review',{method:'PUT', body:params});
+  }
+
+  export function deleteReview(params) {
+    console.log('params.....',params)
+    return request('/api/delete-review?slug='+params,{method:'DELETE'});
+  }
+
+  export function reviewDetail(params){
+    return request('/api/review-detail?slug='+params,{method:'GET'});
+  }
+
+
+  // withdraw master 
+  export function getWithdrawlist(params){
+    
+    return request('/api/withdraw-list',{method:'get'});
+  }
+
+  export function getWithdrawDetails(params){
+    
+    return request('/api/withdraw-detail?slug='+params,{method:'GET'});
+  }
+
+
+
 
 
 
@@ -464,7 +500,6 @@ export function createCoupon(params) {
 export function editCoupon(params) {
   return request('/api/update-coupon-codes',{method:'PUT', body:params});
 }
-
 
 export function getHomePageBanner() {
   return request('/api/getAll-home-page-banner',{method:'GET'});

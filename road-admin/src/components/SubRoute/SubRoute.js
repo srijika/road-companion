@@ -7,6 +7,7 @@ import AddEditBarber from '../../pages/barber/action/addEdit';
 import barberShop from '../../pages/barber/action/barberShop';
 
 import UsersList from '../../pages/users/list';
+import ReviewsList from '../../pages/users/reviewList';
 import AddEditUser from '../../pages/users/action/addEdit';
 import Tags from '../../pages/tags/list';
 import AddEditTag from '../../pages/tags/action/addEdit';
@@ -22,6 +23,7 @@ import AddEditCarColor from '../../pages/colors/action/addEdit';
 
 import CarTypeList from '../../pages/types/list';
 import AddEditCarType from '../../pages/types/action/addEdit';
+import AddEditReview from '../../pages/users/action/addEditReview';
 
 
 
@@ -108,6 +110,7 @@ import SiteSetting from '../../pages/site-setting/list';
 //Ticket Query Service
 import TicketQueries from '../../pages/ticket-query/TicketQueries';
 import UserTicketQuery from '../../pages/ticket-query/UserTicketQuery';
+import WithdrawRequestList from '../../pages/withdraw-requests/list';
 
 
 
@@ -153,7 +156,11 @@ class SubRoute extends Component {
 
 			  {/* User List */}
              <PrivateRoute exact path='/users' component={UsersList} />
-			  <PrivateRoute exact path='/users/edit/:id' component={AddEditUser} />
+			 <PrivateRoute exact path='/users/edit/:id' component={AddEditUser} />
+			 <PrivateRoute exact path='/users/reviews/:userId' component={ReviewsList} />
+			 <PrivateRoute exact path='/users/reviews/edit/:id' component={AddEditReview} />
+
+
 			 
 			 {/* Tags */}
              <PrivateRoute exact path='/tags' component={Tags} />
@@ -162,6 +169,10 @@ class SubRoute extends Component {
 			 {/* Reports */}
              <PrivateRoute exact path='/post-report' component={Reports} />
 			  {/* <PrivateRoute exact path='/tag/edit/:id' component={AddEditTag} /> */}
+
+			   {/* withdraw requests */}
+
+			   <PrivateRoute exact path='/withdraw-requests' component={WithdrawRequestList} />
 
 
 

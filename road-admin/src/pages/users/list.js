@@ -2,7 +2,7 @@ import React from 'react';
 import Apploader from './../../components/loader/loader'
 import { connect } from 'dva';
 import { Card, Typography, Input, Button, Table,  Row, Col, Popconfirm, Modal, message, Upload} from 'antd';
-import { DeleteOutlined, EyeOutlined  , CommentOutlined} from '@ant-design/icons';
+import { DeleteOutlined, EyeOutlined  , CommentOutlined,CarOutlined} from '@ant-design/icons';
 import uploadFile from '../products/action/uploadFile';
 // import AddEdit from './action/addEdit'
 import axios from 'axios';
@@ -75,7 +75,7 @@ class UsersList extends React.Component {
 			return item;	
 		})
 		this.setState({ listData: list_update })
-		await axios.post(`${baseUrl}/user/status`, {id: data});
+		await axios.post(`${baseUrl}/api/user/status`, {id: data});
 	}
 
 	
@@ -92,7 +92,7 @@ class UsersList extends React.Component {
 		title: <strong className="primary-text cursor" onClick={this.ChangeOrder}>Name <i className={' fal fa-sm '+(this.state.sortBy === 'asc'? "fa-long-arrow-up":"fa-long-arrow-down")} ></i></strong>,
 		dataIndex: 'name',
 	
-		render:(val,data)=> <div className={data.isActive ?"":'danger-text'}>{val}</div>
+		render:(val,data)=> <div className={data.isActive ?"":'danger-text'}>{data?.name}</div>
 	  },
 	  { title:<strong>Email</strong>, dataIndex: 'email',},
 	  { title:<strong>Email Verified</strong>, dataIndex: 'isEmailVerified', render:(val,data)=> val?'Yes':'No'},
@@ -100,11 +100,11 @@ class UsersList extends React.Component {
 
 	  <div>
 	
-		 <Popconfirm title={`Are you sure you want to ${data.user_status ? "Activate" : "Deactivate"} this user?`} onConfirm={e=> {this.handleDeactiveUser(data._id)}} okText="Yes" cancelText="No" >
-			 <Button type="primary" >{data.user_status} {data.user_status ? "Deactivate" : "Activate"}  </Button>
+		 <Popconfirm title={`Are you sure you want to ${data?.user_status ? "Activate" : "Deactivate"} this user?`} onConfirm={e=> {this.handleDeactiveUser(data._id)}} okText="Yes" cancelText="No" >
+			 <Button type="primary" >{data.user_status} {data?.user_status ? "Deactivate" : "Activate"}  </Button>
 		 </Popconfirm>
 	  </div>
- },
+ 	  },
 
 	  { title:<strong>Action</strong>, width:150, //align:'center',
 		render:(val,data)=> 
@@ -112,6 +112,10 @@ class UsersList extends React.Component {
 			
 		<Button type="primary" onClick={()=>{
 			this.props.history.push('/users/edit/'+data._id)}}><EyeOutlined /></Button>&nbsp;
+			<Button type="primary" onClick={()=>{
+			this.props.history.push('/users/reviews/'+data._id)}}><CommentOutlined /></Button>&nbsp;
+			
+			
 		<Popconfirm title="Are you sure delete this task?" onConfirm={e=> {this.deleteItem(data._id)}} okText="Yes" cancelText="No" >
 		<Button type="danger" ><DeleteOutlined /></Button>
 	  </Popconfirm>

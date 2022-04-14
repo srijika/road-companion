@@ -85,7 +85,7 @@ const AddEditUser =props => {
 					email: data.email,
 					mobile_number: data.mobile_number,
 					isEmailVerified: data.isEmailVerified,
-					isMobileVerified: data.isMobileVerified,
+					//isMobileVerified: data.isMobileVerified,
 					roles: data.roles,
 				})
 				form.setFieldsValue({
@@ -128,7 +128,7 @@ return (
 		  <Descriptions.Item label="Email">{detail.email}</Descriptions.Item>
 		  <Descriptions.Item label="Is Email Verified">{detail.isEmailVerified ? 'true' : 'false'}</Descriptions.Item>
 		  <Descriptions.Item label="Phone">{detail.mobile_number}</Descriptions.Item>
-		  <Descriptions.Item label="Is Mobile Verified">{detail.isMobileVerified ? 'true' : 'false'}</Descriptions.Item>
+		  {/* <Descriptions.Item label="Is Mobile Verified">{detail.isMobileVerified ? 'true' : 'false'}</Descriptions.Item> */}
 		  <Descriptions.Item label="Role">{detail.roles}</Descriptions.Item>
           <Descriptions.Item label="Profile Created On">{moment(detail.create).format(dateFormat)}</Descriptions.Item>
         </Descriptions>

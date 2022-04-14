@@ -40,6 +40,8 @@ app.model(require('./models/cars').default)
 app.model(require('./models/car-model').default)
 app.model(require('./models/colors').default)
 app.model(require('./models/types').default)
+app.model(require('./models/reviews').default)
+app.model(require('./models/withdraw-requests').default)
 
 app.model(require('./models/blogs').default)
 app.model(require('./models/blogs-category').default)

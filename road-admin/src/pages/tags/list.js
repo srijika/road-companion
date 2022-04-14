@@ -64,7 +64,7 @@ paginationFun = (val) => this.setState({ current: val.current }, () => this.List
   }
   
   deleteCat = id => {
-		this.props.dispatch({ type: 'tag/tagDelete', payload: { _id: id }, });
+		this.props.dispatch({ type: 'tag/tagDelete', payload: { _id: id }});
   }
   
   getSnapshotBeforeUpdate(prevProps, prevState) {

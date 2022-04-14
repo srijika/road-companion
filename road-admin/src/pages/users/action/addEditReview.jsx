@@ -19,11 +19,11 @@ const timestemp = (new Date()).getTime();
 const { RangePicker } = DatePicker;
 const formItemLayout = { labelCol: { xs: { span: 24, }, sm: { span: 24, }, } };
 const baseUrl = process.env.REACT_APP_ApiUrl
-const AddEditCar = props => {
+const AddEditReview = props => {
 	const [form] = Form.useForm();
 	const { dispatch } = props;
 	const [Inquiry, setInquiry] = useState('');
-	const [carId, setCarId] = useState('');
+	const [reviewId, setReviewId] = useState('');
 	const [count, setCount] = useState(0)
 
 
@@ -44,65 +44,44 @@ const AddEditCar = props => {
 
 	useEffect(() => {
 		let unmounted = false;
-
-		// if(props.blogs.add){
-		// 	dispatch({ type: 'blogs/clearAction'});
-		// 	props.history.push('/blogs');
-		// }
 		
-		// if(props.blogs.edit){
-		// 	dispatch({ type: 'blogs/clearAction'});
-		// 	props.history.push('/blogs');
-		// }
-
-		
-
-		
-		if(props.cars.add){
-			dispatch({ type: 'cars/clearAction'});
-			console.log(props.cars.add.message)
-			if(props.cars.add.message){
-				props.history.push('/car-brands');
+		if(props.reviews.add){
+			dispatch({ type: 'reviews/clearAction'});
+			
+			if(props.reviews.add.message){
+				props.history.push('/reviews');
 			
 			}
 		}
 		
-		if(props.cars.edit){
-			dispatch({ type: 'cars/clearAction'});
-			console.log("props")
-			console.log(props.cars.edit.message)
-			if(props.cars.edit.message){
-				props.history.push('/car-brands');
+		if(props.reviews.edit){
+			dispatch({ type: 'reviews/clearAction'});
+			
+			if(props.reviews.edit.message){
+				props.history.push('/users/reviews/'+props.reviews.detail.data.driver_id);
 
 			}
 
 		}
-
-
-			
-		if(props.cars && props.cars.detail && props.cars.detail.status){
-			let data = props.cars.detail.data[0];
-			setCarId(data._id)
+		if(props.reviews && props.reviews.detail && props.reviews.detail.status){
+			let data = props.reviews.detail.data;
+			setReviewId(data._id)
 			//setInquiry(HTMLDecoderEncoder.decode(data.html));
 			//console.log(data.html)
 			form.setFieldsValue({
-				['brand_name']: data.brand_name, 
+				['description']: data.description, 
 				['_id']: data._id,
-				['isActive']: data.status === "true" ? true : false,
+				['status']: data.status == 'True' ? 'True' : 'False',
 			})
-
-			
 		}else {
 			form.resetFields();
 		}
 
 		return () => { unmounted = true; }
-	}, [props.cars])
-
-
+	}, [props.reviews])
 	
 	const DetailFun = (id) => {
-		props.dispatch({ type: 'cars/detailCar', payload: id });
+		props.dispatch({ type: 'reviews/reviewDetail', payload: id });
 	}
 
 	
@@ -110,7 +89,7 @@ const AddEditCar = props => {
 	
 	const cancelFun = () => {
 		form.resetFields();
-		props.history.push('/car-brands');
+		props.history.push('/users/reviews/'+props.reviews.detail.data.driver_id);
 	}
 
 	const onFinish = val => {
@@ -118,10 +97,10 @@ const AddEditCar = props => {
 		val = convertUndefinedObjectKeysToEmptyString(val);
 
 		if (props.match.params.id) {
-			val._id = carId;
-			dispatch({ type: 'cars/EditCar', payload: val });
+			val._id = reviewId;
+			dispatch({ type: 'reviews/editReview', payload: val });
 		}else {
-			dispatch({ type: 'cars/AddCar', payload: val });
+			dispatch({ type: 'reviews/AddCarType', payload: val });
 		}
 	}
 
@@ -138,19 +117,19 @@ const AddEditCar = props => {
 	}
 
 	return (
-		<Card title={<span><LeftOutlined onClick={() => props.history.push('/car-brands')} /> 
-			{ carId ? 'Edit Car' : 'Add Car'}</span>} style={{ marginTop: "0" }}>
+		<Card title={<span><LeftOutlined onClick={() => props.history.push('/reviews')} /> 
+			{ reviewId ? 'Edit Review' : 'Add Review'}</span>} style={{ marginTop: "0" }}>
 
 			<Form {...formItemLayout} form={form} name="loc_info" layout="vertical" onFinish={onFinish} className="innerFields">
 				
 				<Row gutter={15}>
 					<Col sm={24} md={12}>
-						<Form.Item name="brand_name" label="Brand Name" rules={[{ required: true, message: 'Field required!' },]}  >
-							<Input placeholder="Brand Name" />
+						<Form.Item name="description" label="Review" rules={[{ required: true, message: 'Field required!' },]}  >
+							<Input placeholder="Review" />
 						</Form.Item>
 					</Col>
 				</Row>
-				<Form.Item  name="isActive" valuePropName="checked" >
+				<Form.Item  name="status" valuePropName="checked" >
                   <Checkbox>isActive</Checkbox>
              	 </Form.Item>
 
@@ -164,7 +143,7 @@ const AddEditCar = props => {
 	)
 };
 
-export default connect(({ cars, global, loading }) => ({
-	cars: cars,
-	global: global
-}))(AddEditCar);
+export default connect(({ reviews, global, loading }) => ({
+	reviews,global
+	
+}))(AddEditReview);

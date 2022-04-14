@@ -19,7 +19,7 @@ const timestemp = (new Date()).getTime();
 const { RangePicker } = DatePicker;
 const formItemLayout = { labelCol: { xs: { span: 24, }, sm: { span: 24, }, } };
 const baseUrl = process.env.REACT_APP_ApiUrl
-const AddEditCar = props => {
+const AddEditColor = props => {
 	const [form] = Form.useForm();
 	const { dispatch } = props;
 	const [Inquiry, setInquiry] = useState('');
@@ -45,64 +45,47 @@ const AddEditCar = props => {
 	useEffect(() => {
 		let unmounted = false;
 
-		// if(props.blogs.add){
-		// 	dispatch({ type: 'blogs/clearAction'});
-		// 	props.history.push('/blogs');
-		// }
-		
-		// if(props.blogs.edit){
-		// 	dispatch({ type: 'blogs/clearAction'});
-		// 	props.history.push('/blogs');
-		// }
 
 		
-
-		
-		if(props.cars.add){
-			dispatch({ type: 'cars/clearAction'});
-			console.log(props.cars.add.message)
-			if(props.cars.add.message){
-				props.history.push('/car-brands');
+		if(props.colors.add){
+			dispatch({ type: 'colors/clearAction'});
+			console.log(props.colors.add.message)
+			if(props.colors.add.message){
+				props.history.push('/car-colors');
 			
 			}
 		}
 		
-		if(props.cars.edit){
-			dispatch({ type: 'cars/clearAction'});
-			console.log("props")
-			console.log(props.cars.edit.message)
-			if(props.cars.edit.message){
-				props.history.push('/car-brands');
+		if(props.colors.edit){
+			dispatch({ type: 'colors/clearAction'});
+			
+			if(props.colors.edit.message){
+				props.history.push('/car-colors');
 
 			}
 
 		}
-
-
-			
-		if(props.cars && props.cars.detail && props.cars.detail.status){
-			let data = props.cars.detail.data[0];
+		if(props.colors && props.colors.detail && props.colors.detail.status){
+			let data = props.colors.detail.data[0];
 			setCarId(data._id)
 			//setInquiry(HTMLDecoderEncoder.decode(data.html));
 			//console.log(data.html)
 			form.setFieldsValue({
-				['brand_name']: data.brand_name, 
+				['title']: data.title, 
 				['_id']: data._id,
-				['isActive']: data.status === "true" ? true : false,
+				['isActive']: data.isActive == true  ? true : false,
 			})
-
-			
 		}else {
 			form.resetFields();
 		}
 
 		return () => { unmounted = true; }
-	}, [props.cars])
+	}, [props.colors])
 
 
 	
 	const DetailFun = (id) => {
-		props.dispatch({ type: 'cars/detailCar', payload: id });
+		props.dispatch({ type: 'colors/detailColor', payload: id });
 	}
 
 	
@@ -110,7 +93,7 @@ const AddEditCar = props => {
 	
 	const cancelFun = () => {
 		form.resetFields();
-		props.history.push('/car-brands');
+		props.history.push('/colors');
 	}
 
 	const onFinish = val => {
@@ -119,9 +102,9 @@ const AddEditCar = props => {
 
 		if (props.match.params.id) {
 			val._id = carId;
-			dispatch({ type: 'cars/EditCar', payload: val });
+			dispatch({ type: 'colors/EditColor', payload: val });
 		}else {
-			dispatch({ type: 'cars/AddCar', payload: val });
+			dispatch({ type: 'colors/AddColor', payload: val });
 		}
 	}
 
@@ -138,15 +121,15 @@ const AddEditCar = props => {
 	}
 
 	return (
-		<Card title={<span><LeftOutlined onClick={() => props.history.push('/car-brands')} /> 
-			{ carId ? 'Edit Car' : 'Add Car'}</span>} style={{ marginTop: "0" }}>
+		<Card title={<span><LeftOutlined onClick={() => props.history.push('/car-colors')} /> 
+			{ carId ? 'Edit Color' : 'Add Color'}</span>} style={{ marginTop: "0" }}>
 
 			<Form {...formItemLayout} form={form} name="loc_info" layout="vertical" onFinish={onFinish} className="innerFields">
 				
 				<Row gutter={15}>
 					<Col sm={24} md={12}>
-						<Form.Item name="brand_name" label="Brand Name" rules={[{ required: true, message: 'Field required!' },]}  >
-							<Input placeholder="Brand Name" />
+						<Form.Item name="title" label="Color Name" rules={[{ required: true, message: 'Field required!' },]}  >
+							<Input placeholder="Color Name" />
 						</Form.Item>
 					</Col>
 				</Row>
@@ -164,7 +147,7 @@ const AddEditCar = props => {
 	)
 };
 
-export default connect(({ cars, global, loading }) => ({
-	cars: cars,
+export default connect(({ colors, global, loading }) => ({
+	colors: colors,
 	global: global
-}))(AddEditCar);
+}))(AddEditColor);
