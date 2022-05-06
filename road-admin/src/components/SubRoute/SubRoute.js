@@ -4,6 +4,7 @@ import { Redirect } from 'dva/router';
 import Dashboard from '../../pages/dashboard';
 
 import UsersList from '../../pages/users/list';
+import ReviewsList from '../../pages/users/reviewList';
 import AddEditUser from '../../pages/users/action/addEdit';
 import Reports from '../../pages/reports/list';
 import CarList from '../../pages/cars/list';

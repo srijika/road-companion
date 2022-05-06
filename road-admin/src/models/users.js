@@ -6,7 +6,9 @@ export default {
   state: {
 	del:{count:0},
 	add:{count:0},
-	edit:{count:0}
+	edit:{count:0},
+  detail:{},
+  
 	},
 
   subscriptions: {

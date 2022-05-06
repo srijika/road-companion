@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
 import './AppSidebar.less'
-import {DashboardOutlined, UnorderedListOutlined, AreaChartOutlined, CarOutlined, CodeOutlined, TeamOutlined, IdcardOutlined, ProfileOutlined, BankOutlined, NotificationOutlined, BellOutlined, SettingOutlined, UserOutlined, ContactsOutlined ,AppstoreOutlined, UserAddOutlined, SnippetsOutlined, BookOutlined, InboxOutlined, MessageOutlined ,CalendarOutlined  } from '@ant-design/icons';
+import {DashboardOutlined, UnorderedListOutlined, AreaChartOutlined, CarOutlined, CodeOutlined, TeamOutlined, IdcardOutlined, ProfileOutlined, BankOutlined, NotificationOutlined, BellOutlined, SettingOutlined, UserOutlined, ContactsOutlined ,AppstoreOutlined, UserAddOutlined, SnippetsOutlined, BookOutlined, InboxOutlined, MessageOutlined ,CalendarOutlined,DollarOutlined  } from '@ant-design/icons';
 import { Menu, } from 'antd';
 
 import axios from 'axios';
@@ -16,6 +16,7 @@ const baseUrl = process.env.REACT_APP_ApiUrl;
 
 const menu = [
 	{ path: '/', name: 'Dashboard', icon: <DashboardOutlined />, auth: ['ADMIN'] },
+	{ path: '/withdraw-requests', name: 'Witdhdraw Requests', icon: <DollarOutlined />, auth: ['ADMIN'] },
 	{
 		path: '#', name: 'Users', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
 			{ path: '/users', name: 'User List', icon: <TeamOutlined />, auth: ['ADMIN'] },
