@@ -4,14 +4,23 @@ module.exports = {
   list: async (req, res, next) => {
     try {
 
-      let user_id = req.body.user_id;
+      
+      let { read_messages, user_id } = req.body;
 
-      let notifications = await Notification.find({user_id: user_id }).lean().exec();
-      let unreadMessagesCount = await Notification.count({user_id: user_id, status: 0 });
+      if (read_messages) {
+        console.log('updated');
+        await Notification.updateMany({ user_id: user_id }, {$set: { status: 1 } })
+      }
 
-      res.status(200).send({ messsage: "notification get successfully",  data: notifications.reverse(), unreadMessagesCount });
+
+      let notifications = await Notification.find({ user_id: user_id }).lean().exec();
+      let unreadMessagesCount = await Notification.count({ user_id: user_id, status: 0 });
+      
+
+      res.status(200).send({ message: "notification get successfully",  data: notifications.reverse(), unreadMessagesCount });
     } catch (e) {
-      res.status(400).send({ messsage: e });
+      console.log('errors', e);
+      res.status(400).send({ message: e });
     }
   },
 

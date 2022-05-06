@@ -53,14 +53,7 @@ class BasicLayout extends Component {
 					<AppHeader/>
 				</header>
 
-				{ this.state.announcement ? 
-				<div style={{ height: '50px', background: 'white', }}>
-					<marquee style={{ background: "lightblue", height: '50px' }} class="ann-marquee" behavior="scroll" direction="left" scrollamount="8" loop="infinite">
-						<span style={{ position: "relative", top: "15px" }}>  {this.state.announcement}  </span>
-					</marquee>
-				</div>
-				: ""}
-				
+			
 				{/* { this.state.announcement ? 
                 <div style={{ height: '50px', background: 'white' }}>
                 <section class="section_my">

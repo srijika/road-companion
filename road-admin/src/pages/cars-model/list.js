@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import Apploader from '../../components/loader/loader'
 import { connect } from 'dva';
-import { Empty, Card, Typography, Alert, Input, Button, Table, Radio, Divider, Switch, Row, Col, Avatar, Pagination, Tabs, Modal, Badge, Popconfirm } from 'antd';
+import { Card, Typography, Input, Button, Table,  Row, Col, Tabs, Popconfirm } from 'antd';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import AddEdit from './action/addEdit';
 import { getTitleImage } from '../../utils/functions';
@@ -89,9 +89,14 @@ class CarModelList extends React.Component {
 
 		const columns = [
 			{
+				title: <strong>Brand Name</strong>,
+				render: (val, data) => <>{data?.car_id?.brand_name}</>
+			},
+			{
 				title: <strong>Model Name</strong>,
 				dataIndex: 'car_model'
 			},
+			
 			{ title: <strong>isActive</strong>, dataIndex: 'isActive',
 				render: (value, row) => {
 					return <span>{value === true ? "True" : "False" }</span> 

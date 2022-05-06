@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 
 const schema = new Schema({
-    
+
     user_id:{type: Schema.ObjectId, ref: 'users'},
-    requested_amount :{type:String},
+    requested_amount :{type:Number},
     status: {
         type: String,
         enum : ['pending','completed'],

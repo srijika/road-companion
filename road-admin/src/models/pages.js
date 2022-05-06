@@ -20,7 +20,7 @@ export default {
   effects: {
     *pagesList({ payload }, { call, put }) {
       let response = {};
-        response = yield call(getPagesList); 
+        response = yield call(getPagesList, payload); 
       if(!response.status) {message.error(response.msg || response.message || response.err, 5);}
 	    yield put({ type: 'list', data:[...response.data] });
     },

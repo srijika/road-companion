@@ -20,7 +20,7 @@ export default {
   effects: {
     *carTypeList({ payload }, { call, put }) {
       let response = {};
-        response = yield call(getCarsTypeList); 
+        response = yield call(getCarsTypeList, payload); 
       if(!response.status) {message.error(response.msg || response.message || response.err, 5);}
 	    yield put({ type: 'list', data:[...response.data] });
     },

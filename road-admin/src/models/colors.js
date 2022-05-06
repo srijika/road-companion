@@ -2,6 +2,7 @@ import {getColorList,createColor,editColor,deleteColor,getColorDetail}
 from '../services/api'
 import {message} from 'antd'; 
 
+
 export default {
   namespace: 'colors',
 
@@ -20,7 +21,7 @@ export default {
   effects: {
     *colorList({ payload }, { call, put }) {
       let response = {};
-        response = yield call(getColorList); 
+        response = yield call(getColorList, payload); 
       if(!response.status) {message.error(response.msg || response.message || response.err, 5);}
 	    yield put({ type: 'list', data:[...response.data] });
     },
@@ -50,6 +51,16 @@ export default {
       yield put({ type: 'detail', ...response});
 
     },
+
+
+    *dataList({ payload }, { call, put }) {
+      console.log('function calling sdfdsf')
+      // let response = {};
+      // response = yield call(getCarsList);
+      // if (!response.status) { message.error(response.msg || response.message || response.err, 5); }
+      // yield put({ type: 'list', data: [...response.data] });
+    },
+
     
     *clearAction({ payload }, { call, put }) {
       yield put({ type: 'clear' });

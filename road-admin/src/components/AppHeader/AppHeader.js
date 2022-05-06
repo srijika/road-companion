@@ -3,8 +3,6 @@ import { Redirect } from "react-router-dom";
 import { connect } from "dva";
 import { Row, Col, Menu, Avatar, Dropdown, Modal } from "antd";
 import Logo from '../../public/static/images/logo.png';
-
-
 import {
   LogoutOutlined,
   SettingOutlined,
@@ -184,7 +182,7 @@ class AppHeader extends Component {
             <h3 style={{ fontSize: 32, margin: 0 }}>
             <Link to="/">
               <img src={Logo} style={{ height: "50px", marginTop: '5px',  width: "60px" }} />
-              <span className="mobile_invisiable " > Roadmap </span>
+              <span className="mobile_invisiable " > Road Companion </span>
              </Link>
               
             </h3>

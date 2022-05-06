@@ -1,7 +1,7 @@
 require("dotenv").config();
 var express = require("express");
 var app = express();
-var authCtrl = require("../controllers/authController");
+var authCtrl = require("../controllers/auth.controller");
 
 const jwt = require("jsonwebtoken");
 var cors = require("cors");
@@ -12,56 +12,44 @@ var multer = require("multer");
 const Path = require("path");
 const fs = require("fs");
 
-const userBackgroundController = require("../controllers/userBackgroundController");
+const userBackgroundController = require("../controllers/userBackground.controller");
 
-const carController = require("../controllers/carController");
-const UserTripController = require("../controllers/userTripController");
-const reviewController = require("../controllers/reviewController");
-const tagController = require("../controllers/tagController");
-const reportController = require("../controllers/reportController");
+const carController = require("../controllers/car.controller");
+const UserTripController = require("../controllers/userTrip.controller");
+const reviewController = require("../controllers/review.controller");
+const tagController = require("../controllers/tag.controller");
+const reportController = require("../controllers/report.controller");
 const notificationController = require("../controllers/notification.controller");
 
-const adminController = require("../controllers/adminController");
-const htmlPagesController = require("../controllers/htmlPagesController");
-const frequentlyAskedQuestion = require("../controllers/frequentlyAskedQuestion");
+const adminController = require("../controllers/admin.controller");
+const htmlPagesController = require("../controllers/htmlPages.controller");
+const frequentlyAskedQuestion = require("../controllers/frequentlyAskedQuestion.controller");
 
 const settingController = require("../controllers/setting.controller");
+const paymentController = require("../controllers/payment.controller");
 
 const multerS3 = require("multer-s3");
 const aws = require("aws-sdk");
+const tripPanelController = require("../controllers/tripPanel.controller");
 
-// chovoo bucket keys
+// const bucketName = 'road-companion';
 // aws.config.update({
-//   secretAccessKey: 'aoSbNdNF3K2+z31gGJX31RuKTNijkfPWwRxymHAV',
-//   accessKeyId: 'AKIAXRCHJ4CSM5C36R77',
-//   region: 'ap-south-1'
+//   secretAccessKey: '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',
+//   accessKeyId: 'AKIARBDVKRD6UKN7IFZH',
+//   region: "us-east-2",
 // });
 
-// aws.config.update({
-//   secretAccessKey: 'UAPoCUVPmAqL34In8V/VFSy9q+YvMEYHMBTF/qAI',
-//   accessKeyId: 'AKIAZ32E2PNKQB5J64NP',
-//   region: 'us-east-1'
-// });
-
-// Wavess3 bucket
-// aws.config.update({
-//   secretAccessKey: 'oFJNCMa7wCCIOLh7WMxSRwPB3CufNgk3SVXvHmcM',
-//   accessKeyId: 'AKIAZ32E2PNK67MEH4GM',
-//   region: 'us-east-1'
-// });
-const bucketName = process.env.S3_BUCKET_NAME;
-
+const bucketName = "choovo";
 aws.config.update({
-  secretAccessKey: process.env.S3_BUCKET_SECRET_ACCESS_KEY,
-  accessKeyId: process.env.S3_BUCKET_ACCESS_KEY_ID,
-  region: "us-east-2",
+  secretAccessKey: "0B17xDhxzWKaCnsyRSh2JhrPWOyBX444X2OSvGnO",
+  accessKeyId: "AKIAWWJZRMFSMBPU22HY",
+  region: "ap-south-1",
 });
 
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    // bucket: 'choovoo-test',
     bucket: bucketName,
     key: function (req, file, cb) {
       const str = file.originalname;
@@ -117,11 +105,10 @@ var routefunctions = (app) => {
   // ----- For car modules apis -----//
   app.post("/api/create-car", carController.createCar);
   app.post("/api/update-car", carController.updateCar);
-  app.post("/api/delete-car", carController.deleteCar);
+  app.delete("/api/delete-car", carController.deleteCar);
   app.post("/api/getall-cars", carController.getAllCars);
   app.post("/api/get-cars", carController.getCars);
   app.get("/api/get-car-detail", carController.getCarDetail);
-  
 
   // ----- For car models modules apis -----//
   app.post("/api/create-car-model", carController.createCarModel);
@@ -139,17 +126,16 @@ var routefunctions = (app) => {
   app.post("/api/getall-car-type", carController.getAllCarType);
   app.post("/api/get-cars-type", carController.getCarType);
   app.get("/api/get-car-type-detail", carController.getCarType);
-  
 
   // ----- For car color modules apis -----//
 
   app.post("/api/create-car-color", carController.createColor);
+  app.post("/api/upload-data", carController.uploadData);
   app.post("/api/update-car-color", carController.updateColor);
   app.post("/api/delete-car-color", carController.deleteColor);
   app.post("/api/getall-car-color", carController.getAllColor);
   app.post("/api/get-cars-color", carController.getColor);
   app.get("/api/get-car-color-detail", carController.getColorDetail);
-  
 
   // for add and edit user vehicle
   app.post("/api/add-vehicle", upload.any(), authCtrl.addVehicle);
@@ -170,10 +156,12 @@ var routefunctions = (app) => {
   app.post("/api/add-trip", upload.any(), UserTripController.createTrip);
   app.post("/api/update-trip", upload.any(), UserTripController.updateTrip);
   app.post("/api/nearby-trips", UserTripController.nearBytrip);
-  // app.post("/api/trip-detail", upload.any(),UserTripController.nearBytrip); 
-  // app.post("/api/send-request", upload.any(),UserTripController.nearBytrip); 
-  // app.post("/api/accept-decline-request", upload.any(),UserTripController.nearBytrip); 
-  // app.post("/api/my-trips", upload.any(),UserTripController.nearBytrip); 
+  // app.post("/api/trip-detail", upload.any(),UserTripController.nearBytrip);
+  // app.post("/api/send-request", upload.any(),UserTripController.nearBytrip);
+  // app.post("/api/accept-decline-request", upload.any(),UserTripController.nearBytrip);
+  // app.post("/api/my-trips", upload.any(),UserTripController.nearBytrip);
+
+  app.post("/api/wallet-trip-payment", UserTripController.walletTripPayment);
 
   app.post("/api/initiate-trip-payment", UserTripController.initiateTripPayment);
   app.post("/api/confirm-trip", UserTripController.tripPayment);
@@ -181,6 +169,9 @@ var routefunctions = (app) => {
 
   app.post("/api/trip-status-update", UserTripController.tripStatusUpdate);
   app.post("/api/ride-status-update", UserTripController.rideStatusUpdate);
+
+  // When user confirm a trip than active chat system to driver or passanger
+  app.post("/api/get-chat-lists", UserTripController.getChatList);
 
   //trips moudle routes
 
@@ -197,14 +188,38 @@ var routefunctions = (app) => {
   app.post("/api/get-trips-by-date", UserTripController.getTripByDate);
   app.post("/api/get-all-trips-by-date", UserTripController.getAllTripByDate);
 
-  app.post("/api/booked-trip-detail", UserTripController.tripDetail);
-  app.post("/api/accept-decline-trip", UserTripController.acceptDeclineTrip);
+  app.post(
+    "/api/my-driver-trip-detail",
+    UserTripController.driverCreatedTripDetail
+  );
 
   app.post(
-    "/api/add-background",
-    upload.any(),
-    userBackgroundController.addBackground
+    "/api/passenger-booked-trip-detail",
+    UserTripController.passengerBookedTripDetail
   );
+
+  app.post("/api/accept-decline-trip", UserTripController.acceptDeclineTrip);
+
+
+
+  
+  // STRIPE PAYMENT CONTROLLER ROUTES
+  app.post("/api/add-card-stripe", paymentController.addCardStripe);
+  app.post("/api/driver-payment-request",paymentController.driverPaymentRequest);
+  app.get("/api/create-stripe-account", paymentController.createStripeAccount);
+  app.post("/api/get-add-cash-transactions", paymentController.getAddCashTransactions);
+  app.post("/api/get-withdraw-history", paymentController.getWithdrawHistory);
+  app.post("/api/add-cash-user", paymentController.addCashUser);
+  app.post("/api/add-cash-callback-url", paymentController.addCashUserCallback);
+
+
+  // ADMIN APIS STRIPE SEND
+  app.post("/api/get-all-withdraw-request",paymentController.getAllWithdrawRequests);
+  app.post("/api/send-driver-request-payment", paymentController.sendDriverRequestPayment);
+  app.post('/api/get-wallet-add-cash-list', paymentController.addCashList)
+
+  // USER BACKGROUNDS
+  app.post("/api/add-background", upload.any(), userBackgroundController.addBackground);
   app.post("/api/get-background", userBackgroundController.getBackground);
 
   //Shop REVIEW API
@@ -219,108 +234,6 @@ var routefunctions = (app) => {
   app.post("/api/create/tag", authenticateJWT, tagController.createTag);
   app.post("/api/update/tag", authenticateJWT, tagController.updateTag);
   app.post("/api/delete/tag", authenticateJWT, tagController.deleteTag);
-  app.post(
-    "/api/getAll/tag-list",
-    authenticateJWT,
-    tagController.getAllTagList
-  );
-  app.get("/api/get/tag-list", authenticateJWT, tagController.getTagList);
-
-  //User Services Tags
-  app.post(
-    "/api/create/service-tag",
-    authenticateJWT,
-    tagController.createServiceTag
-  );
-  app.post(
-    "/api/update/service-tag",
-    authenticateJWT,
-    tagController.updateServiceTag
-  );
-  app.post(
-    "/api/delete/service-tag",
-    authenticateJWT,
-    tagController.deleteServiceTag
-  );
-  app.post(
-    "/api/get/user/service-tag",
-    authenticateJWT,
-    tagController.getUserServiceTag
-  );
-
-  //User Post Reporting
-  app.post(
-    "/api/create/post-report",
-    authenticateJWT,
-    reportController.createPostReport
-  );
-  app.post(
-    "/api/delete/post-report",
-    authenticateJWT,
-    reportController.deletePostReport
-  );
-  app.post(
-    "/api/get/user/report-list",
-    authenticateJWT,
-    reportController.getUserPostReport
-  );
-  app.post(
-    "/api/get/report-list",
-    authenticateJWT,
-    reportController.getAllPostReport
-  );
-
-  //Dashboard API
-  app.post("/api/dashboard", authenticateJWT, adminController.dashBoard);
-
-  // Statcic Page Managment API
-  app.post(
-    "/api/create-html-pages",
-    authenticateJWT,
-    htmlPagesController.createHtmlPages
-  );
-  app.put(
-    "/api/update-html-pages",
-    authenticateJWT,
-    htmlPagesController.updateHtmlPages
-  );
-  app.get("/api/get-html-pages", htmlPagesController.getHtmlPages);
-  app.post("/api/getAll-html-pages", htmlPagesController.getAllHtmlPages);
-  app.delete(
-    "/api/delete-html-pages",
-    authenticateJWT,
-    htmlPagesController.deleteHtmlPages
-  );
-  app.put(
-    "/api/status-update-html-pages",
-    authenticateJWT,
-    htmlPagesController.statusUpdate
-  );
-
-  // FAQ API
-  app.post(
-    "/api/create-frequently-asked-question",
-    authenticateJWT,
-    frequentlyAskedQuestion.createFrequentlyAskedAuestion
-  );
-  app.get(
-    "/api/get-frequently-asked-questionlist",
-    authenticateJWT,
-    frequentlyAskedQuestion.getFrequentlyAskedAuestionList
-  );
-  app.get(
-    "/api/get-frequently-asked-question-by-userid",
-    authenticateJWT,
-    frequentlyAskedQuestion.getFrequentlyAskedAuestionId
-  );
-  app.put(
-    "/api/update-frequently-asked-question",
-    frequentlyAskedQuestion.updateFrequentlyAskedQuestion
-  );
-  app.delete(
-    "/api/delete-frequently-asked-question",
-    frequentlyAskedQuestion.deleteFrequentlyAskedQuestion
-  );
 
   // Side Setting API
   app.post("/api/list/setting", settingController.list);
@@ -365,7 +278,19 @@ var routefunctions = (app) => {
   app.get("/api/withdraw-detail", UserTripController.withdrawDetail);
   app.get("/api/withdraw-list", UserTripController.withdrawList);
 
+  app.post("/api/get-user-trips-list", tripPanelController.getTripsLists);
 
+
+
+   // Statcic Page Managment API
+ app.post('/api/create-html-pages', authenticateJWT, htmlPagesController.createHtmlPages);
+ app.put('/api/update-html-pages', authenticateJWT, htmlPagesController.updateHtmlPages);
+ app.get('/api/get-html-pages', htmlPagesController.getHtmlPages);
+ app.post('/api/getAll-html-pages', htmlPagesController.getAllHtmlPages);
+ app.delete('/api/delete-html-pages', authenticateJWT, htmlPagesController.deleteHtmlPages);
+ app.put('/api/status-update-html-pages', authenticateJWT, htmlPagesController.statusUpdate);
+ app.get('/api/terms-and-conditions', htmlPagesController.tAndC);
+ app.get('/api/privacy-policy', htmlPagesController.privacyPolicy);
 
 };
 

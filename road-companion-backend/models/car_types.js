@@ -4,11 +4,10 @@ const Schema = mongoose.Schema;
  
  
 
-const schema = new Schema({
-   
+const schema = new Schema({   
     title: { type: String},
-    isActive: { type: Boolean, default: true },
-    
+    status: { type: Boolean, default: true },
+    make: { type: Boolean },
 }, {
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" }
 });

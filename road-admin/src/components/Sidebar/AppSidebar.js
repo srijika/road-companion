@@ -25,37 +25,35 @@ const menu = [
 	{
 		path: '#', name: 'Master', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
 			// { path: '/tags', name: 'Service', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
-			{ path: '/car-brands', name: 'Car Brand', icon: <CarOutlined />, auth: ['ADMIN'] }, 
+			{ path: '/car-types', name: 'Car Types', icon:<CarOutlined />, auth: ['ADMIN'] }, 
+			{ path: '/car-brands', name: 'Cars', icon: <CarOutlined />, auth: ['ADMIN'] }, 
 			{ path: '/car-models', name: 'Car Models', icon:<CarOutlined />, auth: ['ADMIN'] }, 
 			{ path: '/car-colors', name: 'Car Colors', icon:<CarOutlined />, auth: ['ADMIN'] }, 
-			{ path: '/car-types', name: 'Car Types', icon:<CarOutlined />, auth: ['ADMIN'] }, 
 		]
 	},
+	
 
-	// {
-	// 	path: '#', name: 'Account Management', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
-	// 		{ path: '/approve', name: 'Approve Business', icon: <BankOutlined />, auth: ['ADMIN'] },
-	// 	]
-	// },
-
-
-		{
-		path: '#', name: 'Support', icon: <TeamOutlined />, auth: ['ADMIN',], children: [
-			{ path: '/post-report', name: 'Reports', icon: <UnorderedListOutlined />, auth: ['ADMIN'] },
+	{
+		path: '#', name: 'CMS Management', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
+			{ path: '/pages', name: 'Pages', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
+			// { path: '/settings', name: 'Settings', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
+			// { path: '/FAQ', name: 'FAQ', icon: <MessageOutlined />, auth: ['ADMIN'] },
 			
 		]
 	},
 
 	{
-		path: '#', name: 'CMS Management', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
-			{ path: '/pages', name: 'Pages', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
-			{ path: '/settings', name: 'Settings', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
-			{ path: '/FAQ', name: 'FAQ', icon: <MessageOutlined />, auth: ['ADMIN'] },
-			
+		path: '#', name: 'Payments', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
+			{ path: '/withdraw-request', name: 'Withdraw Requests', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
+			{ path: '/wallet-add-cash', name: 'Wallet Add Cash', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
 		]
 	},
 	
-	
+	{
+		path: '#', name: 'Trips', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
+			{ path: '/user-trips', name: 'User Trips', icon: <CodeOutlined />, auth: ['ADMIN'] }, 
+		]
+	},
 	
 ]
 
@@ -98,10 +96,7 @@ class AppSidebar extends Component {
 			let maintenanceMode = this.getSingleSettingData(settings, 'SELLER_WEB_UNDER_MAINTENANCE');
 			
 			let user_detail =  res?.data?.user_detail;
-			
-			console.log('user_detail');
-			
-
+	
 
 			if(user_detail?.maintenance_mode_for_user) {
 				this.setState({ maintenanceModeModal: true })

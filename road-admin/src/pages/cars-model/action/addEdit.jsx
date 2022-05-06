@@ -54,11 +54,8 @@ const AddEditCarModel = props => {
 
 		if(props.carModels.add){
 			dispatch({ type: 'carModels/clearAction'});
-			console.log(props.cars.add.message)
-			if(props.cars.add.message){
-				props.carModels.push('/car-models');
+			props.history.push('/car-models');
 			
-			}
 		}
 		
 		if(props.carModels.edit){
@@ -130,7 +127,7 @@ const AddEditCarModel = props => {
 
 	return (
 		<Card title={<span><LeftOutlined onClick={() => props.history.push('/car-models')} /> 
-			{ props.carModels.detail ? 'Edit Car Model' : 'Add Car Model'}</span>} style={{ marginTop: "0" }}>
+			{ carId ? 'Edit Car Model' : 'Add Car Model'}</span>} style={{ marginTop: "0" }}>
 			<Form {...formItemLayout} form={form} name="loc_info" layout="vertical" onFinish={onFinish} className="innerFields">
 			<Col sm={24} md={12}>
 						<Form.Item name="car_id" label="Car Brand" rules={[{ required: true, message: 'This field is required!' }]}>

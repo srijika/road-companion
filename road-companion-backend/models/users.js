@@ -16,6 +16,9 @@ const schema = new Schema({
     no_of_loggedin: { type: Number, default: 0 },
     last_login_time: { type: Date, default: null }, // for login history
     firebase_fcm_token: { type: String, default: null }, // for login history
+    stripe_customer_id: { type: String },
+    stripe_account: { type: String },
+    wallet_amount: { type: Number, default: 0 },
     
 
     // ip_address: { type: String, default: null },
