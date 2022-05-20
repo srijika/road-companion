@@ -1,40 +1,7 @@
 const { Frequently_Asked_Question } = require('../_helper/db');
-const { Validator } = require('node-input-validator');
+
 const mongoose = require('mongoose');
 
-exports.createFrequentlyAskedAuestion = async (req, res, next) => {
-
-    try {
-
-        let v = new Validator(req.body, { //validator 
-            userId: 'required',
-        })
-        let check = await v.check();
-        if (!check) {
-            res.status(422).json({
-                statusCode: 422,
-                message: 'Please enter all required field',
-            });
-        } else {
-
-            let data = {
-                userId: req.body.userId,
-                questions: req.body.questions,
-                answers: req.body.answers,
-            }
-            Frequently_Asked_Question.create(data).then(user => {
-                res.send({ status: true, message: "Successfully Frequently Asked Questions", result: user });
-            }).catch(err => {
-                console.log(err);
-                res.send({ status: false, message: "Something went wrong!" });
-            })
-        }
-    } catch (e) {
-        console.log(e);
-        res.send({ status: false, message: "Something went wrong!" });
-    }
-
-}
 
 // exports.getFrequentlyAskedAuestionList = async (req, res, next) => {
 

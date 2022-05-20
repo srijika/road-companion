@@ -159,15 +159,20 @@ module.exports = {
       }
 
       let amount = user.wallet_amount - requested_amount;
+
+      var randomNumber = Math.floor(1000 + Math.random() * 9000);
+      req.body['withdraw_id'] =  Date.now() + `${randomNumber}`
+      await WithdrawRequest(req.body).save();
+
       await UserLogins.findOneAndUpdate(
         { _id: user_id },
         { $set: { wallet_amount: amount } }
       );
-      await WithdrawRequest(req.body).save();
+
 
       return res.status(200).send({
         status: 200,
-        message: "Amount request has been successfully sended.",
+        message: "Amount request has been successfully sent.",
       });
     } catch (error) {
       console.log("catch error");

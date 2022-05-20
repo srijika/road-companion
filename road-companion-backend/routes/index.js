@@ -39,46 +39,66 @@ const tripPanelController = require("../controllers/tripPanel.controller");
 //   region: "us-east-2",
 // });
 
-const bucketName = "choovo";
+// const bucketName = "choovo";
+// aws.config.update({
+//   secretAccessKey: "0B17xDhxzWKaCnsyRSh2JhrPWOyBX444X2OSvGnO",
+//   accessKeyId: "AKIAWWJZRMFSMBPU22HY",
+//   region: "ap-south-1",
+// });
+
+// const s3 = new aws.S3();
+// const upload = multer({
+//   storage: multerS3({
+//     s3: s3,
+//     bucket: bucketName,
+//     key: function (req, file, cb) {
+//       const str = file.originalname;
+//       const extension = str.substr(str.lastIndexOf("."));
+//       const fileName = Date.now() + "" + Math.round(Math.round(Math.random() * 5000)) + "" + extension;
+//       cb(null, "public_asset/" + fileName);
+//     },
+//   }),
+// });
+
+
 aws.config.update({
-  secretAccessKey: "0B17xDhxzWKaCnsyRSh2JhrPWOyBX444X2OSvGnO",
-  accessKeyId: "AKIAWWJZRMFSMBPU22HY",
-  region: "ap-south-1",
+  secretAccessKey: '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',
+  accessKeyId: 'AKIAWWJZRMFSH5PXV342',
+  region: 'ap-south-1'
 });
 
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: bucketName,
+    bucket: 'choovo',
     key: function (req, file, cb) {
       const str = file.originalname;
       const extension = str.substr(str.lastIndexOf("."));
-      const fileName =
-        Date.now() +
-        "" +
-        Math.round(Math.round(Math.random() * 5000)) +
-        "" +
-        extension;
-      cb(null, "public_asset/" + fileName);
-    },
-  }),
+      const fileName = Date.now() + '' + Math.round(Math.round(Math.random() * 5000)) + '' + extension;
+      cb(null, 'public_asset/' + fileName);
+    }
+  })
 });
 
-const deleteFilesFromS3 = (image) => {
-  //  let image = 'public_asset/16472433016711419.jpg';
-  const params = {
-    Bucket: bucketName,
-    Key: image,
-  };
 
-  s3.deleteObject(params, (err, data) => {
-    if (error) {
-      res.status(500).send(error);
-    }
-    res.status(200).send("File has been deleted successfully");
-  });
-};
+
+
+
+// const deleteFilesFromS3 = (image) => {
+//   //  let image = 'public_asset/16472433016711419.jpg';
+//   const params = {
+//     Bucket: bucketName,
+//     Key: image,
+//   };
+
+//   s3.deleteObject(params, (err, data) => {
+//     if (error) {
+//       res.status(500).send(error);
+//     }
+//     res.status(200).send("File has been deleted successfully");
+//   });
+// };
 
 var routefunctions = (app) => {
   app.use(cors());

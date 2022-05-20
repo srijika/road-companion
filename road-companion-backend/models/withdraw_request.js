@@ -5,6 +5,7 @@ const Schema = mongoose.Schema;
 const schema = new Schema({
 
     user_id:{type: Schema.ObjectId, ref: 'users'},
+    withdraw_id:{type:String},
     requested_amount :{type:Number},
     status: {
         type: String,

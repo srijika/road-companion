@@ -22,12 +22,13 @@ aws.config.update({
   region: "ap-south-1",
 });
 const s3Bucket = new aws.S3({ params: { Bucket: "choovoo-test" } });
-const Stripe = require("stripe");
 const { getReviewRatingCalculate } = require("../core/helper");
 
-// pk_test_51KPYTTGiLl4WeKJDyuCqOvFr5Ik46g7r3fUz7vHYyZFMWJkaTNSoTKA6KhofWFfTj9kMeQ3XFrHgySv2PtSCXL5Q00hxDwNakU
-
+const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+
+
 module.exports = {
   //---------------- Functions for trips modules -------------//
 
@@ -780,7 +781,7 @@ module.exports = {
 
       
     tripDetail["userVehicle"] = userVehicle;
-    let riderData = await Rider.find({ trip_id: tripDetail._id ,   $or: [ {status: 'CONFIRMED' }, {status: 'PICKUP' } ]  }).select('amount status').populate('user_id', 'name avatar')
+    let riderData = await Rider.find({ trip_id: tripDetail._id ,   $or: [ {status: 'INTRESTED' }, {status: 'CONFIRMED' }, {status: 'PICKUP' } ]  }).select('amount status').populate('user_id', 'name avatar')
     tripDetail["riderData"] = riderData;
 
 

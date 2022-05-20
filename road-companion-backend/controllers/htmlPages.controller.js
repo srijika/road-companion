@@ -1,4 +1,4 @@
-const { page } = require('pdfkit');
+
 const { HtmlPages } = require('../_helper/db');
 const { UserLogins } = require('../_helper/db');
 

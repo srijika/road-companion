@@ -24,11 +24,10 @@ var transporter = nodemailer.createTransport({
 const aws = require("aws-sdk");
 let adminEmail = "admin@galinukkad.com";
 const Helper = require("../core/helper");
-// const sharp = require('sharp');
+
 var path = require("path");
 var fs = require("fs");
 var request = require("request");
-const excel = require("exceljs");
 
 let saltRounds = 10;
 notEmpty = (obj) => {
@@ -1288,8 +1287,10 @@ module.exports = {
   },
 
   addVehicle: async (req, res, next) => {
+
+    const reqBody = req.body;
+    console.log('reqBody', reqBody)
     try {
-      const reqBody = req.body;
       const car_images = [];
       let certification;
 
@@ -1323,13 +1324,14 @@ module.exports = {
         images: car_images,
       };
       const created = await new UserVehicle(jsonData).save();
-      return res.send({
+      return res.status(200).send({
         status: true,
         data: created._id,
         message: "Car Added Successfully.",
       });
     } catch (error) {
-      return res.send({ status: false, message: error.message });
+      console.log('catch error', error)
+      return res.status(400).send({ status: false, message: error.message });
     }
   },
 
@@ -1445,9 +1447,11 @@ module.exports = {
   },
 
   updateprofile: async (req, res, next) => {
-    const { name, user_background } = req.body;
+    const { name, user_background, city, state } = req.body;
 
-    if (!name) {
+    // console.log('req.body', req.body)
+    // return ;
+    if (!name) {  
       res.send({ status: false, message: "Required Parameter is missing" });
       return;
     }
@@ -1463,6 +1467,8 @@ module.exports = {
         const data = {
           name: req.body.name,
           user_background: user_background,
+          city,
+          state
         };
         if (req.files && req.files[0] && req.files[0].location) {
           data["avatar"] = req.files[0].location;

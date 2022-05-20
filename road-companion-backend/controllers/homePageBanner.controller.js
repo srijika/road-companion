@@ -42,52 +42,7 @@ module.exports = {
         }
     },
 
-    updateHPBanner: async (req, res, next) => {
-        try {
-            const reqBody = req.body;
-            const reqFiles = req.files;
-
-            const Id = reqBody._id;
-
-            if (!Id) {
-                return res.send({ status: false, message: 'Id is required' });
-            }
-
-            if (reqFiles.length) {
-                let image = {};
-                const name = reqFiles[0].originalname;
-                image.file_name = name;
-                image.file_type = name.substr(name.lastIndexOf("."));
-                image.file = reqFiles[0].filename;
-                image.file_size = reqFiles[0].size;
-
-                reqBody.image = image;
-
-
-                var filePath = path.join(__dirname, '../public/thumbnail/');
-
-                if (!fs.existsSync(filePath)) {
-                    fs.mkdirSync(filePath);
-                }
-
-                const fileUrl = filePath + reqFiles[0].filename;
-
-                sharp(reqFiles[0].path).resize(300, 200).toFile(fileUrl, function (err) {
-                    if (err) {
-                        console.log(err);
-                    }
-                    console.log('FILEEEEEEEE', fileUrl);
-                });
-            }
-
-            await HomePageBanner.findByIdAndUpdate(Id, reqBody).lean().exec();
-
-            return res.send({ status: true, data: {}, message: 'Info updated successfully' });
-
-        } catch (error) {
-            return res.send({ status: false, message: error.message });
-        }
-    },
+   
 
     getHPBanner: async (req, res, next) => {
         try {

@@ -18,6 +18,8 @@ const schema = new Schema({
     firebase_fcm_token: { type: String, default: null }, // for login history
     stripe_customer_id: { type: String },
     stripe_account: { type: String },
+    city: { type: String },
+    state: { type: String },
     wallet_amount: { type: Number, default: 0 },
     
 
