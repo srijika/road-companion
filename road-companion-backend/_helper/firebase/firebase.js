@@ -11,7 +11,9 @@ module.exports = {
             try {
 
                 let userData = await UserLogins.findOne({ _id: notificationData.user_id }).lean().exec();
-                let firebaseToken = userData.firebase_fcm_token;
+                let firebaseToken = "d9VmoE9MUkIlh33eT1eFDJ:APA91bFsHuOwA7mVYaC6YIWLDue0G0cs891H-wjtYszbhTqICCj5HUmgaNffPiomP8rzwrwukn3Bn-h1NjKKK4p7eOXnpe-iWaxVwGOjNJxfu1Tq_P1uPHmpH_gr8srlZxlvJtfSB9mn"
+                
+                // let firebaseToken = userData.firebase_fcm_token;
 
                 if (['', undefined, null].includes(firebaseToken)) {
                     return resolve(false);

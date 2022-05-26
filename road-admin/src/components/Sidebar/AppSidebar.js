@@ -16,7 +16,6 @@ const baseUrl = process.env.REACT_APP_ApiUrl;
 
 const menu = [
 	{ path: '/', name: 'Dashboard', icon: <DashboardOutlined />, auth: ['ADMIN'] },
-	{ path: '/withdraw-requests', name: 'Witdhdraw Requests', icon: <DollarOutlined />, auth: ['ADMIN'] },
 	{
 		path: '#', name: 'Users', icon: <TeamOutlined />, auth: ['ADMIN'], children: [
 			{ path: '/users', name: 'User List', icon: <TeamOutlined />, auth: ['ADMIN'] },

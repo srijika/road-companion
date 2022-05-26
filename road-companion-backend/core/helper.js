@@ -69,8 +69,13 @@ const Helper = {
         // for miles
         let r = 6371;
 
+        let km = c * r;
+
+        let miles = km / 1.6;
+
         // calculate the result
-        return (c * r);
+        // return  parseInt(km) + " KM";
+        return  parseInt(miles) + " Miles";
     },
 
 

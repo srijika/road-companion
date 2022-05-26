@@ -10,6 +10,8 @@ var ROLES = require("../config.json").ROLES;
 const jwt = require("jsonwebtoken");
 let mongoose = require("mongoose");
 const SendNotification = require("../_helper/send-notification.js");
+const firebase = require("../_helper/firebase/firebase");
+
 var request = require("request");
 var path = require("path");
 var nodemailer = require("nodemailer");
@@ -464,6 +466,16 @@ module.exports = {
 
   loginUser: async (req, res, next) => {
     const { username, password, firebase_fcm_token } = req.body;
+
+
+    // console.log('api working calling success')
+    // let notificationData = {
+    //   user_id: '',
+    //   message: `You have a new requested ride from a ${passengerName}.`,
+    // };
+    // await firebase.sendPushNotificationToSingleUser(notificationData);
+
+
 
     console.log("working");
 

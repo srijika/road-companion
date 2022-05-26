@@ -467,7 +467,7 @@ module.exports = {
         from_lng,
         to_lng
       );
-      tripDetail[0]["distance"] = parseInt(distance) + " KM";
+      tripDetail[0]["distance"] = distance;
 
       let reviews = await Review.find({ driver_id: userVehicle.user_id })
         .lean()
@@ -590,7 +590,7 @@ module.exports = {
         from_lng,
         to_lng
       );
-      tripDetail[0]["distance"] = parseInt(distance) + " KM";
+      tripDetail[0]["distance"] = distance;
 
       let reviews = await Review.find({ driver_id: userVehicle.user_id })
         .lean()
@@ -645,12 +645,7 @@ module.exports = {
         destination_state,
       } = req.body;
 
-      console.log("req.body");
-      console.log(req.body);
       let dateFormat = moment(date).format("yyyy-MM-DD");
-
-      console.log("date");
-      console.log(dateFormat);
 
       let trips = await UserTrip.find({
         from_location: {
@@ -667,8 +662,7 @@ module.exports = {
             $lt: `${dateFormat}T23:59:59.999Z`
         },
         trip_status: "NOT_STARTED",
-      })
-        .populate("vehicle_id", "images")
+      }).populate("vehicle_id", "images")
         .populate("user_id", "avatar");
 
       if (destination_city && destination_state) {
@@ -687,10 +681,9 @@ module.exports = {
         });
       }
 
-      // console.log(trips)
-      console.log("trips.length -----", trips.length);
-      // console.log(trips)
-      // return ;
+      
+      // console.log("trips.length -----", trips.length);
+
 
       return res
         .status(200)
@@ -781,12 +774,9 @@ module.exports = {
 
       
     tripDetail["userVehicle"] = userVehicle;
-    let riderData = await Rider.find({ trip_id: tripDetail._id ,   $or: [ {status: 'INTRESTED' }, {status: 'CONFIRMED' }, {status: 'PICKUP' } ]  }).select('amount status').populate('user_id', 'name avatar')
+    let riderData = await Rider.find({ trip_id: tripDetail._id ,   $or: [ {status: 'INTRESTED' }, {status: 'CONFIRMED' }, {status: 'PICKUP' }, {status: 'FINISHED' } ]  }).select('amount status').populate('user_id', 'name avatar')
+    
     tripDetail["riderData"] = riderData;
-
-
-
-
 
     let from_lat = tripDetail.from_location.coordinates[0];
     let from_lng = tripDetail.from_location.coordinates[1];
@@ -799,7 +789,7 @@ module.exports = {
       from_lng,
       to_lng
     );
-    tripDetail["distance"] = parseInt(distance) + " KM";
+    tripDetail["distance"] = distance;
 
     let reviews = await Review.find({ driver_id: tripDetail.user_id })
       .lean()
@@ -976,7 +966,6 @@ module.exports = {
         metadata: {
           trip_id: trip_id + "",
           ride_id: ride_id + "",
-          name: "John Doe",
         },
       });
 
@@ -1004,15 +993,7 @@ module.exports = {
         message: "Payment initiated",
       });
 
-      // let notificationData = {
-      //     user_id: tripDetail.user_id,
-      //     message: `${reqData.rider_name} has been sends you a request ride.`
-      // };
-
-      // await Notification(notificationData).save();
-      // await firebase.sendPushNotificationToSingleUser(notificationData);
-
-      // return res.status(200).send({ status: 200, message: "Trip created successfully" });
+ ðð
     } catch (error) {
       return res.status(400).send({ status: 400, message: error.message });
     }
@@ -1033,15 +1014,11 @@ module.exports = {
       } else {
         status = "PAYMENT_FAILED";
         await Rider.updateOne({ _id: ride_id }, { $set: { status } });
-
         return res.status(200).send({ status: 200, message: "Payment transaction failed." });
       }
 
       await Rider.updateOne({ _id: ride_id }, { $set: { status } });
-      let ride = await Rider.findOne({ _id: ride_id }).populate(
-        "user_id",
-        "name"
-      );
+      let ride = await Rider.findOne({ _id: ride_id }).populate("user_id", "name");
 
       // DEDUCT SEATS
       let tripDetail = await UserTrip.findOne({ _id: ride.trip_id });
@@ -1182,14 +1159,19 @@ module.exports = {
       status = status.toLowerCase();
       let notificationData = {
         user_id: riderData.user_id,
-        message: `Your request data has been ${status}.`,
+        message: `Your request has been ${status}. 3e4534534`,
       };
 
       firebase.sendPushNotificationToSingleUser(notificationData);
 
-      return res
-        .status(200)
-        .send({ status: 200, message: `User ride ${status} successfully` });
+      
+      let message_status = "Accepted";
+      if(status == "CANCELLED") {
+        message_status = "cancelled"
+      }
+
+      return res.status(200).send({ status: 200, message: `Rider ${message_status} Successfully.` });
+      // return res.status(200).send({ status: 200, message: `User ride ${status} successfully` });
     } catch (error) {
       console.log("error ---------", error);
       return res.status(400).send({ status: 400, message: error.message });
